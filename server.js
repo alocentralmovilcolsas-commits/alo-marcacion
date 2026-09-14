@@ -10,8 +10,6 @@ const BACKEND = 'https://script.google.com/macros/s/AKfycbzA0EFu3QWwx972lS-mtfyq
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
-
-// Servir archivos estaticos (index, admin, control)
 app.use(express.static(path.join(__dirname)));
 
 function proxy(url, method, body, n) {
@@ -20,9 +18,7 @@ function proxy(url, method, body, n) {
     const lib = url.startsWith('https') ? https : http;
     const u = new URL(url);
     const opt = {
-      hostname: u.hostname,
-      path: u.pathname + u.search,
-      method,
+      hostname: u.hostname, path: u.pathname + u.search, method,
       headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json', 'Content-Type': 'application/json' }
     };
     if (body) opt.headers['Content-Length'] = Buffer.byteLength(body);
@@ -56,5 +52,4 @@ app.all('/api/proxy', async (req, res) => {
 });
 
 app.get('/health', (req, res) => res.json({ ok: true }));
-
 app.listen(PORT, () => console.log('ALO Proxy corriendo en puerto ' + PORT));
