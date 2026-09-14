@@ -1,0 +1,1995 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#1E3A5F">
+<title>Alo Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#F0F4F8;color:#212121}
+.pg{display:none;min-height:100vh;flex-direction:column}.pg.on{display:flex}
+.hdr{background:#1E3A5F;padding:12px 18px;flex-shrink:0;position:sticky;top:0;z-index:20}
+.hr{display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:20px;font-weight:900;color:#fff;letter-spacing:-1px}
+.logo em{color:#C9A84C;font-style:normal}
+.logos{font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-top:1px}
+.badge-admin{background:#C9A84C;color:#1E3A5F;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px}
+.tabs{display:flex;background:#fff;border-bottom:2px solid #E8EDF2;flex-shrink:0;overflow-x:auto}
+.tab{flex:1;min-width:52px;padding:9px 3px;text-align:center;cursor:pointer;font-size:8px;font-weight:600;color:#9E9E9E;text-transform:uppercase;letter-spacing:.03em;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
+.tab.on{color:#1E3A5F;border-bottom-color:#1E3A5F}
+.tab-ico{font-size:15px;display:block;margin-bottom:2px}
+.body{flex:1;padding:14px;overflow-y:auto}
+.sec{display:none}.sec.on{display:block}
+/* LOGIN */
+.lw{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.lb{background:#fff;border-radius:20px;padding:36px 28px;width:100%;max-width:360px;box-shadow:0 4px 24px rgba(0,0,0,.12)}
+.lbrand{text-align:center;margin-bottom:28px}
+.lbig{font-size:40px;font-weight:900;color:#1E3A5F;letter-spacing:-2px;display:block}
+.lbig em{color:#C9A84C;font-style:normal}
+.lsub{font-size:10px;color:#9E9E9E;text-transform:uppercase;letter-spacing:.1em}
+.lb h2{font-size:17px;font-weight:600;text-align:center;margin-bottom:20px}
+.fi{position:relative;margin-bottom:12px}
+.fi-ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px}
+.fi input{width:100%;padding:14px 14px 14px 44px;border:1.5px solid #EEE;border-radius:12px;font-size:15px;background:#F8F9FA;outline:none;font-family:inherit;color:#212121;-webkit-appearance:none}
+.fi input:focus{border-color:#1E3A5F;background:#fff}
+.lerr{background:#FFEBEE;border-radius:10px;padding:11px;font-size:13px;font-weight:500;color:#C62828;text-align:center;margin-bottom:12px;display:none}
+.lbtn{width:100%;padding:15px;border-radius:13px;border:none;font-size:16px;font-weight:700;background:#1E3A5F;color:#fff;cursor:pointer;-webkit-appearance:none}
+/* CARDS */
+.card{background:#fff;border-radius:14px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:12px}
+.card-t{font-size:14px;font-weight:600;color:#212121;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.card-t span{font-size:11px;color:#9E9E9E;font-weight:400}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat{background:#fff;border-radius:12px;padding:14px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.stat-v{font-size:28px;font-weight:700;color:#1E3A5F}
+.stat-l{font-size:10px;color:#9E9E9E;text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.stat-v.grn{color:#2E7D32}.stat-v.org{color:#E65100}.stat-v.pur{color:#6A1B9A}
+.list-item{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid #F5F5F5}
+.list-item:last-child{border-bottom:none}
+.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.li-info{flex:1;min-width:0}
+.li-nom{font-size:13px;font-weight:500;color:#212121;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li-sub{font-size:11px;color:#9E9E9E;margin-top:1px}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.b-ok{background:#E8F5E9;color:#2E7D32}
+.b-ret{background:#FFF3E0;color:#E65100}
+.b-pend{background:#FFF9C4;color:#C9A84C}
+.b-rec{background:#FCEBEB;color:#C62828}
+.b-no{background:#F5F5F5;color:#9E9E9E}
+.form-group{margin-bottom:12px}
+.form-group label{font-size:11px;color:#9E9E9E;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 13px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;color:#212121;background:#F8F9FA;outline:none;-webkit-appearance:none;appearance:none}
+.form-group input:focus,.form-group select:focus{border-color:#1E3A5F;background:#fff}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-group textarea{resize:none;height:60px}
+.btn{width:100%;padding:13px;border-radius:12px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px;-webkit-appearance:none}
+.btn-p{background:#1E3A5F;color:#fff}
+.btn-g{background:#2E7D32;color:#fff}
+.btn-r{background:#C62828;color:#fff}
+.btn-s{background:#F5F5F5;color:#616161;border:1px solid #EEE}
+.btn-sm{padding:6px 11px;border-radius:8px;font-size:11px;font-weight:600;border:none;cursor:pointer;font-family:inherit;-webkit-appearance:none}
+.btn-sm-g{background:#E8F5E9;color:#2E7D32}
+.btn-sm-r{background:#FFEBEE;color:#C62828}
+.btn-sm-b{background:#E3F2FD;color:#1565C0}
+.btn-sm-o{background:#FFF3E0;color:#E65100}
+.btn-sm-ret{background:#F5F5F5;color:#9E9E9E}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.on{display:flex}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:22px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-t{font-size:17px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.modal-close{background:none;border:none;font-size:22px;color:#9E9E9E;cursor:pointer;line-height:1}
+.itabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto}
+.itab{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #EEE;background:#fff;color:#9E9E9E;white-space:nowrap;-webkit-appearance:none;font-family:inherit}
+.itab.on{background:#1E3A5F;color:#fff;border-color:#1E3A5F}
+.fecha-nav{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:12px;padding:10px 14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.fecha-btn{background:none;border:none;font-size:22px;color:#1E3A5F;cursor:pointer;padding:4px 10px}
+.fecha-txt{font-size:14px;font-weight:600;color:#212121}
+.load{position:fixed;inset:0;background:rgba(255,255,255,.92);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:999}
+.load.on{display:flex}
+.spin{width:40px;height:40px;border:3px solid #D0DBE8;border-top-color:#1E3A5F;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.load p{font-size:13px;color:#9E9E9E}
+.res-tab{padding:8px 14px;border:none;background:none;font-size:13px;font-weight:500;color:#9E9E9E;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:inherit}
+.res-tab-a{color:#1E3A5F;border-bottom-color:#1E3A5F;font-weight:700}
+.res-tab:hover{color:#1E3A5F}
+.empty{text-align:center;padding:30px 20px;color:#BDBDBD;font-size:13px}
+.sw-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #F5F5F5}
+.sw-row:last-child{border-bottom:none}
+.sw{width:42px;height:24px;background:#EEE;border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.sw.on{background:#2E7D32}
+.sw::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.sw.on::after{left:21px}
+.hora-pill{background:#E8EDF2;border-radius:7px;padding:4px 9px;font-size:11px;font-weight:700;color:#1E3A5F;display:inline-block}
+.div-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #F5F5F5;font-size:12px}
+.div-row:last-child{border-bottom:none}
+.info-box{border-radius:10px;padding:10px 13px;font-size:11px;margin-bottom:12px;line-height:1.5}
+.info-pur{background:#EDE7F6;color:#6A1B9A}
+.stat3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px}
+.stat3-item{border-radius:8px;padding:8px;text-align:center}
+.stat3-v{font-size:15px;font-weight:700}
+.stat3-l{font-size:9px;color:#9E9E9E;text-transform:uppercase;margin-top:2px}
+.vac-box{background:#F1F8E9;border-radius:8px;padding:8px 10px;margin-bottom:10px}
+.alerta-card{border-radius:12px;padding:12px 14px;margin-bottom:10px;border-left:4px solid}
+.alerta-venc{background:#FCEBEB;border-color:#C62828}
+.alerta-crit{background:#FFF3E0;border-color:#E65100}
+.alerta-prox{background:#FFF8E1;border-color:#F57F17}
+</style>
+</head>
+<body>
+<div class="load" id="load"><div class="spin"></div><p id="ltxt">Cargando...</p></div>
+
+<!-- MODALES -->
+<div class="modal-bg" id="modal-nov">
+  <div class="modal">
+    <div class="modal-t">Gestiónar Novedad <button class="modal-close" onclick="cerrarModal('modal-nov')">&#x2715;</button></div>
+    <div id="modal-nov-body"></div>
+  </div>
+</div>
+<div class="modal-bg" id="modal-emp">
+  <div class="modal">
+    <div class="modal-t">Nuevo Colaborador <button class="modal-close" onclick="cerrarModal('modal-emp')">&#x2715;</button></div>
+    <div class="form-row">
+      <div class="form-group"><label>Nombre</label><input id="e-nom" placeholder="Nombre"></div>
+      <div class="form-group"><label>Apellido</label><input id="e-ape" placeholder="Apellido"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Cedula</label><input id="e-ced" placeholder="123456789"></div>
+      <div class="form-group"><label>Telefono</label><input id="e-tel" placeholder="300..."></div>
+    </div>
+    <div class="form-group"><label>Cargo</label>
+      <select id="e-car"><option value="Técnico">Técnico</option><option value="Administrativo">Administrativo</option><option value="Asesor Comercial">Asesor Comercial</option><option value="Domiciliario">Domiciliario</option></select>
+    </div>
+    <div class="form-group"><label>Correo</label><input id="e-cor" placeholder="correo@gmail.com" type="email"></div>
+    <div id="msg-emp-wrap" style="display:none"><div id="msg-emp" style="background:#FFEBEE;border-radius:8px;padding:10px;font-size:12px;color:#C62828;margin-bottom:10px"></div></div>
+    <button class="btn btn-g" onclick="guardarEmpleado()">Guardar colaborador</button>
+    <button class="btn btn-s" onclick="cerrarModal('modal-emp')">Cancelar</button>
+  </div>
+</div>
+<div class="modal-bg" id="modal-hor">
+  <div class="modal">
+    <div class="modal-t" id="modal-hor-titulo">Cambiar Horario <button class="modal-close" onclick="cerrarModal('modal-hor')">&#x2715;</button></div>
+    <div id="modal-hor-body"></div>
+  </div>
+</div>
+<div class="modal-bg" id="modal-ct">
+  <div class="modal">
+    <div class="modal-t" id="modal-ct-titulo">Contrato <button class="modal-close" onclick="cerrarModal('modal-ct')">&#x2715;</button></div>
+    <div id="modal-ct-body"></div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="pg on" id="pg-login">
+  <div class="lw"><div class="lb">
+    <div class="lbrand"><span class="lbig">Alo<em>!</em></span><div class="lsub">Panel Administrador</div></div>
+    <h2>Acceso administrador</h2>
+    <div class="fi"><span class="fi-ico">&#128272;</span><input id="l-clave" type="password" placeholder="Clave de administrador" autocomplete="off" onkeydown="if(event.key==='Enter')loginAdmin()"></div>
+    <div class="lerr" id="lerr">Clave incorrecta</div>
+    <button class="lbtn" onclick="loginAdmin()">Ingresar</button>
+  </div></div>
+</div>
+
+<!-- ADMIN -->
+<div class="pg" id="pg-admin">
+  <div class="hdr"><div class="hr">
+    <div><div class="logo">Alo<em>!</em></div><div class="logos">Panel Administrador</div></div>
+    <span class="badge-admin">ADMIN</span>
+  </div></div>
+
+  <div class="tabs">
+    <button class="tab on" onclick="irTab(0)"><span class="tab-ico">&#128202;</span>Hoy</button>
+    <button class="tab" onclick="irTab(1)"><span class="tab-ico">&#128203;</span>Novedades</button>
+    <button class="tab" onclick="irTab(2)"><span class="tab-ico">&#128100;</span>Personal</button>
+    <button class="tab" onclick="irTab(3)"><span class="tab-ico">&#128336;</span>Horarios</button>
+    <button class="tab" onclick="irTab(4)"><span class="tab-ico">&#128200;</span>Resumen</button>
+    <button class="tab" onclick="irTab(5)"><span class="tab-ico">&#9201;</span>H.Extra</button>
+    <button class="tab" onclick="irTab(6)"><span class="tab-ico">&#128196;</span>Contratos</button>
+    <button class="tab" onclick="irTab(7)"><span class="tab-ico">&#128203;</span>Control</button>
+  </div>
+
+  <div class="body">
+    <!-- HOY -->
+    <div class="sec on" id="sec-0">
+      <div class="fecha-nav">
+        <button class="fecha-btn" onclick="cambiarFecha(-1)">&#8249;</button>
+        <span class="fecha-txt" id="fecha-txt">Hoy</span>
+        <button class="fecha-btn" onclick="cambiarFecha(1)">&#8250;</button>
+      </div>
+      <div id="alerta-cumpl-hoy"></div>
+      <div id="alerta-ct-hoy"></div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn-sm btn-sm-b" style="flex:1;padding:10px" onclick="recalcularFormulas()">&#128257; Recalcular formulas Sheet</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-v grn" id="s-ent">-</div><div class="stat-l">Entradas</div></div>
+        <div class="stat"><div class="stat-v org" id="s-ret">-</div><div class="stat-l">Retardos</div></div>
+        <div class="stat"><div class="stat-v" id="s-noct">-</div><div class="stat-l">Rec. Noct.</div></div>
+        <div class="stat"><div class="stat-v pur" id="s-dom">-</div><div class="stat-l">Rec. Dom.</div></div>
+      </div>
+      <div class="card">
+        <div class="card-t">Marcaciónes del dia <span id="cnt-marc">--</span></div>
+        <div id="lista-marc"><div class="empty">Cargando...</div></div>
+      </div>
+    </div>
+
+    <!-- NOVEDADES -->
+    <div class="sec" id="sec-1">
+      <div class="itabs">
+        <button class="itab on" id="nov-tab-0" onclick="filtroNov('Pendiente',0)">Pendientes</button>
+        <button class="itab" id="nov-tab-1" onclick="filtroNov('Aprobada',1)">Aprobadas</button>
+        <button class="itab" id="nov-tab-2" onclick="filtroNov('Rechazada',2)">Rechazadas</button>
+        <button class="itab" id="nov-tab-3" onclick="filtroNov('',3)">Todas</button>
+      </div>
+      <div id="lista-nov"><div class="empty">Cargando...</div></div>
+    </div>
+
+    <!-- PERSONAL -->
+    <div class="sec" id="sec-2">
+      <div class="itabs">
+        <button class="itab on" id="emp-tab-0" onclick="filtroEmp('activos',0)">Activos</button>
+        <button class="itab" id="emp-tab-1" onclick="filtroEmp('retirados',1)">Retirados</button>
+        <button class="itab" id="emp-tab-2" onclick="filtroEmp('todos',2)">Todos</button>
+        <button class="itab" id="emp-tab-3" onclick="filtroEmp('cumpleanios',3)">&#127881; Cumplea&#241;os</button>
+      </div>
+      <button class="btn btn-g" style="margin-bottom:14px" onclick="abrirModalEmp()">+ Nuevo colaborador</button>
+      <div id="lista-emp"><div class="empty">Cargando...</div></div>
+    </div>
+
+    <!-- HORARIOS -->
+    <div class="sec" id="sec-3">
+      <div class="itabs">
+        <button class="itab on" id="hor-tab-0" onclick="filtroHor('emp',0)">Por empleado</button>
+        <button class="itab" id="hor-tab-1" onclick="filtroHor('tipos',1)">Tipos de horario</button>
+      </div>
+      <div id="lista-hor"><div class="empty">Cargando...</div></div>
+    </div>
+
+    <!-- RESUMEN MENSUAL -->
+    <div class="sec" id="sec-4">
+      <!-- Sub-tabs Resumen -->
+      <div style="display:flex;gap:6px;margin-bottom:14px;border-bottom:2px solid #EEE;padding-bottom:0">
+        <button class="res-tab res-tab-a" id="rt-diario" onclick="setResTab('diario')">&#128197; Diario</button>
+        <button class="res-tab" id="rt-semanal" onclick="setResTab('semanal')">&#128336; Semanal</button>
+        <button class="res-tab" id="rt-mensual" onclick="setResTab('mensual')">&#128200; Mensual</button>
+      </div>
+
+      <!-- DIARIO -->
+      <div id="res-diario">
+        <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+          <input type="date" id="res-fecha-d" style="flex:1;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
+          <button class="btn-sm btn-sm-b" onclick="cargarResumenDiario()" style="white-space:nowrap;padding:10px 14px">Ver dia</button>
+        </div>
+        <div id="lista-res-diario"><div class="empty">Selecciona una fecha</div></div>
+      </div>
+
+      <!-- SEMANAL -->
+      <div id="res-semanal" style="display:none">
+        <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+          <select id="res-mes-s" style="flex:1;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
+            <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
+            <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
+            <option value="07">Julio</option><option value="08">Agosto</option><option value="09" selected>Septiembre</option>
+            <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+          </select>
+          <select id="res-ano-s" style="width:90px;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
+            <option value="2026" selected>2026</option><option value="2025">2025</option>
+          </select>
+          <button class="btn-sm btn-sm-b" onclick="cargarResumenSemanal()" style="white-space:nowrap;padding:10px 14px">Ver semanas</button>
+        </div>
+        <div id="lista-res-semanal"><div class="empty">Selecciona el periodo</div></div>
+      </div>
+
+      <!-- MENSUAL -->
+      <div id="res-mensual" style="display:none">
+        <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+          <select id="res-mes" style="flex:1;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
+            <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
+            <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
+            <option value="07">Julio</option><option value="08">Agosto</option><option value="09" selected>Septiembre</option>
+            <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+          </select>
+          <select id="res-ano" style="width:90px;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
+            <option value="2026" selected>2026</option><option value="2025">2025</option>
+          </select>
+          <button class="btn-sm btn-sm-b" onclick="generarResumen()" style="white-space:nowrap;padding:10px 14px">Generar</button>
+        </div>
+        <div id="lista-resumen"><div class="empty">Selecciona el periodo y haz clic en Generar</div></div>
+      </div>
+    </div>
+
+    <!-- HORAS EXTRA UNIFICADO -->
+    <div class="sec" id="sec-4">
+      <div class="info-box info-pur">
+        <strong>Ley 2466/2025:</strong> Limite semanal 42h. Las <strong>detectadas</strong> son generadas automaticamente al marcar salida. Las <strong>autorizadas</strong> son permisos previos para trabajar horas adicionales.
+      </div>
+      <!-- Filtros -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+        <select id="he-emp" style="flex:1;min-width:160px;padding:9px;border:1.5px solid #EEE;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;outline:none">
+          <option value="">Todos los colaboradores</option>
+        </select>
+        <select id="he-mes" style="width:110px;padding:9px;border:1.5px solid #EEE;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;outline:none">
+          <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
+          <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
+          <option value="07">Julio</option><option value="08">Agosto</option><option value="09" selected>Sep</option>
+          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+        <select id="he-ano" style="width:80px;padding:9px;border:1.5px solid #EEE;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;outline:none">
+          <option value="2026" selected>2026</option><option value="2025">2025</option>
+        </select>
+        <button class="btn-sm btn-sm-b" onclick="renderHorasExtraUnificado()" style="padding:9px 14px">Ver</button>
+        <button class="btn-sm" onclick="abrirNuevaAutorizacion()" style="padding:9px 14px;background:#EDE7F6;color:#6A1B9A;border-color:#CE93D8">+ Autorizar</button>
+      </div>
+      <!-- Sub-tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:12px;border-bottom:2px solid #EEE">
+        <button class="res-tab res-tab-a" id="he-tab-det" onclick="setHeTab('detectadas')">&#9650; Detectadas</button>
+        <button class="res-tab" id="he-tab-aut" onclick="setHeTab('autorizadas')">&#10003; Autorizadas</button>
+      </div>
+      <div id="he-lista-detectadas"><div class="empty">Cargando...</div></div>
+      <div id="he-lista-autorizadas" style="display:none"><div class="empty">Cargando...</div></div>
+    </div>
+
+<!-- CONTRATOS -->
+    <div class="sec" id="sec-6">
+      <div class="itabs">
+        <button class="itab on" id="ct-tab-0" onclick="filtroContratos('activos',0)">Activos</button>
+        <button class="itab" id="ct-tab-1" onclick="filtroContratos('alertas',1)">&#128276; Alertas</button>
+        <button class="itab" id="ct-tab-2" onclick="filtroContratos('todos',2)">Todos</button>
+      </div>
+      <button class="btn btn-p" style="margin-bottom:14px" onclick="abrirNuevoContrato()">+ Nuevo contrato</button>
+      <div id="lista-contratos"><div class="empty">Cargando...</div></div>
+    </div>
+
+    <!-- CONTROL DIARIO -->
+    <div class="sec" id="sec-7">
+      <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
+        <select id="ctrl-mes" style="flex:1;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
+          <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
+          <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
+          <option value="07" selected>Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
+          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+        </select>
+        <select id="ctrl-año" style="width:90px;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
+          <option value="2026" selected>2026</option><option value="2025">2025</option>
+        </select>
+        <button class="btn-sm btn-sm-b" onclick="cargarControl()" style="white-space:nowrap;padding:10px 14px">Ver</button>
+      </div>
+      <div class="itabs">
+        <button class="itab on" id="ctrl-tab-0" onclick="filtroCtrl('hoy',0)">Hoy</button>
+        <button class="itab" id="ctrl-tab-1" onclick="filtroCtrl('resumen',1)">Resumen mensual</button>
+      </div>
+      <div id="lista-ctrl"><div class="empty">Seleccióna el período y haz clic en Ver</div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var PROXY = '/api/proxy';
+var CLAVE = '@admin2024*';
+var KEY   = 'alo_admin_v2';
+var CL    = ['#1E3A5F','#C62828','#2E7D32','#E65100','#6A1B9A','#1565C0','#F57F17','#00897B','#D81B60','#546E7A','#3949AB','#00ACC1','#6D4C41','#43A047'];
+
+var fechaActual    = new Date();
+var novedades      = [];
+var empleados      = [];
+var horarios       = [];
+var tipos          = [];
+var horasExtraData = [];
+var contratosData  = [];
+var alertasData    = [];
+var vacacionesData = [];
+var preavisosData  = [];
+var autorizacionesData = [];
+var cumpleaniosData = [];
+var controlData    = [];
+var resumenCtrl    = [];
+var ctrlVista      = 'hoy';
+var novFiltro      = 'Pendiente';
+var heFiltro       = 'Pendiente';
+var empFiltro      = 'activos';
+var ctFiltro       = 'activos';
+var horVista       = 'emp';
+var empHorActivo   = null;
+
+function p2(v){return String(v).padStart(2,'0');}
+function fmtFecha(d){return p2(d.getDate())+'/'+p2(d.getMonth()+1)+'/'+d.getFullYear();}
+function fmtBonita(d){
+  var dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  var mes=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return dias[d.getDay()]+' '+d.getDate()+' '+mes[d.getMonth()];
+}
+function ini(nom){return(nom||'?').split(' ').map(function(p){return(p[0]||'').toUpperCase();}).slice(0,2).join('');}
+function bgEmp(idx){return CL[Math.abs(idx)%CL.length];}
+function hoy(){var n=new Date();return p2(n.getDate())+'/'+p2(n.getMonth()+1)+'/'+n.getFullYear();}
+function parseFechaJS(str){var p=str.split('/');return new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]));}
+function fmtDateInput(s){if(!s)return '';var p=s.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+
+// LOGIN
+try{if(localStorage.getItem(KEY)==='1')abrirAdmin();}catch(ex){}
+
+function loginAdmin(){
+  var c=document.getElementById('l-clave').value;
+  document.getElementById('lerr').style.display='none';
+  if(c!==CLAVE){document.getElementById('lerr').style.display='block';document.getElementById('l-clave').value='';return;}
+  try{localStorage.setItem(KEY,'1');}catch(ex){}
+  abrirAdmin();
+}
+
+function abrirAdmin(){
+  document.getElementById('pg-login').classList.remove('on');
+  document.getElementById('pg-admin').classList.add('on');
+  cargarTodo();
+}
+
+function irTab(n){
+  document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('on',i===n);});
+  document.querySelectorAll('.sec').forEach(function(s,i){s.classList.toggle('on',i===n);});
+  if(n===0) cargarMarcaciones();
+  if(n===1) renderNovedades();
+  if(n===2) renderHorarios();
+  if(n===3) {} // Resumen - manual
+  if(n===4) renderHorasExtraUnificado();
+  if(n===5) renderContratos();
+  if(n===6) renderControlHoy();
+}
+
+function cargarTodo(){
+  load('Cargando datos...');
+  var p1=api('empleados').then(function(d){empleados=d||[];});
+  var p2=api('novedades').then(function(d){novedades=d||[];});
+  var p3=api('horarios').then(function(d){horarios=d||[];});
+  var p4=api('tiposHorario').then(function(d){tipos=d||[];});
+  var p5=api('horasExtra').then(function(d){horasExtraData=d||[];});
+  var p6=api('contratos').then(function(d){contratosData=d||[];});
+  var p7=api('alertasContratos').then(function(d){alertasData=d||[];});
+  var p8=api('vacaciones').then(function(d){vacacionesData=d||[];});
+  var p9=api('preavisos').then(function(d){preavisosData=d||[];});
+  var p10=api('autorizacionesExtra').then(function(d){autorizacionesData=d||[];});
+  var p11=api('cumpleanios').then(function(d){cumpleaniosData=d||[];});
+  Promise.all([p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11]).then(function(){
+    unload();
+    cargarMarcaciones();
+    renderNovedades();
+    renderEmpleados();
+    renderHorarios();
+    renderHorasExtra();
+    renderContratos();
+  }).catch(function(e){unload();console.error(e);});
+}
+
+// HOY
+function cambiarFecha(delta){
+  fechaActual=new Date(fechaActual.getTime()+delta*86400000);
+  cargarMarcaciones();
+}
+
+function cargarMarcaciones(){
+  var fecha=fmtFecha(fechaActual);
+  var esHoy=(fmtFecha(new Date())===fecha);
+  document.getElementById('fecha-txt').textContent=esHoy?'Hoy - '+fmtBonita(fechaActual):fmtBonita(fechaActual);
+  document.getElementById('lista-marc').innerHTML='<div class="empty">Cargando...</div>';
+  renderAlertasHoy();
+  renderCumplHoy();
+  api('marcaciones&fecha='+fecha).then(function(marc){
+    var ent=0,ret=0,noct=0,dom=0;
+    if(!marc||marc.error){document.getElementById('lista-marc').innerHTML='<div class="empty">Error al cargar</div>';return;}
+    var html='';
+    marc.forEach(function(m,i){
+      if(m.entrada)ent++;
+      if(m.estado==='Retardo')ret++;
+      if(m.recargoNoct>0)noct++;
+      if(m.recargoDom>0)dom++;
+      var idx=empleados.findIndex(function(e){return e.id===m.empId;});
+      var bg=bgEmp(idx>=0?idx:i);
+      html+='<div class="list-item">';
+      html+='<div class="av" style="background:'+bg+'">'+ini(m.nombre)+'</div>';
+      html+='<div class="li-info"><div class="li-nom">'+m.nombre+'</div><div class="li-sub">';
+      if(m.entrada)html+='&#128994; '+m.entrada+' ';
+      if(m.salidaAlm)html+='&#127374; '+m.salidaAlm+' ';
+      if(m.regresoAlm)html+='&#8617; '+m.regresoAlm+' ';
+      if(m.salida)html+='&#128308; '+m.salida;
+      if(!m.entrada)html+='Sin entrada';
+      html+='</div></div>';
+      html+='<div style="text-align:right;flex-shrink:0">';
+      if(m.estado)html+='<span class="badge '+(m.estado==='Retardo'?'b-ret':'b-ok')+'">'+m.estado+'</span>';
+      if(m.recargoNoct>0)html+='<div style="font-size:10px;color:#E65100">&#127769; Noct: '+m.recargoNoct+'h</div>';
+      if(m.recargoDom>0)html+='<div style="font-size:10px;color:#2E7D32">&#128197; Dom: '+m.recargoDom+'h</div>';
+      if(m.horasTrab)html+='<div style="font-size:10px;color:#9E9E9E">'+m.horasTrab+'h trab.</div>';
+      html+='</div></div>';
+    });
+    document.getElementById('s-ent').textContent=ent;
+    document.getElementById('s-ret').textContent=ret;
+    document.getElementById('s-noct').textContent=noct;
+    document.getElementById('s-dom').textContent=dom;
+    document.getElementById('cnt-marc').textContent=marc.length+' registros';
+    document.getElementById('lista-marc').innerHTML=html||'<div class="empty">Sin marcaciones para este dia</div>';
+  }).catch(function(){document.getElementById('lista-marc').innerHTML='<div class="empty">Error cargando</div>';});
+}
+
+function renderAlertasHoy(){
+  var el=document.getElementById('alerta-ct-hoy');
+  if(!el||!alertasData.length){if(el)el.innerHTML='';return;}
+  var html='<div class="card" style="border-left:4px solid #E65100;margin-bottom:12px"><div class="card-t" style="color:#E65100">&#128276; Alertas de contratos ('+alertasData.length+')</div>';
+  alertasData.forEach(function(a){
+    var col=a.nivel==='vencido'?'#C62828':a.nivel==='critico'?'#E65100':'#F57F17';
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F5F5F5">';
+    html+='<div><div style="font-size:12px;font-weight:600">'+a.nombre+'</div>';
+    html+='<div style="font-size:10px;color:#9E9E9E">'+a.tipo+' &bull; Vence: '+a.fechaFin+'</div></div>';
+    html+='<span style="color:'+col+';font-weight:700;font-size:11px">'+(a.diasRestantes<=0?'VENCIDO':a.diasRestantes+'d')+'</span>';
+    html+='</div>';
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+// NOVEDADES
+function filtroNov(estado,idx){
+  novFiltro=estado;
+  for(var i=0;i<4;i++){var el=document.getElementById('nov-tab-'+i);if(el)el.classList.toggle('on',i===idx);}
+  renderNovedades();
+}
+
+function renderNovedades(){
+  var lista=novFiltro?novedades.filter(function(n){return n.estado===novFiltro;}):novedades;
+  var html='';
+  lista.forEach(function(n){
+    var bc={Pendiente:'b-pend',Aprobada:'b-ok',Rechazada:'b-rec'}[n.estado]||'b-no';
+    html+='<div class="card">';
+    html+='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">';
+    html+='<div><div style="font-size:13px;font-weight:600">'+n.nombre+'</div>';
+    html+='<div style="font-size:11px;color:#9E9E9E">'+n.tipo+' &bull; '+n.fechaInicio;
+    if(n.fechaFin&&n.fechaFin!==n.fechaInicio)html+=' - '+n.fechaFin;
+    html+='</div></div><span class="badge '+bc+'">'+n.estado+'</span></div>';
+    html+='<div style="font-size:12px;color:#424242;margin-bottom:8px">'+n.descripcion+'</div>';
+    if(n.horas>0)html+='<div style="font-size:11px;color:#9E9E9E;margin-bottom:6px">Horas de ausencia: <strong>'+n.horas+'h</strong></div>';
+    if(n.estado==='Pendiente')html+='<button class="btn-sm btn-sm-g" onclick="abrirGestionNov(\''+n.id+'\')">Aprobar / Rechazar</button>';
+    else if(n.observacion)html+='<div style="font-size:11px;color:#9E9E9E">Obs: '+n.observacion+'</div>';
+    html+='</div>';
+  });
+  document.getElementById('lista-nov').innerHTML=html||'<div class="empty">Sin novedades '+(novFiltro||'')+'</div>';
+}
+
+function abrirGestionNov(id){
+  var n=novedades.find(function(x){return x.id===id;});
+  if(!n)return;
+  var body='<div class="card" style="background:#F8F9FA;margin-bottom:14px">';
+  body+='<div style="font-size:13px;font-weight:600;margin-bottom:4px">'+n.nombre+'</div>';
+  body+='<div style="font-size:12px;color:#9E9E9E">'+n.tipo+' &bull; '+n.fechaInicio+'</div>';
+  body+='<div style="font-size:12px;color:#424242;margin-top:6px">'+n.descripcion+'</div></div>';
+  body+='<div class="form-group"><label>Observacion</label><textarea id="nov-obs" placeholder="Comentario opcional..."></textarea></div>';
+  body+='<button class="btn btn-g" onclick="aprobarNov(\''+id+'\',\'Aprobada\')">&#10003; Aprobar</button>';
+  body+='<button class="btn btn-r" onclick="aprobarNov(\''+id+'\',\'Rechazada\')">&#10007; Rechazar</button>';
+  body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-nov\')">Cancelar</button>';
+  document.getElementById('modal-nov-body').innerHTML=body;
+  abrirModal('modal-nov');
+}
+
+function aprobarNov(id,estado){
+  var obs=document.getElementById('nov-obs')?document.getElementById('nov-obs').value:'';
+  cerrarModal('modal-nov');load('Guardando...');
+  post({action:'aprobarNovedad',novedadId:id,estado:estado,observacion:obs,aprobadoPor:'Admin'}).then(function(r){
+    unload();
+    if(r.ok){var n=novedades.find(function(x){return x.id===id;});if(n){n.estado=estado;n.observacion=obs;}renderNovedades();}
+  }).catch(function(){unload();});
+}
+
+// PERSONAL
+function filtroEmp(filtro,idx){
+  empFiltro=filtro;
+  for(var i=0;i<4;i++){var el=document.getElementById('emp-tab-'+i);if(el)el.classList.toggle('on',i===idx);}
+  if(filtro==='cumpleanios') renderCumpleaniosPersonal();
+  else renderEmpleados();
+}
+
+function renderCumpleaniosPersonal(){
+  var html='<div style="font-size:12px;color:#9E9E9E;margin-bottom:10px">Todos los colaboradores ordenados por próximo cumpleaños</div>';
+  if(!cumpleaniosData.length){
+    html+='<div class="empty">Sin fechas de nacimiento registradas.<br>Agrega la fecha de nacimiento en cada contrato.</div>';
+    document.getElementById('lista-emp').innerHTML=html;
+    return;
+  }
+  cumpleaniosData.forEach(function(c,i){
+    var idx=empleados.findIndex(function(e){return e.id===c.empId;});
+    var bg=bgEmp(idx>=0?idx:i);
+    var col=c.cumpleHoy?'#E91E63':c.cumpleEstaSemana?'#9C27B0':c.cumpleEsteMes?'#673AB7':'#424242';
+    var bgBadge=c.cumpleHoy?'#FCE4EC':c.cumpleEstaSemana?'#F3E5F5':c.cumpleEsteMes?'#EDE7F6':'#F5F5F5';
+    var cumplStyle=c.cumpleHoy?'border-left:4px solid #E91E63;':'';
+    html+='<div class="card" style="margin-bottom:8px;'+cumplStyle+'">';
+    html+='<div style="display:flex;align-items:center;justify-content:space-between">';
+    html+='<div style="display:flex;align-items:center;gap:8px">';
+    html+='<div class="av" style="background:'+bg+';width:34px;height:34px;font-size:11px">'+ini(c.nombre)+'</div>';
+    html+='<div><div style="font-size:13px;font-weight:600">'+c.nombre+'</div>';
+    html+='<div style="font-size:11px;color:#9E9E9E">'+c.fechaNacimiento+' &bull; '+c.edad+' años</div></div></div>';
+    html+='<div style="text-align:right">';
+    html+='<div style="background:'+bgBadge+';color:'+col+';padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700">';
+    html+=(c.cumpleHoy?'&#127873; HOY!':c.diasParaCumplir+'d')+'</div>';
+    html+='<div style="font-size:10px;color:#9E9E9E;margin-top:2px">'+(c.cumpleHoy?'Feliz cumpleaños!':'para cumpleaños')+'</div>';
+    html+='</div></div></div>';
+  });
+  document.getElementById('lista-emp').innerHTML=html;
+}
+
+function renderEmpleados(){
+  var lista=empFiltro==='activos'
+    ?empleados.filter(function(e){return e.estado!=='Retirado';})
+    :empFiltro==='retirados'
+    ?empleados.filter(function(e){return e.estado==='Retirado';})
+    :empleados;
+  if(!lista.length){document.getElementById('lista-emp').innerHTML='<div class="empty">Sin colaboradores</div>';return;}
+  var html='<div class="card">';
+  lista.forEach(function(e,i){
+    var retirado=(e.estado==='Retirado');
+    html+='<div class="sw-row" style="'+(retirado?'opacity:0.6':'')+'">';
+    html+='<div style="display:flex;align-items:center;gap:9px;flex:1;min-width:0">';
+    html+='<div class="av" style="background:'+bgEmp(i)+';width:32px;height:32px;font-size:11px">'+ini(e.nombre)+'</div>';
+    html+='<div class="li-info"><div class="li-nom">'+e.nombre+'</div>';
+    html+='<div class="li-sub">'+e.id+' &bull; '+(e.cargo||'-')+(retirado?' &bull; <span style="color:#9E9E9E">Retirado</span>':'')+'</div></div></div>';
+    html+='<div style="display:flex;align-items:center;gap:6px">';
+    if(!retirado){
+      html+='<button class="btn-sm btn-sm-b" onclick="abrirHorDesdeEmp(\''+e.id+'\')">'+'Horario'+'</button>';
+      html+='<button class="btn-sm btn-sm-ret" onclick="confirmarRetiro(\''+e.id+'\',\''+e.nombre.replace(/'/g,'')+'\')">Retirar</button>';
+      var swOn=(e.activo==='SI');
+      html+='<div class="sw '+(swOn?'on':'')+'" onclick="toggleEmp(\''+e.id+'\','+(swOn?'false':'true')+')" title="'+(swOn?'Desactivar':'Activar')+'"></div>';
+    }
+    html+='</div></div>';
+  });
+  html+='</div>';
+  document.getElementById('lista-emp').innerHTML=html;
+}
+
+function toggleEmp(empId,activar){
+  load('Actualizando...');
+  post({action:'toggleEmpleado',empId:empId,activo:activar?'SI':'NO'}).then(function(r){
+    unload();
+    if(r.ok){var e=empleados.find(function(x){return x.id===empId;});if(e)e.activo=r.activo;renderEmpleados();}
+  }).catch(function(){unload();});
+}
+
+function confirmarRetiro(empId,nombre){
+  if(!confirm('Retirar a '+nombre+'?\nEsta accion lo marcara como retirado y cerrara su contrato activo.'))return;
+  var fecha=prompt('Fecha de retiro (dd/mm/aaaa):',hoy());
+  if(!fecha)return;
+  var motivo=prompt('Motivo del retiro:','Terminacion de contrato');
+  if(motivo===null)return;
+  load('Procesando retiro...');
+  post({action:'retirarEmpleado',empId:empId,fechaRetiro:fecha,motivo:motivo}).then(function(r){
+    unload();
+    if(r.ok){
+      var e=empleados.find(function(x){return x.id===empId;});
+      if(e){e.activo='NO';e.estado='Retirado';}
+      renderEmpleados();
+    } else {alert('Error: '+r.error);}
+  }).catch(function(){unload();});
+}
+
+function abrirModalEmp(){
+  ['e-nom','e-ape','e-ced','e-tel','e-cor'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('msg-emp-wrap').style.display='none';
+  abrirModal('modal-emp');
+}
+
+function guardarEmpleado(){
+  var nom=document.getElementById('e-nom').value.trim();
+  var ape=document.getElementById('e-ape').value.trim();
+  var wrap=document.getElementById('msg-emp-wrap');
+  var msg=document.getElementById('msg-emp');
+  if(!nom||!ape){msg.textContent='Nombre y apellido son obligatorios';wrap.style.display='block';return;}
+  wrap.style.display='none';
+  cerrarModal('modal-emp');load('Guardando colaborador...');
+  post({action:'agregarEmpleado',nombre:nom,apellido:ape,
+        cedula:gv('e-ced'),telefono:gv('e-tel'),correo:gv('e-cor'),cargo:gv('e-car')
+  }).then(function(r){
+    unload();
+    if(r.ok){empleados.push({id:r.id,nombre:r.nombre,iniciales:ini(r.nombre),cargo:gv('e-car'),activo:'SI',estado:'Activo'});renderEmpleados();}
+  }).catch(function(){unload();});
+}
+
+// HORARIOS
+function filtroHor(vista,idx){
+  horVista=vista;
+  for(var i=0;i<2;i++){var el=document.getElementById('hor-tab-'+i);if(el)el.classList.toggle('on',i===idx);}
+  renderHorarios();
+}
+
+function renderHorarios(){
+  if(horVista==='tipos'){renderTipos();return;}
+  var grupos={},orden=[];
+  horarios.forEach(function(h){
+    if(!grupos[h.empId]){grupos[h.empId]={nom:h.nombre,dias:[]};orden.push(h.empId);}
+    grupos[h.empId].dias.push(h);
+  });
+  // Add active employees without horario
+  empleados.forEach(function(e){
+    if(e.activo==='SI'&&!grupos[e.id]){
+      grupos[e.id]={nom:e.nombre,dias:[],sinHorario:true};
+      orden.push(e.id);
+    }
+  });
+  var dias=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  var html='';
+  orden.forEach(function(empId,i){
+    var g=grupos[empId];
+    html+='<div class="card">';
+    html+='<div class="card-t"><div style="display:flex;align-items:center;gap:8px">';
+    html+='<div class="av" style="background:'+bgEmp(i)+';width:28px;height:28px;font-size:10px">'+ini(g.nom)+'</div>'+g.nom+'</div>';
+    html+='<button class="btn-sm btn-sm-o" onclick="abrirHorDesdeGrupo(\''+empId+'\')">'+'Cambiar'+'</button></div>';
+    dias.forEach(function(dia){
+      var h=g.dias.find(function(x){return x.dia===dia;});if(!h)return;
+      html+='<div class="div-row">';
+      html+='<span style="color:#9E9E9E;width:75px;flex-shrink:0">'+dia+'</span>';
+      html+='<span class="hora-pill">'+h.codHorario+'</span>';
+      html+='<span style="color:#424242;font-size:11px">';
+      if(h.entrada&&h.entrada!=='--')html+=h.entrada;
+      if(h.salidaAlm&&h.salidaAlm!=='--')html+='&#8594;'+h.salidaAlm;
+      if(h.regresoAlm&&h.regresoAlm!=='--')html+=' / '+h.regresoAlm;
+      if(h.salida&&h.salida!=='--')html+='&#8594;'+h.salida;
+      html+='</span><span style="color:#9E9E9E">'+h.horas+'h</span></div>';
+    });
+    if(g.sinHorario){
+      html+='<div style="font-size:12px;color:#9E9E9E;padding:10px 0;text-align:center">Sin horario asignado</div>';
+    }
+    html+='</div>';
+  });
+  document.getElementById('lista-hor').innerHTML=html||'<div class="empty">Sin horarios</div>';
+}
+
+function renderTipos(){
+  var html='';
+  tipos.forEach(function(t){
+    var inact=(t.activo==='NO');
+    html+='<div class="card" style="'+(inact?'opacity:0.55':'')+'">';
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+    html+='<span class="hora-pill">'+t.codigo+'</span>';
+    html+='<div style="display:flex;gap:5px;align-items:center">';
+    html+='<span class="badge '+(t.recargoNoct==='SI'?'b-ret':'b-no')+'">'+(t.recargoNoct==='SI'?'&#127769; Noct':'Sin recargo')+'</span>';
+    html+='<button class="btn-sm btn-sm-b" onclick="editarTipoHorario(\''+t.codigo+'\')" style="padding:4px 8px">Editar</button>';
+    html+='<button class="btn-sm" style="background:'+(inact?'#E8F5E9':'#FFEBEE')+';color:'+(inact?'#2E7D32':'#C62828')+'" onclick="toggleTipoHorario(\''+t.codigo+'\',\''+(inact?'SI':'NO')+'\')">'+(inact?'Activar':'Desactivar')+'</button>';
+    html+='</div></div>';
+    html+='<div style="font-size:13px;font-weight:500;margin-bottom:5px">'+t.descripcion+'</div>';
+    html+='<div style="font-size:11px;color:#9E9E9E">';
+    if(t.entrada)html+='Entrada: '+t.entrada+' ';
+    if(t.salidaAlm)html+='S.Alm: '+t.salidaAlm+' ';
+    if(t.regresoAlm)html+='R.Alm: '+t.regresoAlm+' ';
+    if(t.salida)html+='Salida: '+t.salida;
+    html+=' &bull; '+t.horas+'h</div></div>';
+  });
+  html+='<button class="btn btn-p" style="margin-top:4px" onclick="abrirNuevoTipo()">+ Agregar tipo de horario</button>';
+  document.getElementById('lista-hor').innerHTML=html;
+}
+
+
+var _horEmpId='', _horNom='';
+function abrirHorDesdeEmp(empId){
+  var e=empleados.find(function(x){return x.id===empId;});
+  if(e) abrirModalHor(e.id,e.nombre);
+}
+function abrirHorDesdeGrupo(empId){
+  var grupos={};
+  horarios.forEach(function(h){if(!grupos[h.empId])grupos[h.empId]=h.nombre;});
+  abrirModalHor(empId, grupos[empId]||empId);
+}
+function abrirModalHor(empId,nombre){
+  empHorActivo={id:empId,nom:nombre};
+  var opciones=tipos.filter(function(t){return t.activo==='SI';}).map(function(t){
+    return '<option value="'+t.codigo+'">'+t.codigo+' — '+t.descripcion+' ('+t.horas+'h)</option>';
+  }).join('');
+  var dias=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  var horEmp={};
+  horarios.forEach(function(h){if(h.empId===empId)horEmp[h.dia]=h;});
+  var body='<div style="font-size:13px;font-weight:600;margin-bottom:4px;color:#1E3A5F">'+nombre+'</div>';
+  body+='<div style="font-size:11px;color:#9E9E9E;margin-bottom:12px">Seleccióna nuevo horario o usa ✕ para limpiar ese dia. El anterior queda en historial.</div>';
+  dias.forEach(function(dia){
+    var hActual=horEmp[dia];
+    var codActual=hActual&&hActual.codHorario?hActual.codHorario:'—';
+    var hDesc=hActual&&hActual.entrada?(hActual.entrada+(hActual.salida?'→'+hActual.salida:'')):'Sin asignar';
+    body+='<div style="background:#F8F9FA;border-radius:10px;padding:10px;margin-bottom:8px">';
+    body+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+    body+='<span style="font-size:12px;font-weight:700">'+dia+'</span>';
+    body+='<div style="display:flex;align-items:center;gap:6px">';
+    body+='<span class="hora-pill" style="font-size:10px">'+codActual+'</span>';
+    body+='<span style="font-size:10px;color:#9E9E9E">'+hDesc+'</span>';
+    body+='<button onclick="limpiarDia(this,\''+dia+'\')" style="background:#FFEBEE;color:#C62828;border:none;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer">✕ Limpiar</button>';
+    body+='</div></div>';
+    body+='<select id="hr-'+dia+'" style="width:100%;padding:9px;border:1.5px solid #EEE;border-radius:8px;font-size:13px;font-family:inherit;background:#fff">';
+    body+='<option value="">— Sin cambio —</option>'+opciones+'</select>';
+    body+='</div>';
+  });
+  body+='<div class="form-group" style="margin-top:8px"><label>Motivo del cambio</label><input id="hr-motivo" placeholder="Ej: Cambio de turno, solicitud..."></div>';
+  body+='<button class="btn btn-p" onclick="guardarCambioHor()">Guardar cambios</button>';
+  body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-hor\')">Cancelar</button>';
+  document.getElementById('modal-hor-body').innerHTML=body;
+  document.getElementById('modal-hor-titulo').innerHTML='Cambiar Horario <button class="modal-close" onclick="cerrarModal(\'modal-hor\')">&#x2715;</button>';
+  abrirModal('modal-hor');
+}
+
+function limpiarDia(btn,dia){
+  var sel=document.getElementById('hr-'+dia);
+  if(sel){sel.value='';sel.disabled=true;sel.style.opacity='0.4';}
+  // Mark this day for cleanup
+  if(!empHorActivo._limpiar) empHorActivo._limpiar=[];
+  if(empHorActivo._limpiar.indexOf(dia)===-1) empHorActivo._limpiar.push(dia);
+}
+
+
+function guardarCambioHor(){
+  if(!empHorActivo)return;
+  var dias=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  var motivo=document.getElementById('hr-motivo')?document.getElementById('hr-motivo').value:'';
+  var cambios=[];
+  var limpios=empHorActivo._limpiar||[];
+  dias.forEach(function(dia){
+    var sel=document.getElementById('hr-'+dia);
+    if(sel&&sel.value) cambios.push({dia:dia,cod:sel.value,limpiar:false});
+  });
+  limpios.forEach(function(dia){
+    if(!cambios.find(function(c){return c.dia===dia;}))
+      cambios.push({dia:dia,cod:'',limpiar:true});
+  });
+  if(!cambios.length){alert('Seleccióna al menos un dia para cambiar o limpiar');return;}
+  cerrarModal('modal-hor');
+  load('Guardando cambios...');
+  var ps=cambios.map(function(c){
+    return post({action:'cambioHorario',empId:empHorActivo.id,empNom:empHorActivo.nom,
+                 diaSemana:c.dia,codHorarioNuevo:c.cod,limpiar:c.limpiar,tipo:'Permanente',
+                 motivo:motivo||'Cambio desde admin',aprobadoPor:'Admin'});
+  });
+  Promise.all(ps)
+    .then(function(){ return api('horarios'); })
+    .then(function(d){
+      horarios=d||[];
+      unload();
+      renderHorarios();
+      mostrarToast('Horario actualizado','ok');
+    })
+    .catch(function(e){unload();alert('Error: '+e.message);});
+}
+
+function editarTipoHorario(codigo){
+  var t=tipos.find(function(x){return x.codigo===codigo;});
+  if(!t)return;
+  var body='<div style="font-size:13px;font-weight:700;color:#1E3A5F;margin-bottom:14px">Editar '+codigo+'</div>';
+  body+='<div class="form-group"><label>Descripcion</label><input id="nt-desc" value="'+t.descripcion+'"></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Hora entrada</label><input id="nt-e" value="'+t.entrada+'"></div>';
+  body+='<div class="form-group"><label>Salida almuerzo</label><input id="nt-sa" value="'+t.salidaAlm+'"></div></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Regreso almuerzo</label><input id="nt-ra" value="'+t.regresoAlm+'"></div>';
+  body+='<div class="form-group"><label>Hora salida</label><input id="nt-s" value="'+t.salida+'"></div></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Horas totales</label><input id="nt-h" type="number" value="'+t.horas+'"></div>';
+  body+='<div class="form-group"><label>Rec. nocturno</label><select id="nt-noct"><option value="NO" '+(t.recargoNoct!=='SI'?'selected':'')+'>No</option><option value="SI" '+(t.recargoNoct==='SI'?'selected':'')+'>Si</option></select></div></div>';
+  body+='<button class="btn btn-p" onclick="guardarEdicionHorario(\''+codigo+'\')">Guardar cambios</button>';
+  body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-hor\')">Cancelar</button>';
+  document.getElementById('modal-hor-body').innerHTML=body;
+  document.getElementById('modal-hor-titulo').innerHTML='Editar Horario '+codigo+' <button class="modal-close" onclick="cerrarModal(\'modal-hor\')">&#x2715;</button>';
+  abrirModal('modal-hor');
+}
+
+function guardarEdicionHorario(codigo){
+  cerrarModal('modal-hor');load('Guardando...');
+  post({action:'editarHorario',codigo:codigo,descripcion:gv('nt-desc'),
+        entrada:gv('nt-e'),salidaAlm:gv('nt-sa'),regresoAlm:gv('nt-ra'),
+        salida:gv('nt-s'),horas:parseFloat(gv('nt-h')||'0'),recargoNoct:gv('nt-noct'),
+        horaExtra:parseFloat(gv('nt-extra')||'0')
+  }).then(function(r){if(!r.ok)throw new Error(r.error);return api('tiposHorario');})
+  .then(function(d){tipos=d||[];unload();renderTipos();})
+  .catch(function(e){unload();alert('Error: '+e.message);});
+}
+
+function toggleTipoHorario(codigo,activo){
+  load('Actualizando...');
+  post({action:'toggleHorario',codigo:codigo,activo:activo})
+  .then(function(r){if(!r.ok)throw new Error(r.error);return api('tiposHorario');})
+  .then(function(d){tipos=d||[];unload();renderTipos();})
+  .catch(function(e){unload();alert('Error: '+e.message);});
+}
+
+function abrirNuevoTipo(){
+  var body='<div class="form-group"><label>Descripcion</label><input id="nt-desc" placeholder="Ej: Tarde 2PM-8PM"></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Hora entrada</label><input id="nt-e" placeholder="09:00"></div>';
+  body+='<div class="form-group"><label>Salida almuerzo</label><input id="nt-sa" placeholder="13:00"></div></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Regreso almuerzo</label><input id="nt-ra" placeholder="15:00"></div>';
+  body+='<div class="form-group"><label>Hora salida</label><input id="nt-s" placeholder="20:00"></div></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Horas totales</label><input id="nt-h" type="number" placeholder="8"></div>';
+  body+='<div class="form-group"><label>Rec. nocturno</label><select id="nt-noct"><option value="NO">No</option><option value="SI">Si</option></select></div></div>';
+  body+='<button class="btn btn-g" onclick="guardarNuevoTipo()">Guardar tipo de horario</button>';
+  body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-hor\')">Cancelar</button>';
+  document.getElementById('modal-hor-body').innerHTML=body;
+  document.getElementById('modal-hor-titulo').innerHTML='Nuevo tipo de horario <button class="modal-close" onclick="cerrarModal(\'modal-hor\')">&#x2715;</button>';
+  abrirModal('modal-hor');
+}
+
+function guardarNuevoTipo(){
+  cerrarModal('modal-hor');load('Guardando tipo de horario...');
+  post({action:'agregarHorario',descripcion:gv('nt-desc'),entrada:gv('nt-e'),salidaAlm:gv('nt-sa'),
+        regresoAlm:gv('nt-ra'),salida:gv('nt-s'),horas:parseFloat(gv('nt-h')||'0'),recargoNoct:gv('nt-noct'),horaExtra:parseFloat(gv('nt-extra')||'0')
+  }).then(function(r){if(!r.ok)throw new Error(r.error||'Error');return api('tiposHorario');})
+  .then(function(d){tipos=d||[];unload();renderTipos();})
+  .catch(function(e){unload();alert('Error: '+e.message);});
+}
+
+// RESUMEN MENSUAL
+function setResTab(tab){
+  ['diario','semanal','mensual'].forEach(function(t){
+    var el=document.getElementById('res-'+t);
+    if(el) el.style.display=t===tab?'block':'none';
+    var btn=document.getElementById('rt-'+t);
+    if(btn) btn.className='res-tab'+(t===tab?' res-tab-a':'');
+  });
+  if(tab==='diario'){
+    var fi=document.getElementById('res-fecha-d');
+    if(fi&&!fi.value){
+      var hoy=new Date();
+      var p2=function(v){return String(v).padStart(2,'0');};
+      fi.value=hoy.getFullYear()+'-'+p2(hoy.getMonth()+1)+'-'+p2(hoy.getDate());
+      cargarResumenDiario();
+    }
+  }
+}
+
+function cargarResumenDiario(){
+  var fv=document.getElementById('res-fecha-d').value;
+  if(!fv) return;
+  var pp=fv.split('-');
+  var fecha=pp[2]+'/'+pp[1]+'/'+pp[0];
+  document.getElementById('lista-res-diario').innerHTML='<div class="empty">Cargando...</div>';
+  api('resumenDiario&fecha='+fecha).then(function(data){
+    if(!data||data.error){document.getElementById('lista-res-diario').innerHTML='<div class="empty">Error: '+(data&&data.error||'sin datos')+'</div>';return;}
+    var presentes=data.filter(function(e){return e.marcacion&&e.marcacion.entrada;});
+    var ausentes=data.filter(function(e){return !e.marcacion||!e.marcacion.entrada;});
+    var html='<div style="font-size:12px;color:#9E9E9E;margin-bottom:10px">'+fecha+' &bull; '+presentes.length+' presentes &bull; '+ausentes.length+' ausentes</div>';
+    presentes.forEach(function(e){
+      var m=e.marcacion; var c=e.control;
+      var estado=m.estado==='Retardo'?'<span class="badge b-ret">Retardo</span>':'<span class="badge b-ok">A tiempo</span>';
+      html+='<div class="card" style="margin-bottom:8px">';
+      html+='<div style="display:flex;justify-content:space-between;margin-bottom:8px">';
+      html+='<div><div style="font-size:13px;font-weight:700">'+e.nombre+'</div>';
+      html+='<div style="font-size:10px;color:#9E9E9E">'+e.cargo+'</div></div>'+estado+'</div>';
+      html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">';
+      [['Entrada',m.entrada,'#43A047'],['S.Alm',m.salidaAlm,'#FF8F00'],['R.Alm',m.regresoAlm,'#1E88E5'],['Salida',m.salida,'#E53935']].forEach(function(h){
+        html+='<div style="text-align:center;background:#F8F9FA;border-radius:8px;padding:6px">';
+        html+='<div style="font-size:9px;color:#9E9E9E">'+h[0]+'</div>';
+        html+='<div style="font-size:13px;font-weight:700;color:'+(h[1]?h[2]:'#BDBDBD')+'">'+(h[1]||'--:--')+'</div></div>';
+      });
+      html+='</div>';
+      if(m.horas>0){
+        html+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">';
+        html+='<span class="badge b-ok">'+m.horas+'h trabajadas</span>';
+        if(m.recargoNoct>0) html+='<span class="badge b-ret">Noct: '+m.recargoNoct+'h</span>';
+        if(m.recargoDom>0) html+='<span class="badge b-rec">Dom: '+m.recargoDom+'h</span>';
+        if(m.horasExtra>0) html+='<span class="badge" style="background:#EDE7F6;color:#6A1B9A">Extra: '+m.horasExtra+'h</span>';
+        html+='</div>';
+      }
+      if(c){
+        html+='<div style="padding-top:8px;border-top:1px solid #F5F5F5">';
+        html+='<div style="font-size:10px;color:#9E9E9E;margin-bottom:4px">CONTROL</div>';
+        html+='<div style="display:flex;gap:5px;flex-wrap:wrap">';
+        [['Camisa',c.camisa],['Pantalon',c.pantalon],['Celular',c.celular],['Aseo',c.aseo],['Radar',c.radar]].forEach(function(it){
+          html+='<span class="badge '+(it[1]==='SI'?'b-ok':'b-rec')+'">'+it[0]+': '+(it[1]||'--')+'</span>';
+        });
+        if(c.obs) html+='<div style="font-size:11px;color:#616161;margin-top:4px">'+c.obs+'</div>';
+        html+='</div></div>';
+      }
+      html+='</div>';
+    });
+    if(ausentes.length){
+      html+='<div style="font-size:11px;color:#9E9E9E;margin:10px 0 6px;font-weight:600">SIN MARCACION ('+ausentes.length+')</div>';
+      ausentes.forEach(function(e){
+        html+='<div style="background:#FFEBEE;border-radius:10px;padding:10px 14px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center">';
+        html+='<div><div style="font-size:13px;font-weight:600;color:#C62828">'+e.nombre+'</div>';
+        html+='<div style="font-size:10px;color:#EF9A9A">'+e.cargo+'</div></div>';
+        html+='<span class="badge b-rec">Sin marcar</span></div>';
+      });
+    }
+    document.getElementById('lista-res-diario').innerHTML=html||'<div class="empty">Sin datos</div>';
+  }).catch(function(err){document.getElementById('lista-res-diario').innerHTML='<div class="empty">Error: '+err.message+'</div>';});
+}
+
+function cargarResumenSemanal(){
+  var mes=document.getElementById('res-mes-s').value;
+  var ano=document.getElementById('res-ano-s').value;
+  var periodo=mes+'/'+ano;
+  document.getElementById('lista-res-semanal').innerHTML='<div class="empty">Cargando...</div>';
+  api('resumenSemanal&periodo='+periodo).then(function(data){
+    if(!data||data.error){document.getElementById('lista-res-semanal').innerHTML='<div class="empty">Error</div>';return;}
+    var html='';
+    data.forEach(function(s){
+      var over=s.superaLimite;
+      html+='<div class="card" style="background:'+(over?'#FFEBEE':'#F1F8E9')+';border:1.5px solid '+(over?'#FFCDD2':'#C8E6C9')+';margin-bottom:8px">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+      html+='<div style="font-size:13px;font-weight:700;color:#1E3A5F">Semana del '+s.lunes+'</div>';
+      html+=(over?'<span class="badge b-rec">&#9888; Supera 42h</span>':'<span class="badge b-ok">Dentro del limite</span>');
+      html+='</div>';
+      html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">';
+      [['Dias',s.dias,''],['Horas',s.horas+'h',over?'#C62828':'#2E7D32'],['Noct',s.noct+'h','#E65100'],['Extra',s.extra+'h','#6A1B9A']].forEach(function(it){
+        html+='<div style="background:rgba(255,255,255,0.7);border-radius:8px;padding:8px">';
+        html+='<div style="font-size:9px;color:#9E9E9E">'+it[0]+'</div>';
+        html+='<div style="font-size:16px;font-weight:700;color:'+(it[2]||'#424242')+'">'+it[1]+'</div></div>';
+      });
+      html+='</div></div>';
+    });
+    document.getElementById('lista-res-semanal').innerHTML=html||'<div class="empty">Sin datos para este periodo</div>';
+  });
+}
+
+function generarResumen(){
+  var mes=document.getElementById('res-mes').value;
+  var ano=document.getElementById('res-ano').value;
+  
+  document.getElementById('lista-resumen').innerHTML='<div class="empty">Calculando resumen...</div>';
+  load('Generando resumen mensual...');
+  post({action:'generarResumen',periodo:periodo}).then(function(r){
+    unload();
+    if(!r.ok){document.getElementById('lista-resumen').innerHTML='<div class="empty">Error: '+(r.error||'desconocido')+'</div>';return;}
+    api('resumenMensual&periodo='+periodo).then(function(data){
+      if(!data||!data.length){document.getElementById('lista-resumen').innerHTML='<div class="empty">Sin datos para '+periodo+'</div>';return;}
+      var html='<div style="font-size:12px;color:#9E9E9E;margin-bottom:12px">'+r.registros+' colaboradores &bull; Periodo '+periodo+' &bull; Limite semanal: 42h</div>';
+      data.forEach(function(e){
+        var pct=e.cumplimiento;
+        var bc=pct>=90?'b-ok':pct>=70?'b-ret':'b-rec';
+        var pcol=pct>=90?'#2E7D32':pct>=70?'#F57F17':'#C62828';
+        html+='<div class="card">';
+        // Header
+        html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
+        html+='<div style="font-size:14px;font-weight:700;color:#1E3A5F">'+e.nombre+'</div>';
+        html+='<div style="text-align:right"><div style="font-size:20px;font-weight:900;color:'+pcol+'">'+pct+'%</div><div style="font-size:9px;color:#9E9E9E">CUMPLIMIENTO</div></div></div>';
+        // Stats principales
+        html+='<div class="stat3" style="margin-bottom:12px">';
+        html+='<div class="stat3-item" style="background:#E3F2FD"><div class="stat3-v" style="color:#1565C0">'+e.diasLab+'<span style="font-size:10px;font-weight:400"> / '+e.diasProg+'</span></div><div class="stat3-l">Dias lab.</div></div>';
+        html+='<div class="stat3-item" style="background:#E8F5E9"><div class="stat3-v" style="color:#2E7D32">'+e.horas+'h</div><div class="stat3-l">Horas tot.</div></div>';
+        html+='<div class="stat3-item" style="background:'+(e.ausentes>0?'#FCEBEB':'#F5F5F5')+'"><div class="stat3-v" style="color:'+(e.ausentes>0?'#C62828':'#9E9E9E')+'">'+e.ausentes+'</div><div class="stat3-l">Ausencias</div></div>';
+        html+='</div>';
+        // Recargos y extras
+        if(e.recargoNoct>0||e.recargoDom>0||e.horasExtra>0||e.retardos>0){
+          html+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">';
+          if(e.recargoNoct>0)html+='<span class="badge" style="background:#FFF3E0;color:#E65100">&#127769; Noct: '+e.recargoNoct+'h</span>';
+          if(e.recargoDom>0)html+='<span class="badge" style="background:#E8F5E9;color:#2E7D32">&#128197; Dom: '+e.recargoDom+'h</span>';
+          if(e.horasExtra>0)html+='<span class="badge" style="background:#EDE7F6;color:#6A1B9A">Extra aprob: '+e.horasExtra+'h</span>';
+          if(e.retardos>0)html+='<span class="badge b-ret">Retardos: '+e.retardos+'</span>';
+          html+='</div>';
+        }
+        // Semanas
+        if(e.semanas&&e.semanas.length){
+          html+='<div style="font-size:10px;color:#9E9E9E;text-transform:uppercase;margin-bottom:6px">Desglose semanal (limite 42h/sem)</div>';
+          html+='<div style="display:flex;gap:5px;flex-wrap:wrap">';
+          e.semanas.forEach(function(s){
+            var sobrepasa=s.horas>42;
+            html+='<div style="background:'+(sobrepasa?'#FFF3E0':'#E8EDF2')+';border-radius:7px;padding:5px 9px;font-size:11px;font-weight:600;color:'+(sobrepasa?'#E65100':'#1E3A5F')+'">';
+            html+='Sem '+s.semana+': '+s.dias+'d / '+s.horas+'h'+(sobrepasa?' &#9888;':'')+'</div>';
+          });
+          html+='</div>';
+        }
+        html+='</div>';
+      });
+      document.getElementById('lista-resumen').innerHTML=html;
+    });
+  }).catch(function(e){unload();document.getElementById('lista-resumen').innerHTML='<div class="empty">Error: '+e.message+'</div>';});
+}
+
+// HORAS EXTRA
+function renderCumplHoy(){
+  var el=document.getElementById('alerta-cumpl-hoy');
+  if(!el||!cumpleaniosData.length){if(el)el.innerHTML='';return;}
+  var hoy7=cumpleaniosData.filter(function(c){return c.cumpleEstaSemana;});
+  if(!hoy7.length){el.innerHTML='';return;}
+  var html='<div class="card" style="border-left:4px solid #E91E63;margin-bottom:12px">';
+  html+='<div class="card-t" style="color:#E91E63">&#127881; Cumpleaños próximos</div>';
+  hoy7.forEach(function(c){
+    var txt=c.cumpleHoy?'&#127873; HOY!':c.diasParaCumplir+'d';
+    var col=c.cumpleHoy?'#E91E63':'#9C27B0';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #FCE4EC">';
+    html+='<div><div style="font-size:13px;font-weight:600">'+c.nombre+'</div>';
+    html+='<div style="font-size:11px;color:#9E9E9E">'+c.fechaNacimiento+' &bull; Cumple '+c.edad+(c.cumpleHoy?'':' años')+'</div></div>';
+    html+='<span style="color:'+col+';font-weight:700;font-size:13px">'+txt+'</span>';
+    html+='</div>';
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+function mostrarToast(msg,tipo){
+  // Simple toast notification
+  var t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:'+(tipo==='ok'?'#2E7D32':'#C62828')+';color:#fff;padding:12px 24px;border-radius:25px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2)';
+  document.body.appendChild(t);
+  setTimeout(function(){t.remove();},3000);
+}
+
+function filtroHE(estado,idx){
+  heFiltro=estado;
+  for(var i=0;i<5;i++){var el=document.getElementById('he-tab-'+i);if(el)el.classList.toggle('on',i===idx);}
+  if(estado==='autorizaciones') renderAutorizacionesExtra();
+  else renderHorasExtra();
+}
+
+
+function renderAutorizacionesExtra(){
+  var html='';
+  html+='<div style="background:#FCE4EC;border-radius:10px;padding:10px 14px;font-size:11px;color:#880E4F;margin-bottom:12px;line-height:1.6">';
+  html+='<strong>Autorizaciónes temporales de H. Extra</strong><br>';
+  html+='Define para que empleado, en que fechas y en que tipo (Entrada anticipada o Salida tardia) se autorizan horas extra. El sistema las aplica al momento de la marcación.</div>';
+  html+='<button class="btn btn-p" style="margin-bottom:14px" onclick="abrirNuevaAutorizacion()">+ Nueva autorizacion</button>';
+  var activas=autorizacionesData.filter(function(a){return a.estado==='Activa';});
+  var pasadas=autorizacionesData.filter(function(a){return a.estado!=='Activa';});
+  if(!activas.length&&!pasadas.length){
+    html+='<div class="empty">Sin autorizaciones registradas</div>';
+  }
+  activas.forEach(function(a){
+    var idx=empleados.findIndex(function(e){return e.id===a.empId;});
+    var bg=bgEmp(idx>=0?idx:0);
+    var esTipo=a.tipo==='Entrada';
+    html+='<div class="card" style="border-left:4px solid '+(esTipo?'#1565C0':'#6A1B9A')+'">';
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+    html+='<div style="display:flex;align-items:center;gap:8px">';
+    html+='<div class="av" style="background:'+bg+';width:28px;height:28px;font-size:10px">'+ini(a.nombre)+'</div>';
+    html+='<div><div style="font-size:13px;font-weight:600">'+a.nombre+'</div>';
+    html+='<div style="font-size:11px;color:#9E9E9E">'+a.codHorario+' &bull; '+a.fechaInicio+' al '+a.fechaFin+'</div></div></div>';
+    html+='<span class="badge" style="background:'+(esTipo?'#E3F2FD':'#EDE7F6')+';color:'+(esTipo?'#1565C0':'#6A1B9A')+'">';
+    html+=(esTipo?'&#8678; Entrada':'Salida &#8680;')+'</span></div>';
+    html+='<div style="display:flex;align-items:center;justify-content:space-between">';
+    html+='<div style="font-size:13px;font-weight:700;color:'+(esTipo?'#1565C0':'#6A1B9A')+'">'+a.horasAutorizadas+'h '+(esTipo?'antes de entrada':'después de salida')+'</div>';
+    html+='<button class="btn-sm btn-sm-r" onclick="cancelarAut(\''+a.id+'\')">'+'Cancelar'+'</button></div>';
+    if(a.observacion)html+='<div style="font-size:11px;color:#9E9E9E;margin-top:4px">'+a.observacion+'</div>';
+    html+='</div>';
+  });
+  if(pasadas.length){
+    html+='<div style="font-size:11px;color:#9E9E9E;margin:10px 0 6px">Anteriores</div>';
+    pasadas.slice(0,5).forEach(function(a){
+      html+='<div style="background:#F5F5F5;border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:11px;color:#9E9E9E">';
+      html+=a.nombre+' &bull; '+a.tipo+' &bull; '+a.fechaInicio+' al '+a.fechaFin+' &bull; '+a.horasAutorizadas+'h';
+      html+='</div>';
+    });
+  }
+  document.getElementById('lista-he').innerHTML=html;
+}
+
+function abrirNuevaAutorizacion(){
+  var empOpts=empleados.map(function(e){
+    return '<option value="'+e.id+'">'+e.nombre+'</option>';
+  }).join('');
+  var body='<div class="form-group"><label>Colaborador</label><select id="aut-emp">'+empOpts+'</select></div>';
+  body+='<div class="form-group"><label>Tipo de autorizacion</label>';
+  body+='<select id="aut-tipo"><option value="Entrada">Entrada anticipada (entra antes de lo normal)</option><option value="Salida">Salida tardia (sale después de lo normal)</option></select></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Fecha inicio</label><input type="date" id="aut-ini"></div>';
+  body+='<div class="form-group"><label>Fecha fin</label><input type="date" id="aut-fin"></div></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Horas autorizadas</label>';
+  body+='<select id="aut-horas"><option value="0.5">0.5h</option><option value="1" selected>1h</option><option value="1.5">1.5h</option><option value="2">2h</option></select></div>';
+  body+='<div class="form-group"><label>Horario base del empleado</label><select id="aut-horario">';
+  var codOpts=tipos.map(function(t){return '<option value="'+t.codigo+'">'+t.codigo+' — '+t.descripcion+'</option>';}).join('');
+  body+=codOpts+'</select></div></div>';
+  body+='<div class="form-group"><label>Observacion</label><input id="aut-obs" placeholder="Ej: Cobertura de turno, pedido especial..."></div>';
+  body+='<button class="btn btn-p" onclick="guardarNuevaAutorizacion()">Guardar autorizacion</button>';
+  body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-nov\')">Cancelar</button>';
+  document.getElementById('modal-nov-body').innerHTML=body;
+  document.querySelector('#modal-nov .modal-t').innerHTML='Nueva Autorización H.Extra <button class="modal-close" onclick="cerrarModal(\'modal-nov\')">&#x2715;</button>';
+  abrirModal('modal-nov');
+}
+
+function guardarNuevaAutorizacion(){
+  var empSel=document.getElementById('aut-emp');
+  var empId=empSel?empSel.value:'';
+  var empNom=empSel?empSel.options[empSel.selectedIndex].text:'';
+  cerrarModal('modal-nov');
+  load('Guardando autorizacion...');
+  post({action:'guardarAutorizacionExtra',
+        empId:empId,empNom:empNom,
+        codHorario:gv('aut-horario'),
+        fechaInicio:fmtDateInput(gv('aut-ini')),
+        fechaFin:fmtDateInput(gv('aut-fin')),
+        tipo:gv('aut-tipo'),
+        horasAutorizadas:parseFloat(gv('aut-horas'))||1,
+        observacion:gv('aut-obs'),
+        aprobadoPor:'Admin'
+  }).then(function(r){
+    if(!r.ok)throw new Error(r.error||'Error');
+    return api('autorizacionesExtra');
+  }).then(function(d){
+    autorizacionesData=d||[];
+    unload();
+    mostrarToast('Autorización guardada','ok');
+    renderAutorizacionesExtra();
+  }).catch(function(e){unload();alert('Error: '+e.message);});
+}
+
+function cancelarAut(autId){
+  if(!confirm('Cancelar esta autorizacion?'))return;
+  load('Cancelando...');
+  post({action:'cancelarAutorizacionExtra',autId:autId})
+  .then(function(r){
+    if(!r.ok)throw new Error(r.error||'Error');
+    return api('autorizacionesExtra');
+  }).then(function(d){
+    autorizacionesData=d||[];
+    unload();
+    mostrarToast('Autorización cancelada','ok');
+    renderAutorizacionesExtra();
+  }).catch(function(e){unload();alert('Error: '+e.message);});
+}
+
+
+function renderHorasExtra(){
+  var lista=heFiltro?horasExtraData.filter(function(h){return h.estado===heFiltro;}):horasExtraData;
+  if(!lista.length){document.getElementById('lista-he').innerHTML='<div class="empty">Sin horas extra '+(heFiltro||'registradas')+'</div>';return;}
+  var html='';
+  lista.forEach(function(h){
+    var bc={Pendiente:'b-pend',Aprobada:'b-ok',Rechazada:'b-rec'}[h.estado]||'b-no';
+    var idx=empleados.findIndex(function(e){return e.id===h.empId;});
+    var bg=bgEmp(idx>=0?idx:0);
+    html+='<div class="card">';
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
+    html+='<div style="display:flex;align-items:center;gap:8px">';
+    html+='<div class="av" style="background:'+bg+';width:32px;height:32px;font-size:11px">'+ini(h.nombre)+'</div>';
+    html+='<div><div style="font-size:13px;font-weight:600">'+h.nombre+'</div>';
+    html+='<div style="font-size:11px;color:#9E9E9E">'+h.fecha+' &bull; '+h.dia+' &bull; Semana '+h.semana+'</div></div></div>';
+    html+='<span class="badge '+bc+'">'+h.estado+'</span></div>';
+    html+='<div class="stat3">';
+    html+='<div class="stat3-item" style="background:#E3F2FD"><div class="stat3-v" style="color:#1565C0">'+h.horasTrab+'h</div><div class="stat3-l">Trabajadas</div></div>';
+    html+='<div class="stat3-item" style="background:#F0F4F8"><div class="stat3-v" style="color:#9E9E9E">'+h.horasProg+'h</div><div class="stat3-l">Programadas</div></div>';
+    html+='<div class="stat3-item" style="background:#EDE7F6"><div class="stat3-v" style="color:#6A1B9A">'+h.horasDetec+'h</div><div class="stat3-l">Extra detec.</div></div>';
+    html+='</div>';
+    if(h.estado==='Pendiente'){
+      html+='<div style="display:flex;align-items:center;gap:8px;margin:10px 0">';
+      html+='<div style="font-size:12px;color:#424242;flex-shrink:0">Horas a autorizar:</div>';
+      html+='<input type="number" id="he-h-'+h.id+'" value="'+h.horasDetec+'" min="0.5" max="12" step="0.5" style="width:70px;padding:7px;border:1.5px solid #EEE;border-radius:8px;font-size:14px;font-weight:700;color:#6A1B9A;text-align:center;font-family:inherit">';
+      html+='<div style="font-size:11px;color:#9E9E9E">horas</div></div>';
+      html+='<div class="form-group"><label>Observacion</label><input type="text" id="he-obs-'+h.id+'" placeholder="Ej: Autorizado por jefe de zona"></div>';
+      html+='<div style="display:flex;gap:8px">';
+      html+='<button class="btn-sm btn-sm-g" style="flex:1;padding:10px" onclick="aprobarHE(\''+h.id+'\',\'Aprobada\')">&#10003; Aprobar</button>';
+      html+='<button class="btn-sm btn-sm-r" style="flex:1;padding:10px" onclick="aprobarHE(\''+h.id+'\',\'Rechazada\')">&#10007; Rechazar</button>';
+      html+='</div>';
+    } else {
+      html+='<div style="font-size:12px;color:#424242;margin-top:8px">Horas autorizadas: <strong>'+h.horasAut+'h</strong></div>';
+      if(h.observacion)html+='<div style="font-size:11px;color:#9E9E9E;margin-top:4px">'+h.observacion+'</div>';
+      if(h.aprobadoPor)html+='<div style="font-size:10px;color:#BDBDBD;margin-top:2px">Por: '+h.aprobadoPor+'</div>';
+    }
+    html+='</div>';
+  });
+  document.getElementById('lista-he').innerHTML=html;
+}
+
+function aprobarHE(id,estado){
+  var hEl=document.getElementById('he-h-'+id);
+  var obsEl=document.getElementById('he-obs-'+id);
+  var horas=hEl?parseFloat(hEl.value)||0:0;
+  var obs=obsEl?obsEl.value:'';
+  load('Guardando...');
+  post({action:'aprobarHoraExtra',horaExtraId:id,estado:estado,horasAutorizadas:horas,observacion:obs,aprobadoPor:'Admin'})
+  .then(function(r){
+    unload();
+    if(r.ok){var h=horasExtraData.find(function(x){return x.id===id;});if(h){h.estado=estado;h.horasAut=r.horasAutorizadas;h.observacion=obs;}renderHorasExtra();}
+  }).catch(function(){unload();});
+}
+
+// CONTRATOS
+function filtroContratos(filtro,idx){
+  ctFiltro=filtro;
+  for(var i=0;i<3;i++){var el=document.getElementById('ct-tab-'+i);if(el)el.classList.toggle('on',i===idx);}
+  renderContratos();
+}
+
+function renderContratos(){
+  if(ctFiltro==='alertas'){renderAlertasContratos();return;}
+  var lista=ctFiltro==='activos'
+    ?contratosData.filter(function(c){return c.estado==='Activo';})
+    :contratosData;
+  // Ordenar del mas antiguo al mas reciente por fechaInicio
+  lista.sort(function(a,b){
+    var da=parseFechaJS(a.fechaInicio||'01/01/2099');
+    var db=parseFechaJS(b.fechaInicio||'01/01/2099');
+    return da-db;
+  });
+  var html='';
+  lista.forEach(function(c){
+    var diasR=null,vencCol='#9E9E9E',vencTxt='';
+    if(c.fechaFin&&c.tipo!=='Indefinido'){
+      var fin=parseFechaJS(c.fechaFin);
+      diasR=Math.round((fin-new Date())/86400000);
+      vencCol=diasR<=0?'#C62828':diasR<=15?'#E65100':diasR<=35?'#F57F17':'#2E7D32';
+      vencTxt=diasR<=0?'VENCIDO':diasR+'d para vencer';
+    }
+    var prorTxt=c.numProrroga>0?'Prórroga #'+c.numProrroga:'Contrato inicial';
+    var regimenTxt=c.regimen==='Anterior'?'Historial anterior Ley 2466':'Ley 2466/2025';
+    var regimenCol=c.regimen==='Anterior'?'#9E9E9E':'#1565C0';
+    // Antigüedad
+    var antTxt='';
+    if(c.antiguedadAnios>0||c.antiguedadMeses>0){
+      antTxt=(c.antiguedadAnios>0?c.antiguedadAnios+'a ':'')+c.antiguedadMeses+'m';
+    }
+    // Cumpleaños
+    var cumplInfo=cumpleaniosData.find(function(x){return x.empId===c.empId;});
+    html+='<div class="card">';
+    // Header
+    html+='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">';
+    html+='<div><div style="font-size:14px;font-weight:700;color:#1E3A5F">'+c.nombre+'</div>';
+    html+='<div style="font-size:11px;color:#9E9E9E">'+c.empId+' &bull; '+c.cargo+' &bull; '+prorTxt+'</div></div>';
+    html+='<span class="badge '+(c.estado==='Activo'?'b-ok':c.estado==='Retirado'?'b-no':'b-rec')+'">'+c.estado+'</span></div>';
+    // Stats
+    html+='<div class="stat3" style="margin-bottom:10px">';
+    html+='<div class="stat3-item" style="background:#E3F2FD"><div class="stat3-v" style="color:#1565C0;font-size:12px">'+c.tipo+'</div><div class="stat3-l">Tipo</div></div>';
+    html+='<div class="stat3-item" style="background:#F0F4F8"><div class="stat3-v" style="font-size:11px">'+c.fechaInicio+'</div><div class="stat3-l">Inicio</div></div>';
+    html+='<div class="stat3-item" style="background:#F0F4F8"><div class="stat3-v" style="font-size:11px">'+(c.fechaFin||'Indefinido')+'</div><div class="stat3-l">Fin</div></div>';
+    html+='</div>';
+    if(c.salario)html+='<div style="font-size:13px;font-weight:600;margin-bottom:8px">Salario: $'+Number(c.salario).toLocaleString('es-CO')+'</div>';
+    // Duración + antigüedad + cumpleaños
+    html+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">';
+    if(c.duracionMeses)html+='<span class="badge b-no">&#128336; '+c.duracionMeses+' meses ('+(c.duracionMeses*30)+'d)</span>';
+    if(antTxt)html+='<span class="badge" style="background:#E3F2FD;color:#1565C0">&#127942; '+antTxt+' antigüedad</span>';
+    html+='<span class="badge" style="background:#F5F5F5;color:'+regimenCol+'">'+regimenTxt+'</span>';
+    if(cumplInfo){
+      var cbg=cumplInfo.cumpleHoy?'#FCE4EC':cumplInfo.cumpleEstaSemana?'#F3E5F5':'#F5F5F5';
+      var cfg=cumplInfo.cumpleHoy?'#E91E63':cumplInfo.cumpleEstaSemana?'#9C27B0':'#9E9E9E';
+      html+='<span class="badge" style="background:'+cbg+';color:'+cfg+'">&#127881; '+(cumplInfo.cumpleHoy?'Hoy!':cumplInfo.diasParaCumplir+'d')+'</span>';
+    }
+    html+='</div>';
+    if(vencTxt)html+='<div style="font-size:12px;font-weight:700;color:'+vencCol+';margin-bottom:8px">&#128336; '+vencTxt+'</div>';
+    // Período de prueba
+    // Ley 2466 acumulado
+    if(c.tipo==='Termino fijo'&&c.regimen==='Ley2466'&&c.diasLey2466!==undefined){
+      var diasAc=c.diasLey2466||0;
+      var diasRest=Math.max(0,1460-diasAc);
+      var pctLey=Math.min(100,Math.round(diasAc/1460*100));
+      var leyCol=diasAc>=1460?'#C62828':diasAc>=1095?'#E65100':diasAc>=730?'#F57F17':'#2E7D32';
+      var leyTxt=diasAc>=1460?'DEBE CONVERTIRSE A INDEFINIDO':diasRest+'d restantes para limite 4 años (Ley 2466)';
+      html+='<div style="background:#E3F2FD;border-radius:8px;padding:8px 12px;margin-bottom:8px">';
+      html+='<div style="display:flex;justify-content:space-between;margin-bottom:4px">';
+      html+='<span style="font-size:11px;font-weight:600;color:#1565C0">&#9876; Acumulado Ley 2466</span>';
+      html+='<span style="font-size:11px;font-weight:700;color:'+leyCol+'">'+diasAc+'d / 1460d</span></div>';
+      html+='<div style="background:#fff;border-radius:4px;height:6px;overflow:hidden;margin-bottom:4px">';
+      html+='<div style="background:'+leyCol+';height:100%;width:'+pctLey+'%;border-radius:4px"></div></div>';
+      html+='<div style="font-size:10px;color:'+leyCol+';font-weight:600">'+leyTxt+'</div></div>';
+    }
+    if(c.periodoVigente&&c.estado==='Activo'){
+      var prCol=c.diasPrueba<=5?'#C62828':'#E65100';
+      var prBg=c.diasPrueba<=5?'#FCEBEB':'#FFF3E0';
+      html+='<div style="background:'+prBg+';border-radius:8px;padding:7px 10px;font-size:11px;color:'+prCol+';font-weight:600;margin-bottom:8px">&#9888; Período de prueba: '+c.diasPrueba+'d restantes (vence '+c.periodoP+')</div>';
+    } else if(c.periodoP&&!c.periodoVigente&&c.diasPrueba!==null&&c.diasPrueba>=-30){
+      html+='<div style="background:#F5F5F5;border-radius:8px;padding:7px 10px;font-size:11px;color:#9E9E9E;margin-bottom:8px">&#10003; Período de prueba superado (venció '+c.periodoP+')</div>';
+    }
+    // Vacaciones
+    html+='<div class="vac-box"><div style="font-size:11px;color:#2E7D32;font-weight:700;margin-bottom:6px">&#127774; Vacaciones (15d/año)</div>';
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px">';
+    html+='<div style="font-size:11px">Disponibles: <strong style="color:#2E7D32">'+c.vacDisponibles+'d</strong></div>';
+    html+='<div style="font-size:11px">Disfrutadas: <strong>'+c.vacTomados+'d</strong></div>';
+    html+='<div style="font-size:11px">Compensadas: <strong style="color:#E65100">'+(c.vacCompensadas||0)+'d</strong></div>';
+    html+='<div style="font-size:11px">Pendientes: <strong style="color:'+(c.vacPendientes>0?'#E65100':'#9E9E9E')+'">'+c.vacPendientes+'d</strong></div>';
+    html+='</div></div>';
+    // Historial de vacaciones de este contrato
+    var vacEmp=vacacionesData.filter(function(v){return v.empId===c.empId&&v.estado!=='Cancelada';});
+    if(vacEmp.length){
+      html+='<div style="margin-bottom:8px">';
+      html+='<div style="font-size:11px;color:#2E7D32;font-weight:700;margin-bottom:6px">Historial de vacaciones</div>';
+      vacEmp.forEach(function(v){
+        var esComp=v.modalidad==='Compensadas';
+        html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:'+(esComp?'#FFF3E0':'#F1F8E9')+';border-radius:7px;margin-bottom:4px">';
+        html+='<div>';
+        html+='<span style="font-size:10px;font-weight:700;color:'+(esComp?'#E65100':'#2E7D32')+'">'+(esComp?'Compensadas':'Disfrutadas')+'</span>';
+        if(!esComp&&v.fechaInicio)html+=' <span style="font-size:10px;color:#9E9E9E">'+v.fechaInicio+(v.fechaFin?' al '+v.fechaFin:'')+'</span>';
+        html+='<div style="font-size:11px;font-weight:600">'+(v.diasCalendario||v.diasTomados)+'d hábiles</div>';
+        if(v.observacion)html+='<div style="font-size:10px;color:#9E9E9E">'+v.observacion+'</div>';
+        html+='</div>';
+        html+='<div style="display:flex;gap:4px">';
+        html+='<button class="btn-sm btn-sm-b" style="padding:3px 7px;font-size:10px" onclick="editarVacId(\''+v.id+'\')">&#9998;</button>';
+        html+='<button class="btn-sm btn-sm-r" style="padding:3px 7px;font-size:10px" onclick="eliminarVacId(\''+v.id+'\')">&#10005;</button>';
+        html+='</div></div>';
+      });
+      html+='</div>';
+    }
+    // Preavisos
+    var preEmp=preavisosData.filter(function(p){return p.contratoId===c.id;});
+    if(preEmp.length){
+      html+='<div style="background:#FFF3E0;border-radius:8px;padding:8px 10px;margin-bottom:8px">';
+      html+='<div style="font-size:11px;color:#E65100;font-weight:700;margin-bottom:3px">&#128276; Preaviso notificado</div>';
+      preEmp.forEach(function(p){html+='<div style="font-size:11px;color:#424242">'+p.fechaNot+' por '+p.notificadoPor+'</div>';});
+      html+='</div>';
+    }
+    // Botones
+    if(c.estado==='Activo'){
+      html+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">';
+      html+='<button class="btn-sm btn-sm-b" onclick="editarContratoId(\''+c.id+'\'  )">&#9998; Editar</button>';
+      html+='<button class="btn-sm btn-sm-o" onclick="prorrogaFromId(\''+c.id+'\'  )">&#8635; Prórroga</button>';
+      html+='<button class="btn-sm btn-sm-g" onclick="vacFromId(\''+c.id+'\'  )">&#127774; Vacaciones</button>';
+      if(diasR!==null&&diasR<=35&&!preavisosData.some(function(p){return p.contratoId===c.id&&p.estado==='Notificado';})){
+        html+='<button class="btn-sm btn-sm-ret" onclick="preavisoFromId(\''+c.id+'\'  )">&#128276; Preaviso</button>';
+      }
+      html+='<button class="btn-sm" style="background:#E3F2FD;color:#1565C0;border-color:#90CAF9" onclick="setEstadoEspecialId(\''+c.empId+'\',\''+c.nombre.replace(/\'/g,'')+'\')">&#9193; Estado</button>';
+      html+='<button class="btn-sm" style="background:#FFEBEE;color:#C62828" onclick="retirarDesdeContratoId(\''+c.id+'\',\''+c.empId+'\',\''+c.nombre.replace(/'/g,'')+'\'  )">&#10008; Retirar empleado</button>';
+      html+='</div>';
+    }
+    html+='</div>';
+  });
+  document.getElementById('lista-contratos').innerHTML=html||'<div class="empty">Sin contratos. Usa + Nuevo contrato.</div>';
+}
+
+
+function renderAlertasContratos(){
+  if(!alertasData.length){document.getElementById('lista-contratos').innerHTML='<div class="empty">&#10004; Sin alertas. Todos los contratos estan al dia.</div>';return;}
+  var html='<div style="font-size:12px;color:#9E9E9E;margin-bottom:10px">'+alertasData.length+' contrato(s) requieren atención (preaviso 35 dias)</div>';
+  alertasData.forEach(function(a){
+    var cls=a.nivel==='vencido'?'alerta-venc':a.nivel==='critico'?'alerta-crit':'alerta-prox';
+    var col=a.nivel==='vencido'?'#C62828':a.nivel==='critico'?'#E65100':'#F57F17';
+    html+='<div class="alerta-card '+cls+'">';
+    if(a.alertaLey2466){
+      var al=a.alertaLey2466;
+      var alCol=al.nivel==='indefinido'?'#C62828':al.nivel==='critico'?'#E65100':'#F57F17';
+      html+='<div style="background:#E3F2FD;border-radius:6px;padding:6px 10px;margin-bottom:8px;font-size:11px;color:'+alCol+';font-weight:600">';
+      html+='&#9876; '+( al.nivel==='indefinido'?'DEBE CONVERTIRSE A INDEFINIDO ('+al.diasAcum+'d acumulados)':'Ley 2466: '+al.diasAcum+'d acumulados, '+al.diasParaLimite+'d para el limite de 4 años');
+      html+='</div>';
+    }
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
+    html+='<div style="font-size:14px;font-weight:700">'+a.nombre+'</div>';
+    html+='<span style="color:'+col+';font-weight:700;font-size:14px">'+(a.diasRestantes<=0?'VENCIDO':a.diasRestantes+'d')+'</span></div>';
+    html+='<div style="font-size:12px;color:#424242;margin-bottom:6px">'+a.tipo+' &bull; Vence: '+a.fechaFin+'</div>';
+    if(a.nivel==='vencido')html+='<div style="font-size:12px;color:#C62828;font-weight:600">&#9888; Preaviso vencido. El contrato ya termino.</div>';
+    else if(a.nivel==='critico')html+='<div style="font-size:12px;color:#E65100">&#9888; Critico: menos de 15 dias. Preaviso urgente.</div>';
+    else html+='<div style="font-size:12px;color:#F57F17">Vence en 35 dias o menos. Considera el preaviso.</div>';
+    if(a.preRegistrado){
+      html+='<div style="font-size:11px;color:#2E7D32;margin-top:6px">&#10003; Preaviso ya notificado</div>';
+    } else {
+    html+='<button class="btn-sm btn-sm-o" style="margin-top:8px" onclick="preavisoFromId(\''+a.id+'\')">'+'Registrar preaviso'+'</button>';
+    }
+    html+='</div>';
+  });
+  document.getElementById('lista-contratos').innerHTML=html;
+}
+
+function abrirNuevoContrato(){
+  var empOpts=empleados.map(function(e){return '<option value="'+e.id+'">'+e.nombre+'</option>';}).join('');
+  var body='<div class="form-group"><label>Colaborador</label><select id="ct-emp">'+empOpts+'</select></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Tipo de contrato</label><select id="ct-tipo"><option value="Término fijo">Término fijo</option><option value="Indefinido">Indefinido</option></select></div>';
+  body+='<div class="form-group"><label>Régimen</label><select id="ct-régimen">';
+  body+='<option value="Ley2466">Ley 2466 (desde jul 2025)</option>';
+  body+='<option value="Anterior">Anterior a Ley 2466 (histórico)</option>';
+  body+='</select></div></div>';
+  body+='<div class="form-group"><label>Cargo</label><input id="ct-cargo" placeholder="Técnico..."></div></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Fecha inicio</label><input type="date" id="ct-inicio"></div>';
+  body+='<div class="form-group"><label>Fecha fin</label><input type="date" id="ct-fin" placeholder="Solo término fijo"></div></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Duración meses</label><input type="number" id="ct-meses" placeholder="6"></div>';
+  body+='<div class="form-group"><label>Salario mensual</label><input type="number" id="ct-salario" placeholder="1300000"></div></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Fecha nacimiento</label><input type="date" id="ct-fn"></div>';
+  body+='<div class="form-group"><label>Observacion</label><textarea id="ct-obs" placeholder="Notas del contrato..."></textarea></div></div>';
+  body+='<button class="btn btn-p" onclick="guardarContrato()">Guardar contrato</button>';
+  body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-ct\')">Cancelar</button>';
+  document.getElementById('modal-ct-body').innerHTML=body;
+  document.getElementById('modal-ct-titulo').innerHTML='Nuevo Contrato <button class="modal-close" onclick="cerrarModal(\'modal-ct\')">&#x2715;</button>';
+  abrirModal('modal-ct');
+}
+
+function guardarContrato(){
+  var empSel=document.getElementById('ct-emp');
+  var empId=empSel?empSel.value:'';
+  var empNom=empSel?empSel.options[empSel.selectedIndex].text:'';
+  cerrarModal('modal-ct');load('Guardando contrato...');
+  post({action:'guardarContrato',empId:empId,empNom:empNom,
+        tipo:gv('ct-tipo'),cargo:gv('ct-cargo'),regimen:gv('ct-régimen')||'Ley2466',
+        fechaInicio:fmtDateInput(gv('ct-inicio')),fechaFin:fmtDateInput(gv('ct-fin')),
+        duracionMeses:gv('ct-meses'),salario:gv('ct-salario'),
+        observacion:gv('ct-obs')
+  }).then(function(r){
+    if(!r.ok)throw new Error(r.error||'Error guardando contrato');
+    return Promise.all([api('contratos'),api('alertasContratos')]);
+  }).then(function(res){
+    contratosData=res[0]||[];alertasData=res[1]||[];
+    unload();renderContratos();renderAlertasHoy();
+  }).catch(function(e){unload();alert('Error: '+e.message);});
+}
+
+function abrirRenovarContrato(ctId,empId,nombre,cargo,salario){
+  _ctRenovId=ctId; _ctRenovEmpId=empId; _ctRenovNom=nombre;
+  var body='<div style="font-size:13px;font-weight:600;margin-bottom:14px;color:#1E3A5F">Prórroga de contrato: '+nombre+'</div>';
+  body+='<div class="form-row"><div class="form-group"><label>Nueva fecha inicio</label><input type="date" id="ct-inicio"></div>';
+  body+='<div class="form-group"><label>Nueva fecha fin</label><input type="date" id="ct-fin"></div></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Duración meses</label><input type="number" id="ct-meses" placeholder="6"></div>';
+  body+='<div class="form-group"><label>Salario</label><input type="number" id="ct-salario" value="'+salario+'"></div></div>';
+  body+='<div class="form-group"><label>Cargo</label><input id="ct-cargo" value="'+cargo+'"></div>';
+  body+='<button class="btn btn-p" onclick="renovarContratoConfirm()">Confirmar prórroga</button>';
+  body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-ct\')">Cancelar</button>';
+  document.getElementById('modal-ct-body').innerHTML=body;
+  document.getElementById('modal-ct-titulo').innerHTML='Prórroga de Contrato <button class="modal-close" onclick="cerrarModal(\'modal-ct\')">&#x2715;</button>';
+  abrirModal('modal-ct');
+}
+
+function renovarContrato(ctId,empId,nombre){
+  cerrarModal('modal-ct');load('Registrando prórroga...');
+  post({action:'renovarContrato',contratoId:ctId,empId:empId,empNom:nombre,
+        tipo:'Termino fijo',fechaInicio:fmtDateInput(gv('ct-inicio')),
+        fechaFin:fmtDateInput(gv('ct-fin')),duracionMeses:gv('ct-meses'),
+        salario:gv('ct-salario'),cargo:gv('ct-cargo')
+  }).then(function(r){
+    if(!r.ok)throw new Error(r.error||'Error');
+    return Promise.all([api('contratos'),api('alertasContratos')]);
+  }).then(function(res){
+    contratosData=res[0]||[];alertasData=res[1]||[];
+    unload();renderContratos();renderAlertasHoy();
+  }).catch(function(e){unload();alert('Error: '+e.message);});
+}
+
+function registrarPreaviso(ctId,empId,nombre,fechaVenc){
+  var obs=prompt('Observacion del preaviso (opcional):', 'Preaviso de terminacion notificado al colaborador');
+  if(obs===null)return;
+  load('Registrando preaviso...');
+  post({action:'registrarPreaviso',contratoId:ctId,empId:empId,empNom:nombre,
+        fechaVenc:fechaVenc,notificadoPor:'Admin',observacion:obs
+  }).then(function(r){
+    if(!r.ok)throw new Error(r.error||'Error');
+    return Promise.all([api('alertasContratos'),api('preavisos')]);
+  }).then(function(res){
+    alertasData=res[0]||[];preavisosData=res[1]||[];
+    unload();renderContratos();renderAlertasHoy();
+    alert('Preaviso registrado correctamente. Dias restantes: '+(r&&r.diasRestantes||'--'));
+  }).catch(function(e){unload();alert('Error: '+e.message);});
+}
+
+function abrirNuevasVacaciones(ctId,empId,nombre){
+  _vacCtId=ctId; _vacEmpId=empId; _vacNom=nombre;
+  var body='<div style="font-size:13px;font-weight:600;margin-bottom:14px;color:#2E7D32">Registrar vacaciones: '+nombre+'</div>';
+  body+='<div class="form-row"><div class="form-group"><label>Fecha inicio</label><input type="date" id="vac-ini"></div>';
+  body+='<div class="form-group"><label>Fecha fin</label><input type="date" id="vac-fin"></div></div>';
+  body+='<div id="vac-dias-preview" style="background:#E8F5E9;border-radius:8px;padding:10px;text-align:center;margin-bottom:12px;font-size:13px;color:#2E7D32">Seleccióna las fechas</div>';
+  body+='<div class="form-group"><label>Observacion</label><input id="vac-obs" placeholder="Vacaciones primer período..."></div>';
+  body+='<button class="btn btn-g" onclick="guardarVacacionesConfirm()">Guardar vacaciones</button>';
+  body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-ct\')">Cancelar</button>';
+  document.getElementById('modal-ct-body').innerHTML=body;
+  document.getElementById('modal-ct-titulo').innerHTML='Registrar Vacaciones <button class="modal-close" onclick="cerrarModal(\'modal-ct\')">&#x2715;</button>';
+  // Preview de dias
+  var FEST_LIST=['01/01/2025','06/01/2025','24/03/2025','17/04/2025','18/04/2025',
+    '01/05/2025','02/06/2025','23/06/2025','30/06/2025','20/07/2025',
+    '07/08/2025','18/08/2025','13/10/2025','03/11/2025','17/11/2025',
+    '08/12/2025','25/12/2025','01/01/2026','12/01/2026','23/03/2026',
+    '02/04/2026','03/04/2026','01/05/2026','18/05/2026','08/06/2026',
+    '29/06/2026','20/07/2026','07/08/2026','17/08/2026','12/10/2026',
+    '02/11/2026','16/11/2026','08/12/2026','25/12/2026'];
+  function p2f(n){return String(n).padStart(2,'0');}
+  function calcDias(){
+    var ini=document.getElementById('vac-ini').value;
+    var fin=document.getElementById('vac-fin').value;
+    if(ini&&fin){
+      var d1=new Date(ini),d2=new Date(fin);
+      var cur=new Date(d1); var hábiles=0;
+      while(cur<=d2){
+        var dow=cur.getDay();
+        var fs=p2f(cur.getDate())+'/'+p2f(cur.getMonth()+1)+'/'+cur.getFullYear();
+        if(dow!==0&&FEST_LIST.indexOf(fs)===-1) hábiles++;
+        cur.setDate(cur.getDate()+1);
+      }
+      var prev=document.getElementById('vac-dias-preview');
+      if(prev){
+        prev.textContent=hábiles+' dias hábiles (Lun-Sab sin festivos)';
+        prev.style.background=hábiles>0?'#E8F5E9':'#FFEBEE';
+        prev.style.color=hábiles>0?'#2E7D32':'#C62828';
+      }
+    }
+  }
+  setTimeout(function(){
+    var iniEl=document.getElementById('vac-ini');
+    var finEl=document.getElementById('vac-fin');
+    if(iniEl)iniEl.addEventListener('change',calcDias);
+    if(finEl)finEl.addEventListener('change',calcDias);
+  },100);
+  abrirModal('modal-ct');
+}
+
+function guardarVacaciones(ctId,empId,nombre){
+  cerrarModal('modal-ct');load('Guardando vacaciones...');
+  var modalidad=gv('vac-modalidad')||'Disfrutadas';
+  var isComp=modalidad==='Compensadas';
+  var fIni=isComp?'':fmtDateInput(gv('vac-ini'));
+  var fFin=isComp?'':fmtDateInput(gv('vac-fin'));
+  var diasComp=isComp?parseInt(gv('vac-dias-comp')||'0'):0;
+  post({action:'registrarVacaciones',empId:empId,empNom:nombre,contratoId:ctId,
+        fechaInicio:fIni,fechaFin:fFin,diasCalendario:diasComp,
+        modalidad:modalidad,
+        observacion:gv('vac-obs'),aprobadoPor:'Admin'
+  }).then(function(r){
+    if(!r.ok)throw new Error(r.error||'Error');
+    return Promise.all([api('contratos'),api('vacaciones')]);
+  }).then(function(res){
+    contratosData=res[0]||[];vacacionesData=res[1]||[];
+    unload();renderContratos();
+  }).catch(function(e){unload();alert('Error: '+e.message);});
+}
+
+
+// UTILS
+
+
+var _ctRenovId='', _ctRenovEmpId='', _ctRenovNom='';
+function renovarContratoConfirm(){
+  renovarContrato(_ctRenovId, _ctRenovEmpId, _ctRenovNom);
+}
+
+var _vacCtId='', _vacEmpId='', _vacNom='';
+function guardarVacacionesConfirm(){
+  guardarVacaciones(_vacCtId, _vacEmpId, _vacNom);
+}
+function vacFromId(id){
+  var c=contratosData.find(function(x){return x.id===id;});
+  if(c) abrirNuevasVacaciones(c.id,c.empId,c.nombre);
+}
+function prorrogaFromId(id){
+  var c=contratosData.find(function(x){return x.id===id;});
+  if(c) abrirRenovarContrato(c.id,c.empId,c.nombre,c.cargo,c.salario);
+}
+function preavisoFromId(id){
+  var c=contratosData.find(function(x){return x.id===id;});
+  if(c) registrarPreaviso(c.id,c.empId,c.nombre,c.fechaFin);
+}
+function filtroCtrl(vista,idx){
+  ctrlVista=vista;
+  for(var i=0;i<2;i++){var el=document.getElementById('ctrl-tab-'+i);if(el)el.classList.toggle('on',i===idx);}
+  if(vista==='hoy') renderControlHoy();
+  else renderResumenControl();
+}
+
+function cargarControl(){
+  var mes=document.getElementById('ctrl-mes').value;
+  var ano=document.getElementById('ctrl-año').value;
+  load('Cargando control...');
+  var hoyStr=hoy();
+  Promise.all([
+    api('controlDiario&fecha='+hoyStr),
+    api('resumenControl&período='+mes+'/'+ano)
+  ]).then(function(res){
+    controlData=res[0]||[];
+    resumenCtrl=res[1]||[];
+    unload();
+    if(ctrlVista==='hoy') renderControlHoy();
+    else renderResumenControl();
+  }).catch(function(e){unload();document.getElementById('lista-ctrl').innerHTML='<div class="empty">Error: '+e.message+'</div>';});
+}
+
+function renderControlHoy(){
+  if(!controlData.length){document.getElementById('lista-ctrl').innerHTML='<div class="empty">Sin registros de control para hoy.<br><br>Usa la interfaz de Control Diario en<br><strong>'+window.location.origin+'/control.html</strong></div>';return;}
+  // Resumen del dia
+  var tots={camisa:{si:0,no:0},pantalon:{si:0,no:0},celular:{si:0,no:0},aseo:{si:0,no:0,na:0},radar:{si:0,no:0}};
+  controlData.forEach(function(c){
+    function ct(t,v){var vl=String(v||'').toLowerCase();if(vl==='si'||vl==='sí')t.si++;else if(vl==='no')t.no++;else if(t.na!==undefined)t.na++;}
+    ct(tots.camisa,c.camisa);ct(tots.pantalon,c.pantalon);ct(tots.celular,c.celular);ct(tots.aseo,c.aseo);ct(tots.radar,c.radar);
+  });
+  var n=controlData.length;
+  var html='<div class="card" style="border-left:4px solid #6A1B9A;margin-bottom:12px">';
+  html+='<div class="card-t" style="color:#6A1B9A">&#128203; Resumen del dia &bull; '+n+' colaboradores</div>';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:4px">';
+  function statCtrl(label,si,total){
+    var pct=total>0?Math.round(si/total*100):0;
+    var col=pct>=80?'#2E7D32':pct>=50?'#E65100':'#C62828';
+    return '<div style="background:#F3E5F5;border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+pct+'%</div><div style="font-size:9px;color:#9E9E9E">'+label+'</div></div>';
+  }
+  html+=statCtrl('CAMISA',tots.camisa.si,n);
+  html+=statCtrl('PANTALON',tots.pantalon.si,n);
+  html+=statCtrl('CELULAR',tots.celular.si,n);
+  html+=statCtrl('ASEO',tots.aseo.si,n);
+  html+=statCtrl('RADAR',tots.radar.si,n);
+  html+='</div></div>';
+  // Detalle por empleado
+  html+='<div class="card"><div class="card-t">Detalle por colaborador</div>';
+  controlData.forEach(function(c,i){
+    var idx=empleados.findIndex(function(e){return e.id===c.empId;});
+    var bg=bgEmp(idx>=0?idx:i);
+    function pill(v){
+      var vl=String(v||'').toLowerCase();
+      if(vl==='si'||vl==='sí')return '<span style="background:#E8F5E9;color:#2E7D32;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700">Si</span>';
+      if(vl==='no')return '<span style="background:#FFEBEE;color:#C62828;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700">No</span>';
+      return '<span style="background:#F5F5F5;color:#9E9E9E;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700">N/A</span>';
+    }
+    html+='<div style="padding:10px 0;border-bottom:1px solid #F3E5F5">';
+    html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">';
+    html+='<div class="av" style="background:'+bg+';width:28px;height:28px;font-size:10px">'+ini(c.nombre)+'</div>';
+    html+='<div style="font-size:13px;font-weight:600">'+c.nombre+'</div></div>';
+    html+='<div style="display:flex;gap:5px;flex-wrap:wrap">';
+    html+='<div>&#128248; '+pill(c.camisa)+'</div>';
+    html+='<div>&#128062; '+pill(c.pantalon)+'</div>';
+    html+='<div>&#128241; '+pill(c.celular)+'</div>';
+    html+='<div>&#129529; '+pill(c.aseo)+'</div>';
+    html+='<div>&#128205; '+pill(c.radar)+'</div>';
+    html+='</div>';
+    if(c.observacion)html+='<div style="font-size:11px;color:#9E9E9E;margin-top:4px">Obs: '+c.observacion+'</div>';
+    html+='</div>';
+  });
+  html+='</div>';
+  document.getElementById('lista-ctrl').innerHTML=html;
+}
+
+function renderResumenControl(){
+  if(!resumenCtrl.length){document.getElementById('lista-ctrl').innerHTML='<div class="empty">Sin datos de control para este período</div>';return;}
+  var html='<div style="font-size:12px;color:#9E9E9E;margin-bottom:10px">'+resumenCtrl.length+' colaboradores &bull; Cumplimiento mensual</div>';
+  resumenCtrl.forEach(function(e){
+    var campos=[
+      {label:'&#128248; Camisa',pct:e.pctCamisa},
+      {label:'&#128062; Pantalon',pct:e.pctPantalon},
+      {label:'&#128241; Celular',pct:e.pctCelular},
+      {label:'&#129529; Aseo',pct:e.pctAseo},
+      {label:'&#128205; Radar',pct:e.pctRadar}
+    ];
+    var pctGeneral=Math.round((e.pctCamisa+e.pctPantalon+e.pctCelular+e.pctAseo+e.pctRadar)/5);
+    var colG=pctGeneral>=80?'#2E7D32':pctGeneral>=50?'#E65100':'#C62828';
+    var idx=empleados.findIndex(function(x){return x.id===e.empId;});
+    var bg=bgEmp(idx>=0?idx:0);
+    html+='<div class="card">';
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
+    html+='<div style="display:flex;align-items:center;gap:8px">';
+    html+='<div class="av" style="background:'+bg+';width:30px;height:30px;font-size:10px">'+ini(e.nombre)+'</div>';
+    html+='<div><div style="font-size:13px;font-weight:600">'+e.nombre+'</div>';
+    html+='<div style="font-size:10px;color:#9E9E9E">'+e.dias+' dias registrados</div></div></div>';
+    html+='<div style="text-align:right"><div style="font-size:22px;font-weight:900;color:'+colG+'">'+pctGeneral+'%</div><div style="font-size:9px;color:#9E9E9E">GENERAL</div></div></div>';
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">';
+    campos.forEach(function(c){
+      var col=c.pct>=80?'#2E7D32':c.pct>=50?'#E65100':'#C62828';
+      var bg2=c.pct>=80?'#E8F5E9':c.pct>=50?'#FFF3E0':'#FFEBEE';
+      html+='<div style="background:'+bg2+';border-radius:8px;padding:7px;text-align:center">';
+      html+='<div style="font-size:16px;font-weight:700;color:'+col+'">'+c.pct+'%</div>';
+      html+='<div style="font-size:9px;color:#9E9E9E">'+c.label+'</div></div>';
+    });
+    html+='</div></div>';
+  });
+  document.getElementById('lista-ctrl').innerHTML=html;
+}
+
+function recalcularFormulas(){
+  load('Recalculando todas las marcaciones...');
+  api('recalcular').then(function(r){
+    unload();
+    if(r.ok||r.procesadas!==undefined){
+      alert('Recálculo completado.\n'+r.procesadas+' filas procesadas de '+r.total+' totales.');
+    } else {
+      alert('Error: '+(r.error||'desconocido'));
+    }
+  }).catch(function(e){unload();alert('Error: '+e.message);});
+}
+
+function editarContratoId(ctId){
+  var c=contratosData.find(function(x){return x.id===ctId;});
+  if(!c)return;
+  var body='<div style="font-size:13px;font-weight:600;margin-bottom:14px;color:#1E3A5F">Editar contrato de '+c.nombre+'</div>';
+  var regActual=c.regimen||'Ley2466';
+  body+='<div class="form-row"><div class="form-group"><label>Tipo</label>';
+  body+='<select id="ce-tipo"><option value="Término fijo" '+(c.tipo==='Termino fijo'?'selected':'')+'>Término fijo</option>';
+  body+='<option value="Indefinido" '+(c.tipo==='Indefinido'?'selected':'')+'>Indefinido</option></select></div>';
+  body+='<div class="form-group"><label>Cargo</label><input id="ce-cargo" value="'+c.cargo+'"></div></div>';
+  body+='<div class="form-group"><label>Régimen</label><select id="ce-régimen">';
+  body+='<option value="Ley2466" '+(regActual==='Ley2466'?'selected':'')+'>Ley 2466 (desde jul 2025)</option>';
+  body+='<option value="Anterior" '+(regActual==='Anterior'?'selected':'')+'>Anterior a Ley 2466 (histórico)</option>';
+  body+='</select></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Fecha inicio</label><input type="date" id="ce-ini" value="'+fmtParaInput(c.fechaInicio)+'"></div>';
+  body+='<div class="form-group"><label>Fecha fin</label><input type="date" id="ce-fin" value="'+fmtParaInput(c.fechaFin)+'"></div></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Duración meses</label><input type="number" id="ce-meses" value="'+c.duracionMeses+'"></div>';
+  body+='<div class="form-group"><label>Salario</label><input type="number" id="ce-sal" value="'+c.salario+'"></div></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Fecha nacimiento</label><input type="date" id="ce-fn" value="'+fmtParaInput(c.fechaNacimiento)+'"></div>';
+  body+='<div class="form-group"><label>Observacion</label><textarea id="ce-obs">'+c.observacion+'</textarea></div></div>';
+  body+='<button class="btn btn-p" onclick="guardarEdicionContrato(\''+ctId+'\')">Guardar cambios</button>';
+  body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-ct\')">Cancelar</button>';
+  document.getElementById('modal-ct-body').innerHTML=body;
+  document.getElementById('modal-ct-titulo').innerHTML='Editar Contrato <button class="modal-close" onclick="cerrarModal(\'modal-ct\')">&#x2715;</button>';
+  abrirModal('modal-ct');
+}
+
+function guardarEdicionContrato(ctId){
+  cerrarModal('modal-ct');
+  load('Guardando cambios...');
+  post({action:'editarContrato',contratoId:ctId,
+        tipo:gv('ce-tipo'),cargo:gv('ce-cargo'),
+        fechaInicio:fmtDateInput(gv('ce-ini')),
+        fechaFin:fmtDateInput(gv('ce-fin')),
+        duracionMeses:gv('ce-meses'),salario:gv('ce-sal'),
+        fechaNacimiento:fmtDateInput(gv('ce-fn')),
+        regimen:gv('ce-régimen'),
+        observacion:gv('ce-obs')
+  }).then(function(r){
+    if(!r.ok)throw new Error(r.error||'Error');
+    return Promise.all([api('contratos'),api('alertasContratos')]);
+  }).then(function(res){
+    contratosData=res[0]||[];alertasData=res[1]||[];
+    unload();renderContratos();mostrarToast('Contrato actualizado','ok');
+  }).catch(function(e){unload();alert('Error: '+e.message);});
+}
+
+function setEstadoEspecialId(empId, nombre){
+  var opts=['','Vacaciones','Permiso no remunerado','Licencia','Incapacidad'];
+  var actual='';
+  var sel='<select id="est-esp-sel" style="width:100%;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:12px">';
+  opts.forEach(function(o){sel+='<option value="'+o+'"'+(o===actual?' selected':'')+'>'+( o||'Activo (sin estado especial)')+'</option>';});
+  sel+='</select>';
+  var body=sel;
+  body+='<button class="btn btn-p" onclick="confirmarEstadoEspecial(\''+empId+'\',\''+nombre.replace(/\'/g,'')+'\')" >Guardar</button>';
+  body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-est\')">Cancelar</button>';
+  var m=document.getElementById('modal-est');
+  if(!m){
+    m=document.createElement('div');
+    m.id='modal-est';
+    m.className='modal-overlay';
+    m.innerHTML='<div class="modal-box"><div class="modal-hdr"><span style="font-weight:700;color:#1E3A5F">Estado del colaborador</span><button class="modal-cls" onclick="cerrarModal(\'modal-est\')">&#10005;</button></div><div id="modal-est-body"></div></div>';
+    document.body.appendChild(m);
+  }
+  document.getElementById('modal-est-body').innerHTML='<div style="font-size:13px;font-weight:600;color:#1E3A5F;margin-bottom:12px">'+nombre+'</div>'+body;
+  m.style.display='flex';
+}
+
+function confirmarEstadoEspecial(empId, nombre){
+  var estado=document.getElementById('est-esp-sel').value;
+  cerrarModal('modal-est');
+  load('Actualizando estado...');
+  post({action:'setEstadoEspecial',empId:empId,nombre:nombre,estado:estado})
+  .then(function(r){
+    unload();
+    if(!r.ok){alert('Error: '+(r.error||'desconocido'));return;}
+    renderContratos();
+  }).catch(function(e){unload();alert('Error: '+e.message);});
+}
+
+function setHeTab(tab){
+  ['detectadas','autorizadas'].forEach(function(t){
+    var el=document.getElementById('he-lista-'+t);
+    if(el) el.style.display=t===tab?'block':'none';
+    var btn=document.getElementById('he-tab-'+t.substring(0,3));
+    if(btn) btn.className='res-tab'+(t===tab?' res-tab-a':'');
+  });
+}
+
+function renderHorasExtraUnificado(){
+  var empId=document.getElementById('he-emp')?document.getElementById('he-emp').value:'';
+  var mes=document.getElementById('he-mes').value;
+  var ano=document.getElementById('he-ano').value;
+  var periodo=mes+'/'+ano;
+  document.getElementById('he-lista-detectadas').innerHTML='<div class="empty">Cargando...</div>';
+  document.getElementById('he-lista-autorizadas').innerHTML='<div class="empty">Cargando...</div>';
+  api('horasExtraUnificado&empId='+empId+'&periodo='+periodo).then(function(data){
+    if(!data||data.error){
+      document.getElementById('he-lista-detectadas').innerHTML='<div class="empty">Error</div>';
+      return;
+    }
+    // Detectadas
+    var det=data.detectadas||[];
+    var html='';
+    if(!det.length){html='<div class="empty">Sin horas extra detectadas</div>';}
+    else{
+      det.forEach(function(h){
+        var bc=h.estado==='Aprobada'?'b-ok':h.estado==='Rechazada'?'b-rec':'b-ret';
+        html+='<div class="card" style="margin-bottom:8px">';
+        html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+        html+='<div><div style="font-size:13px;font-weight:700">'+h.nombre+'</div>';
+        html+='<div style="font-size:10px;color:#9E9E9E">'+h.fecha+' &bull; '+h.dia+'</div></div>';
+        html+='<span class="badge '+bc+'">'+h.estado+'</span></div>';
+        html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center;margin-bottom:8px">';
+        html+='<div style="background:#F8F9FA;border-radius:8px;padding:6px"><div style="font-size:9px;color:#9E9E9E">Trabajadas</div><div style="font-weight:700">'+h.horasTrab+'h</div></div>';
+        html+='<div style="background:#F8F9FA;border-radius:8px;padding:6px"><div style="font-size:9px;color:#9E9E9E">Programadas</div><div style="font-weight:700">'+h.horasProg+'h</div></div>';
+        html+='<div style="background:#EDE7F6;border-radius:8px;padding:6px"><div style="font-size:9px;color:#6A1B9A">Extra</div><div style="font-weight:700;color:#6A1B9A">'+h.horasDetec+'h</div></div>';
+        html+='</div>';
+        if(h.estado==='Pendiente'){
+          html+='<div style="display:flex;gap:6px">';
+          html+='<button class="btn-sm btn-sm-b" onclick="aprobarHoraExtra(\''+h.id+'\',\'Aprobada\')">Aprobar</button>';
+          html+='<button class="btn-sm" style="background:#FFEBEE;color:#C62828;border-color:#FFCDD2" onclick="aprobarHoraExtra(\''+h.id+'\',\'Rechazada\')">Rechazar</button>';
+          html+='</div>';
+        }
+        html+='</div>';
+      });
+    }
+    document.getElementById('he-lista-detectadas').innerHTML=html;
+
+    // Autorizadas
+    var aut=data.autorizadas||[];
+    var html2='';
+    if(!aut.length){html2='<div class="empty">Sin autorizaciones activas</div>';}
+    else{
+      aut.forEach(function(a){
+        html2+='<div class="card" style="margin-bottom:8px">';
+        html2+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+        html2+='<div><div style="font-size:13px;font-weight:700">'+a.nombre+'</div>';
+        html2+='<div style="font-size:10px;color:#9E9E9E">'+a.fechaInicio+' → '+a.fechaFin+'</div></div>';
+        var ac=a.estado==='Activa'?'b-ok':'b-rec';
+        html2+='<span class="badge '+ac+'">'+a.estado+'</span></div>';
+        html2+='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">';
+        html2+='<span class="badge" style="background:#EDE7F6;color:#6A1B9A">'+a.horasAut+'h aut. &bull; '+a.tipo+'</span>';
+        html2+='<span style="font-size:11px;color:#9E9E9E">'+a.codHorario+'</span>';
+        if(a.obs) html2+='<span style="font-size:11px;color:#616161">'+a.obs+'</span>';
+        html2+='</div>';
+        if(a.estado==='Activa'){
+          html2+='<button class="btn-sm" style="margin-top:8px;background:#FFEBEE;color:#C62828;border-color:#FFCDD2" onclick="cancelarAutorizacionExtraId(\''+a.id+'\')">Cancelar</button>';
+        }
+        html2+='</div>';
+      });
+    }
+    document.getElementById('he-lista-autorizadas').innerHTML=html2;
+
+    // Poblar selector de empleados
+    var sel=document.getElementById('he-emp');
+    if(sel&&sel.options.length<=1){
+      api('empleados').then(function(emps){
+        (emps||[]).forEach(function(e){
+          var opt=document.createElement('option');
+          opt.value=e.id; opt.textContent=e.nombre;
+          sel.appendChild(opt);
+        });
+      });
+    }
+  });
+}
+
+function retirarDesdeContratoId(ctId,empId,nombre){
+  if(!confirm('Retirar a '+nombre+'?\nEsto cerrara el contrato y desactivara al empleado de todo el sistema.'))return;
+  var fecha=prompt('Fecha de retiro (dd/mm/aaaa):',hoy());
+  if(!fecha)return;
+  var motivo=prompt('Motivo del retiro:','Terminacion de contrato');
+  if(motivo===null)return;
+  load('Procesando retiro...');
+  post({action:'retirarDesdeContrato',empId:empId,contratoId:ctId,
+        fechaRetiro:fecha,motivo:motivo})
+  .then(function(r){
+    if(!r.ok)throw new Error(r.error||'Error');
+    return Promise.all([api('contratos'),api('alertasContratos'),api('empleados'),api('horarios')]);
+  }).then(function(res){
+    contratosData=res[0]||[];alertasData=res[1]||[];
+    empleados=res[2]||[];horarios=res[3]||[];
+    unload();renderContratos();renderAlertasHoy();
+    mostrarToast(nombre.split(' ')[0]+' retirado del sistema','ok');
+  }).catch(function(e){unload();alert('Error: '+e.message);});
+}
+
+function fmtParaInput(fechaStr){
+  if(!fechaStr)return '';
+  var p=fechaStr.split('/');
+  if(p.length!==3)return '';
+  return p[2]+'-'+p[1]+'-'+p[0];
+}
+
+
+function editarVacId(vacId){
+  var v=vacacionesData.find(function(x){return x.id===vacId;});
+  if(!v)return;
+  var esComp=v.modalidad==='Compensadas';
+  var body='<div style="font-size:13px;font-weight:600;margin-bottom:14px;color:#2E7D32">Editar vacaciones</div>';
+  body+='<div class="form-group"><label>Modalidad</label><select id="ev-mod">';
+  body+='<option value="Disfrutadas" '+(esComp?'':'selected')+'>Disfrutadas</option>';
+  body+='<option value="Compensadas" '+(esComp?'selected':'')+'>Compensadas</option>';
+  body+='</select></div>';
+  if(!esComp){
+    body+='<div class="form-row"><div class="form-group"><label>Fecha inicio</label><input type="date" id="ev-ini" value="'+fmtParaInput(v.fechaInicio)+'"></div>';
+    body+='<div class="form-group"><label>Fecha fin</label><input type="date" id="ev-fin" value="'+fmtParaInput(v.fechaFin)+'"></div></div>';
+  }
+  body+='<div class="form-group"><label>Dias hábiles</label><input type="number" id="ev-dias" value="'+(v.diasCalendario||v.diasTomados)+'" min="1"></div>';
+  body+='<div class="form-group"><label>Observacion</label><input id="ev-obs" value="'+v.observacion+'"></div>';
+  body+='<button class="btn btn-p" onclick="guardarEdicionVac(\''+vacId+'\')">'+'Guardar cambios'+'</button>';
+  body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-ct\')">Cancelar</button>';
+  document.getElementById('modal-ct-body').innerHTML=body;
+  document.getElementById('modal-ct-titulo').innerHTML='Editar Vacaciones <button class="modal-close" onclick="cerrarModal(\'modal-ct\')">&#x2715;</button>';
+  abrirModal('modal-ct');
+}
+
+function guardarEdicionVac(vacId){
+  cerrarModal('modal-ct');
+  load('Guardando cambios...');
+  post({action:'editarVacacion',vacId:vacId,
+        fechaInicio:fmtDateInput(gv('ev-ini')),
+        fechaFin:fmtDateInput(gv('ev-fin')),
+        diasHabiles:parseInt(gv('ev-dias'))||0,
+        modalidad:gv('ev-mod'),
+        observacion:gv('ev-obs')
+  }).then(function(r){
+    if(!r.ok)throw new Error(r.error||'Error');
+    return Promise.all([api('contratos'),api('vacaciones')]);
+  }).then(function(res){
+    contratosData=res[0]||[];vacacionesData=res[1]||[];
+    unload();renderContratos();mostrarToast('Vacaciones actualizadas','ok');
+  }).catch(function(e){unload();alert('Error: '+e.message);});
+}
+
+function eliminarVacId(vacId){
+  if(!confirm('Cancelar este registro de vacaciones?'))return;
+  load('Cancelando...');
+  post({action:'eliminarVacacion',vacId:vacId})
+  .then(function(r){
+    if(!r.ok)throw new Error(r.error||'Error');
+    return Promise.all([api('contratos'),api('vacaciones')]);
+  }).then(function(res){
+    contratosData=res[0]||[];vacacionesData=res[1]||[];
+    unload();renderContratos();mostrarToast('Registro cancelado','ok');
+  }).catch(function(e){unload();alert('Error: '+e.message);});
+}
+
+
+function gv(id){var el=document.getElementById(id);return el?el.value:'';}
+function api(action){return fetch(PROXY+'?action='+action).then(function(r){return r.json();});}
+function post(data){return fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json();});}
+function abrirModal(id){document.getElementById(id).classList.add('on');}
+function cerrarModal(id){document.getElementById(id).classList.remove('on');}
+function load(txt){document.getElementById('ltxt').textContent=txt||'Cargando...';document.getElementById('load').classList.add('on');}
+function unload(){document.getElementById('load').classList.remove('on');}
+</script>
+</body>
+</html>

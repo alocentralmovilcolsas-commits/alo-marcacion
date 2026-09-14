@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#6A1B9A">
+<title>ALO Control Diario</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#F3E5F5;color:#212121}
+.pg{display:none;min-height:100vh;flex-direction:column}.pg.on{display:flex}
+.hdr{background:#6A1B9A;padding:13px 18px;flex-shrink:0;position:sticky;top:0;z-index:20}
+.hr{display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:19px;font-weight:900;color:#fff;letter-spacing:-1px}
+.logo em{color:#CE93D8;font-style:normal}
+.logos{font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-top:1px}
+.badge{background:#CE93D8;color:#4A148C;font-size:9px;font-weight:700;padding:2px 9px;border-radius:20px}
+.lw{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.lb{background:#fff;border-radius:20px;padding:36px 28px;width:100%;max-width:360px;box-shadow:0 4px 24px rgba(0,0,0,.14)}
+.lbrand{text-align:center;margin-bottom:24px}
+.lbig{font-size:38px;font-weight:900;color:#6A1B9A;letter-spacing:-2px;display:block}
+.lbig em{color:#CE93D8;font-style:normal}
+.lsub{font-size:10px;color:#9E9E9E;text-transform:uppercase;letter-spacing:.1em}
+.lb h2{font-size:16px;font-weight:600;text-align:center;margin-bottom:18px}
+.fi{position:relative;margin-bottom:12px}
+.fi-ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px}
+.fi input{width:100%;padding:13px 13px 13px 44px;border:1.5px solid #EEE;border-radius:12px;font-size:15px;background:#F8F9FA;outline:none;font-family:inherit;color:#212121;-webkit-appearance:none}
+.fi input:focus{border-color:#6A1B9A;background:#fff}
+.lerr{background:#FFEBEE;border-radius:10px;padding:11px;font-size:13px;color:#C62828;text-align:center;margin-bottom:12px;display:none}
+.lbtn{width:100%;padding:15px;border-radius:13px;border:none;font-size:16px;font-weight:700;background:#6A1B9A;color:#fff;cursor:pointer;-webkit-appearance:none}
+.body{flex:1;padding:14px;overflow-y:auto}
+.fecha-bar{background:#fff;border-radius:12px;padding:11px 14px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.fecha-info{font-size:14px;font-weight:700;color:#4A148C}
+.fecha-sub{font-size:11px;color:#9E9E9E;margin-top:2px}
+.emp-card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 5px rgba(0,0,0,.07);border-left:4px solid #EEE;transition:border-color .2s}
+.emp-card.guardado{border-left-color:#2E7D32}
+.emp-card.pendiente{border-left-color:#F57F17}
+.emp-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.emp-nom{font-size:14px;font-weight:600;color:#212121}
+.emp-cargo{font-size:11px;color:#9E9E9E;margin-top:1px}
+.emp-status{margin-left:auto;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
+.st-ok{background:#E8F5E9;color:#2E7D32}
+.st-pend{background:#FFF8E1;color:#F57F17}
+.controles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.ctrl-item{border-radius:10px;overflow:hidden;border:1px solid #EEE}
+.ctrl-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:6px 10px;background:#F3E5F5;color:#6A1B9A;text-align:center}
+.ctrl-btns{display:grid;grid-template-columns:1fr 1fr}
+.ctrl-btn{padding:12px 6px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;border:none;background:#FAFAFA;color:#BDBDBD;font-family:inherit;-webkit-appearance:none;transition:all .15s}
+.ctrl-btn.si.on{background:#2E7D32;color:#fff}
+.ctrl-btn.no.on{background:#C62828;color:#fff}
+.ctrl-btn.na.on{background:#9E9E9E;color:#fff}
+.ctrl-btn:first-child{border-right:1px solid #EEE}
+.ctrl-3{grid-template-columns:1fr 1fr 1fr}
+.obs-row{margin-bottom:10px}
+.obs-row input{width:100%;padding:9px 12px;border:1.5px solid #EEE;border-radius:9px;font-size:13px;font-family:inherit;background:#F8F9FA;outline:none;color:#212121;-webkit-appearance:none}
+.obs-row input:focus{border-color:#6A1B9A;background:#fff}
+.btn-guardar-emp{width:100%;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;-webkit-appearance:none;transition:all .2s}
+.btn-guardar-emp.listo{background:#6A1B9A;color:#fff}
+.btn-guardar-emp.guardado{background:#E8F5E9;color:#2E7D32}
+.btn-guardar-emp.guardando{background:#EEE;color:#9E9E9E}
+.load{position:fixed;inset:0;background:rgba(255,255,255,.88);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:999}
+.load.on{display:flex}
+.spin{width:36px;height:36px;border:3px solid #E1BEE7;border-top-color:#6A1B9A;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.load p{font-size:13px;color:#9E9E9E}
+.empty{text-align:center;padding:40px 20px;color:#BDBDBD;font-size:13px}
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:25px;font-size:13px;font-weight:600;z-index:999;display:none;white-space:nowrap;box-shadow:0 3px 14px rgba(0,0,0,.18)}
+.toast.ok{background:#2E7D32;color:#fff}
+.toast.err{background:#C62828;color:#fff}
+.resumen-strip{background:#fff;border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;gap:8px;align-items:center;justify-content:space-between;font-size:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.strip-item{text-align:center}
+.strip-n{font-size:18px;font-weight:700}
+.strip-l{font-size:9px;color:#9E9E9E;text-transform:uppercase}
+</style>
+</head>
+<body>
+<div class="load" id="load"><div class="spin"></div><p id="ltxt">Cargando...</p></div>
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN -->
+<div class="pg on" id="pg-login">
+  <div class="lw"><div class="lb">
+    <div class="lbrand"><span class="lbig">Alo<em>!</em></span><div class="lsub">Control Diario</div></div>
+    <h2>Acceso control de personal</h2>
+    <div class="fi"><span class="fi-ico">&#128272;</span><input id="l-clave" type="password" placeholder="Clave de control" autocomplete="off" onkeydown="if(event.key==='Enter')login()"></div>
+    <div class="lerr" id="lerr">Clave incorrecta</div>
+    <button class="lbtn" onclick="login()">Ingresar</button>
+  </div></div>
+</div>
+
+<!-- APP -->
+<div class="pg" id="pg-app">
+  <div class="hdr"><div class="hr">
+    <div><div class="logo">Alo<em>!</em></div><div class="logos">Control de Personal</div></div>
+    <span class="badge" id="badge-fecha">HOY</span>
+  </div></div>
+  <div class="body" id="body-content">
+    <div class="empty">Cargando...</div>
+  </div>
+</div>
+
+<script>
+var PROXY    = '/api/proxy';
+var CLAVE    = '@control2024*';
+var KEY      = 'alo_control_v1';
+var CL       = ['#1E3A5F','#C62828','#2E7D32','#E65100','#6A1B9A','#1565C0','#F57F17','#00897B','#D81B60','#546E7A','#3949AB','#00ACC1','#6D4C41','#43A047'];
+var empleados= [];
+var registros= {};
+var guardados = {};
+var fechaHoy = '';
+
+function p2(v){return String(v).padStart(2,'0');}
+function ini(nom){return(nom||'?').split(' ').map(function(p){return(p[0]||'').toUpperCase();}).slice(0,2).join('');}
+function bgEmp(idx){return CL[Math.abs(idx)%CL.length];}
+
+try{if(localStorage.getItem(KEY)==='1')iniciarApp();}catch(ex){}
+
+function login(){
+  var c=document.getElementById('l-clave').value;
+  document.getElementById('lerr').style.display='none';
+  if(c!==CLAVE){document.getElementById('lerr').style.display='block';document.getElementById('l-clave').value='';return;}
+  try{localStorage.setItem(KEY,'1');}catch(ex){}
+  iniciarApp();
+}
+
+function iniciarApp(){
+  document.getElementById('pg-login').classList.remove('on');
+  document.getElementById('pg-app').classList.add('on');
+  var n=new Date();
+  fechaHoy=p2(n.getDate())+'/'+p2(n.getMonth()+1)+'/'+n.getFullYear();
+  var dias=['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
+  document.getElementById('badge-fecha').textContent=dias[n.getDay()]+' '+n.getDate();
+  cargar();
+}
+
+function cargar(){
+  // Reset state — always start clean
+  registros={};
+  guardados={};
+  load('Cargando empleados...');
+  Promise.all([
+    fetch(PROXY+'?action=empleados').then(function(r){return r.json();}),
+    fetch(PROXY+'?action=controlDiario&fecha='+fechaHoy).then(function(r){return r.json();})
+  ]).then(function(res){
+    empleados=(res[0]||[]).filter(function(e){return e.activo==='SI';});
+    var existentes=res[1]||[];
+    existentes.forEach(function(e){
+      // Solo pre-cargar si el registro es de HOY
+      if(e.fecha===fechaHoy){
+        registros[e.empId]={camisa:e.camisa,pantalón:e.pantalón,celular:e.celular,aseo:e.aseo,radar:e.radar,obs:e.observación};
+        guardados[e.empId]=true;
+      }
+    });
+    unload();
+    render();
+  }).catch(function(e){unload();document.getElementById('body-content').innerHTML='<div class="empty">Error: '+e.message+'</div>';});
+}
+
+function render(){
+  var n=new Date();
+  var dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  var meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var diaStr=dias[n.getDay()]+', '+n.getDate()+' de '+meses[n.getMonth()];
+
+  var totalGuardados=Object.keys(guardados).length;
+  var html='';
+  html+='<div class="fecha-bar">';
+  html+='<div class="fecha-info">'+diaStr+'</div>';
+  html+='<div class="fecha-sub">'+empleados.length+' colaboradores &bull; '+totalGuardados+' guardados</div></div>';
+
+  // Resumen rápido
+  html+='<div class="resumen-strip">';
+  html+='<div class="strip-item"><div class="strip-n" style="color:#2E7D32">'+totalGuardados+'</div><div class="strip-l">Guardados</div></div>';
+  html+='<div class="strip-item"><div class="strip-n" style="color:#F57F17">'+(empleados.length-totalGuardados)+'</div><div class="strip-l">Pendientes</div></div>';
+  html+='<div class="strip-item" style="font-size:10px;color:#9E9E9E;text-align:right;line-height:1.5">&#128248;Camisa<br>&#128062;Pantalón<br>&#128241;Celular<br>&#129529;Aseo<br>&#128205;Radar</div>';
+  html+='</div>';
+
+  empleados.forEach(function(e,idx){
+    var reg=registros[e.id]||{};
+    var esGuardado=guardados[e.id];
+    var bg=bgEmp(idx);
+    html+='<div class="emp-card '+(esGuardado?'guardado':'pendiente')+'" id="card-'+e.id+'">';
+    html+='<div class="emp-header">';
+    html+='<div class="av" style="background:'+bg+'">'+ini(e.nombre)+'</div>';
+    html+='<div><div class="emp-nom">'+e.nombre+'</div><div class="emp-cargo">'+(e.cargo||'Colaborador')+'</div></div>';
+    html+='<span class="emp-status '+(esGuardado?'st-ok':'st-pend')+'">'+(esGuardado?'&#10003; Guardado':'Pendiente')+'</span>';
+    html+='</div>';
+    html+='<div class="controles">';
+    html+=ctrl2('camisa',e.id,'&#128248; Camisa',reg.camisa);
+    html+=ctrl2('pantalón',e.id,'&#128062; Pantalón',reg.pantalón);
+    html+=ctrl2('celular',e.id,'&#128241; Celular',reg.celular);
+    html+=ctrl3('aseo',e.id,'&#129529; Aseo',reg.aseo);
+    html+=ctrl2('radar',e.id,'&#128205; Radar',reg.radar);
+    html+='</div>';
+    html+='<div class="obs-row"><input type="text" placeholder="Observación (opcional)" id="obs-'+e.id+'" value="'+(reg.obs||'')+'" onchange="setObs(\''+e.id+'\',this.value)"></div>';
+    html+='<button class="btn-guardar-emp '+(esGuardado?'guardado':'listo')+'" id="btn-'+e.id+'" onclick="guardarEmp(\''+e.id+'\')">'+(esGuardado?'&#10003; Guardado — Toca para actualizar':'Guardar control de '+e.nombre.split(' ')[0])+'</button>';
+    html+='</div>';
+  });
+
+  document.getElementById('body-content').innerHTML=html;
+}
+
+function ctrl2(campo,empId,label,val){
+  var html='<div class="ctrl-item"><div class="ctrl-label">'+label+'</div><div class="ctrl-btns">';
+  html+='<button class="ctrl-btn si'+(val==='Si'?' on':'')+'" onclick="setVal(\''+empId+'\',\''+campo+'\',\'Si\',this)">Si</button>';
+  html+='<button class="ctrl-btn no'+(val==='No'?' on':'')+'" onclick="setVal(\''+empId+'\',\''+campo+'\',\'No\',this)">No</button>';
+  html+='</div></div>';
+  return html;
+}
+
+function ctrl3(campo,empId,label,val){
+  var html='<div class="ctrl-item"><div class="ctrl-label">'+label+'</div><div class="ctrl-btns ctrl-3">';
+  html+='<button class="ctrl-btn si'+(val==='Si'?' on':'')+'" onclick="setVal(\''+empId+'\',\''+campo+'\',\'Si\',this)">Si</button>';
+  html+='<button class="ctrl-btn no'+(val==='No'?' on':'')+'" onclick="setVal(\''+empId+'\',\''+campo+'\',\'No\',this)">No</button>';
+  html+='<button class="ctrl-btn na'+(val==='NA'?' on':'')+'" onclick="setVal(\''+empId+'\',\''+campo+'\',\'NA\',this)">N/A</button>';
+  html+='</div></div>';
+  return html;
+}
+
+function setVal(empId,campo,val,btn){
+  if(!registros[empId]) registros[empId]={};
+  registros[empId][campo]=val;
+  var parent=btn.parentElement;
+  parent.querySelectorAll('.ctrl-btn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  // Marcar card como pendiente de guardar
+  var card=document.getElementById('card-'+empId);
+  if(card&&guardados[empId]){
+    card.classList.remove('guardado');
+    card.classList.add('pendiente');
+    var st=card.querySelector('.emp-status');
+    if(st){st.className='emp-status st-pend';st.textContent='Modificado';}
+  }
+}
+
+function setObs(empId,val){
+  if(!registros[empId]) registros[empId]={};
+  registros[empId].obs=val;
+}
+
+function guardarEmp(empId){
+  var emp=empleados.find(function(e){return e.id===empId;});
+  if(!emp) return;
+  var reg=registros[empId]||{};
+  var btn=document.getElementById('btn-'+empId);
+  if(btn){btn.className='btn-guardar-emp guardando';btn.textContent='Guardando...';}
+
+  fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'guardarControlDiario',fecha:fechaHoy,
+      registros:[{empId:emp.id,nombre:emp.nombre,
+        camisa:reg.camisa||'',pantalón:reg.pantalón||'',
+        celular:reg.celular||'',aseo:reg.aseo||'',
+        radar:reg.radar||'',observación:reg.obs||''}],
+      registradoPor:'Control'})
+  }).then(function(r){return r.json();}).then(function(r){
+    if(r.ok){
+      guardados[empId]=true;
+      var card=document.getElementById('card-'+empId);
+      if(card){
+        card.classList.remove('pendiente');
+        card.classList.add('guardado');
+        var st=card.querySelector('.emp-status');
+        if(st){st.className='emp-status st-ok';st.textContent='&#10003; Guardado';}
+      }
+      if(btn){btn.className='btn-guardar-emp guardado';btn.textContent='&#10003; Guardado — Toca para actualizar';}
+      toast('Control de '+emp.nombre.split(' ')[0]+' guardado','ok');
+      // Update summary
+      actualizarResumen();
+    } else {
+      if(btn){btn.className='btn-guardar-emp listo';btn.textContent='Guardar control de '+emp.nombre.split(' ')[0];}
+      toast('Error: '+(r.error||'desconocido'),'err');
+    }
+  }).catch(function(e){
+    if(btn){btn.className='btn-guardar-emp listo';btn.textContent='Guardar control de '+emp.nombre.split(' ')[0];}
+    toast('Error: '+e.message,'err');
+  });
+}
+
+function actualizarResumen(){
+  var total=Object.keys(guardados).length;
+  var strip=document.querySelector('.resumen-strip');
+  if(strip){
+    var items=strip.querySelectorAll('.strip-n');
+    if(items[0])items[0].textContent=total;
+    if(items[1])items[1].textContent=empleados.length-total;
+  }
+}
+
+function load(txt){document.getElementById('ltxt').textContent=txt||'Cargando...';document.getElementById('load').classList.add('on');}
+function unload(){document.getElementById('load').classList.remove('on');}
+function toast(msg,tipo){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+(tipo||'ok');t.style.display='block';
+  setTimeout(function(){t.style.display='none';},3000);
+}
+</script>
+</body>
+</html>
