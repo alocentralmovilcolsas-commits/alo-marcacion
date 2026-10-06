@@ -24,15 +24,30 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
 .step{display:none}.step.on{display:block}
 
 /* MODULOS */
-.mod-grid{display:flex;flex-direction:column;gap:14px;padding:8px 0}
-.mod-card{background:#fff;border-radius:18px;padding:22px 20px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 12px rgba(0,0,0,.08);cursor:pointer;border:2px solid transparent;transition:all .15s;-webkit-tap-highlight-color:transparent}
-.mod-card:active{transform:scale(.97)}
-.mod-ico{font-size:36px;flex-shrink:0;width:54px;text-align:center}
-.mod-nom{font-size:18px;font-weight:800;margin-bottom:3px}
-.mod-desc{font-size:12px;color:#9E9E9E}
-.mod-marc{border-color:#E53935}.mod-marc .mod-nom{color:#E53935}
-.mod-aseo{border-color:#00BCD4}.mod-aseo .mod-nom{color:#00838F}
-.mod-nov{border-color:#FF8F00}.mod-nov .mod-nom{color:#E65100}
+.mod-grid{display:flex;flex-direction:column;gap:0;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:6px}
+.mod-card{background:#fff;padding:16px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;border-bottom:1px solid #F5F5F5;transition:background .1s;-webkit-tap-highlight-color:transparent}
+.mod-card:last-child{border-bottom:none}
+.mod-card:active{background:#F8F9FA}
+.mod-ico{font-size:26px;flex-shrink:0;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.mod-nom{font-size:14px;font-weight:700;margin-bottom:2px}
+.mod-desc{font-size:11px;color:#9E9E9E}
+.mod-arr{margin-left:auto;color:#BDBDBD;font-size:16px}
+.mod-marc .mod-ico{background:#FFEBEE;color:#E53935}.mod-marc .mod-nom{color:#212121}
+.mod-aseo .mod-ico{background:#E0F7FA;color:#00838F}.mod-aseo .mod-nom{color:#212121}
+.mod-nov .mod-ico{background:#FFF8E1;color:#E65100}.mod-nov .mod-nom{color:#212121}
+/* ASEO BANNER DIA */
+.aseo-dia-banner{background:#E0F7FA;border-radius:12px;padding:12px 14px;margin-bottom:14px;border-left:4px solid #00BCD4}
+.aseo-dia-tit{font-size:10px;font-weight:700;color:#006064;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.aseo-dia-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid rgba(0,188,212,.15)}
+.aseo-dia-item:last-child{border-bottom:none}
+.aseo-dia-nom{font-size:12px;font-weight:700;color:#00838F;min-width:80px;flex-shrink:0}
+.aseo-dia-tar{font-size:12px;color:#424242;flex:1}
+/* ASEO: seleccion tarea */
+.tarea-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border:1.5px solid #EEE;cursor:pointer;transition:all .15s}
+.tarea-card.sel{border-color:#00BCD4;background:#E0F7FA}
+.tarea-card:active{background:#F0FDFF}
+.tarea-nom{font-size:13px;font-weight:700;color:#00838F}
+.tarea-emp{font-size:11px;color:#9E9E9E;margin-top:2px}
 /* LOGIN */
 .lw{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 60px);padding:20px}
 .lb{background:#fff;border-radius:20px;padding:36px 28px;width:100%;max-width:360px;box-shadow:0 4px 24px rgba(0,0,0,.12)}
@@ -170,27 +185,27 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
 
     <!-- PANTALLA MODULOS -->
     <div class="step on" id="s0m">
-      <div class="slbl">Selecciona un modulo</div>
-      <div id="aseo-banner" style="display:none;background:#E0F7FA;border:1.5px solid #00BCD4;border-radius:14px;padding:13px 16px;margin-bottom:14px">
-        <div style="font-size:10px;font-weight:700;color:#006064;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">&#129529; Tu tarea de aseo hoy</div>
-        <div id="aseo-banner-tarea" style="font-size:16px;font-weight:800;color:#00838F"></div>
-        <div id="aseo-banner-estado" style="font-size:11px;color:#9E9E9E;margin-top:3px"></div>
+      <!-- Banner aseo del dia (general, sin requerir empleado) -->
+      <div id="aseo-dia-banner" class="aseo-dia-banner" style="display:none">
+        <div class="aseo-dia-tit">&#129529; Aseo de hoy — <span id="aseo-dia-label"></span></div>
+        <div id="aseo-dia-lista"></div>
       </div>
+      <div class="slbl">Selecciona un modulo</div>
       <div class="mod-grid">
         <div class="mod-card mod-marc" onclick="irModulo('marcaciones')">
           <div class="mod-ico">&#128203;</div>
-          <div class="mod-nom">Marcaciones</div>
-          <div class="mod-desc">Registra tu entrada, almuerzo o salida</div>
+          <div><div class="mod-nom">Marcaciones</div><div class="mod-desc">Registra tu entrada, almuerzo o salida</div></div>
+          <span class="mod-arr">&#8250;</span>
         </div>
         <div class="mod-card mod-aseo" onclick="irModulo('aseo')">
           <div class="mod-ico">&#129529;</div>
-          <div class="mod-nom">Aseo</div>
-          <div class="mod-desc">Registra la tarea de aseo del dia</div>
+          <div><div class="mod-nom">Aseo</div><div class="mod-desc">Registra la tarea de aseo del dia</div></div>
+          <span class="mod-arr">&#8250;</span>
         </div>
         <div class="mod-card mod-nov" onclick="irModulo('novedades')">
           <div class="mod-ico">&#128196;</div>
-          <div class="mod-nom">Novedades</div>
-          <div class="mod-desc">Solicita un permiso o novedad</div>
+          <div><div class="mod-nom">Novedades</div><div class="mod-desc">Solicita un permiso o novedad</div></div>
+          <span class="mod-arr">&#8250;</span>
         </div>
       </div>
     </div>
@@ -277,21 +292,23 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
     </div>
 
 
-    <!-- PASO 8: Aseo -->
+    <!-- PASO 8: Aseo - Paso A: seleccionar tarea -->
     <div class="step" id="s8">
-      <div class="slbl">Modulo de Aseo</div>
-      <div class="esb" id="aseo-emp-info">
-        <div class="esb-av" id="aea">?</div>
-        <div><div class="esb-n" id="aen">-</div><div class="esb-i" id="aei">Tarea de hoy</div></div>
+      <div class="slbl">&#129529; Aseo — Selecciona la tarea</div>
+      <div id="aseo-lista-tareas" style="margin-bottom:12px"><div style="text-align:center;padding:20px;color:#9E9E9E;font-size:12px">Cargando tareas del dia...</div></div>
+      <div id="aseo-err-t" class="serr" style="display:none"></div>
+      <button class="btn btns" onclick="irInicio()">&#8592; Inicio</button>
+    </div>
+
+    <!-- PASO 8B: Aseo - Foto del area -->
+    <div class="step" id="s8b">
+      <div class="slbl">&#129529; Aseo — Foto del area</div>
+      <div style="background:#E0F7FA;border-radius:10px;padding:12px 14px;margin-bottom:12px">
+        <div style="font-size:11px;color:#006064;font-weight:700;margin-bottom:3px">Tarea:</div>
+        <div id="aseo-tarea-sel" style="font-size:15px;font-weight:800;color:#00838F">-</div>
       </div>
-      <div style="background:#E0F7FA;border-radius:12px;padding:14px;margin-bottom:14px">
-        <div style="font-size:13px;color:#006064;font-weight:700;margin-bottom:6px">&#129529; Tarea asignada hoy:</div>
-        <div id="aseo-tarea" style="font-size:20px;font-weight:900;color:#00838F;text-align:center;padding:10px 0">Cargando...</div>
-        <div id="aseo-hora" style="font-size:12px;color:#9E9E9E;text-align:center"></div>
-      </div>
-      <!-- Camara aseo -->
-      <div class="cc" id="aseo-cam-wrap">
-        <div class="ch"><div class="ci">&#128247;</div><div><div class="ct">Foto del aseo</div><div class="cs">Toma la foto del area limpia</div></div></div>
+      <div class="cc">
+        <div class="ch"><div class="ci">&#128247;</div><div><div class="ct">Foto del area limpia</div><div class="cs">Toma evidencia del trabajo realizado</div></div></div>
         <div class="cb">
           <video id="vid-aseo" autoplay playsinline muted></video>
           <img id="prv-aseo">
@@ -300,9 +317,36 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
           <button class="cret" id="cret-aseo" onclick="retomarAseo()">Retomar</button>
         </div>
       </div>
-      <div id="aseo-err" class="serr" style="display:none"></div>
-      <button class="btn btnp" id="btn-reg-aseo" onclick="registrarAseo()" disabled>&#10003; Registrar aseo completado</button>
-      <button class="btn btns" onclick="irInicio()">&#8592; Inicio</button>
+      <div id="aseo-err-f" class="serr" style="display:none"></div>
+      <button class="btn btnp" id="btn-aseo-siguiente" onclick="irAseoQuien()" disabled>Continuar &#8250;</button>
+      <button class="btn btns" onclick="ir(8)">&#8592; Volver</button>
+    </div>
+
+    <!-- PASO 8C: Aseo - Quien lo hizo -->
+    <div class="step" id="s8c">
+      <div class="slbl">&#129529; Aseo — &#191;Quien realizo el aseo?</div>
+      <div style="background:#E0F7FA;border-radius:10px;padding:12px 14px;margin-bottom:14px">
+        <div style="font-size:11px;color:#006064;font-weight:700;margin-bottom:3px">Tarea:</div>
+        <div id="aseo-tarea-conf" style="font-size:14px;font-weight:800;color:#00838F">-</div>
+      </div>
+      <div class="slbl">Selecciona el colaborador</div>
+      <div class="sw"><span class="sw-ico">&#128269;</span><input class="srch" id="srch-aseo" placeholder="Buscar..." oninput="buscarAseo(this.value)"></div>
+      <div class="grid" id="grid-aseo"></div>
+      <div id="aseo-err-q" class="serr" style="display:none"></div>
+      <button class="btn btns" style="margin-top:12px" onclick="ir('8b')">&#8592; Volver</button>
+    </div>
+
+    <!-- PASO 8OK: Aseo registrado OK -->
+    <div class="step" id="s8ok">
+      <div class="ok">
+        <div class="okr" style="border-color:#00BCD4;background:#E0F7FA">&#129529;</div>
+        <div class="okt">Aseo registrado!</div>
+        <div class="oks" id="aseo-ok-nom">-</div>
+        <div class="okb" style="background:#E0F7FA;border-color:#00BCD4;color:#006064">&#10003; <span id="aseo-ok-tarea">-</span></div>
+        <div style="font-size:13px;color:#9E9E9E;margin-bottom:20px">a las <strong id="aseo-ok-hora">-</strong></div>
+        <button class="btn btnp" onclick="irAseo()">Registrar otro aseo</button>
+        <button class="btn btns" onclick="nueva()">&#8592; Inicio</button>
+      </div>
     </div>
 
     <!-- PASO 6: Novedades -->
@@ -434,6 +478,11 @@ var MODULO_DESTINO = 'marcaciones';
 
 function irModulo(mod){
   MODULO_DESTINO = mod;
+  if(mod==='aseo'){
+    cargar(); // cargar empleados en background para paso 8c
+    irAseo();
+    return;
+  }
   cargar();
   ir(1);
 }
@@ -448,10 +497,11 @@ function ir(n){
   for(var i=0;i<steps.length;i++)steps[i].classList.remove('on');
   if(n===0){
     document.getElementById('s0m').classList.add('on');
-    if(E.id) cargarBannerAseo();
-    else document.getElementById('aseo-banner').style.display='none';
+    cargarBannerAseoDia();
   } else {
-    document.getElementById('s'+n).classList.add('on');
+    var sid='s'+n;
+    var el=document.getElementById(sid);
+    if(el) el.classList.add('on');
   }
   if(n>=1&&n<=4){
     for(var j=0;j<4;j++){
@@ -720,87 +770,141 @@ function nueva(){
   buscar(''); ir(0);
 }
 
-function cargarBannerAseo(){
-  var banner=document.getElementById('aseo-banner');
-  var btarea=document.getElementById('aseo-banner-tarea');
-  var bestado=document.getElementById('aseo-banner-estado');
-  if(!E.id){banner.style.display='none';return;}
-  var n=new Date();
-  var dias=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
-  var dia=dias[n.getDay()];
-  fetch(PROXY+'?action=horarioAseo&empId='+E.id+'&dia='+encodeURIComponent(dia))
-    .then(function(r){return r.json();}).then(function(d){
-      var tarea=(d&&d[0]&&d[0].tarea)||'';
-      if(!tarea||tarea==='Sin asignacion'||tarea==='Sin asignacion este dia'){
-        banner.style.display='none';return;
-      }
-      btarea.textContent=tarea;
-      bestado.textContent='';
-      banner.style.display='block';
-      // Verificar si ya lo hizo hoy
-      var n2=new Date();
-      var fd=p2(n2.getDate())+'/'+p2(n2.getMonth()+1)+'/'+n2.getFullYear();
-      fetch(PROXY+'?action=aseos&fecha='+fd+'&empId='+E.id)
-        .then(function(r2){return r2.json();}).then(function(aseos){
-          var yaHecho=(aseos||[]).find(function(a){return a.tarea===tarea;});
-          if(yaHecho){
-            bestado.textContent='Ya registrado a las '+yaHecho.hora+' ✓';
-            bestado.style.color='#2E7D32';
-            banner.style.background='#E8F5E9';
-            banner.style.borderColor='#43A047';
-          } else {
-            bestado.textContent='Pendiente';
-            bestado.style.color='#E65100';
-          }
-        }).catch(function(){});
-    }).catch(function(){banner.style.display='none';});
+// Banner general del dia (sin requerir empleado seleccionado)
+var HORARIO_ASEO_LOCAL = {
+  'MARCELA':{'Lunes':'Organizar modulo caja','Miercoles':'Organizar modulo caja'},
+  'MARYORY':{'Martes':'Limpiar vidrios fachada y vitrinas','Miercoles':'Lavar canecas de basura y 5 trapos','Jueves':'Sacar basura del bano','Viernes':'Lavar bano','Sabado':'Aseo manana local y escaleras'},
+  'CAROLINA':{'Lunes':'Sacar basura del bano','Martes':'Lavar bano','Jueves':'Sacar la basura','Viernes':'Barrer afuera','Sabado':'Aseo manana local y escaleras'},
+  'FERNANDO':{'Lunes':'Aseo manana local y escaleras','Martes':'Barrer afuera','Miercoles':'Limpiar vidrios fachada y vitrinas','Sabado':'Aseo tarde local y escaleras'},
+  'LUISA':{'Lunes':'Barrer afuera','Martes':'Aseo manana local y escaleras','Miercoles':'Sacar basura del bano','Jueves':'Lavar bano','Viernes':'Aseo tarde local y escaleras','Sabado':'Lavar el tanque y 5 trapos'},
+  'BRAYNER':{'Lunes':'Sacar la basura','Martes':'Barrer afuera','Miercoles':'Aseo manana local y escaleras','Jueves':'Aseo tarde local y escaleras','Viernes':'Sacar la basura'},
+  'SANTIAGO':{'Martes':'Aseo tarde local y escaleras','Miercoles':'Sacar la basura','Jueves':'Aseo manana local y escaleras','Viernes':'Sacar basura del bano','Sabado':'Barrer afuera'},
+  'ESTEBAN':{'Lunes':'Aseo tarde local y escaleras','Martes':'Sacar la basura','Jueves':'Barrer afuera','Viernes':'Aseo manana local y escaleras','Sabado':'Sacar basura del bano'},
+  'JUAN C':{'Miercoles':'Aseo tarde local y escaleras','Sabado':'Sacar la basura'},
+  'SILVIA':{'Lunes':'Lavar bano','Martes':'Lavar canecas de basura y 5 trapos'},
+  'CAMILO':{'Lunes':'Lavar el tanque y 5 trapos','Miercoles':'Lavar bano','Viernes':'Lavar canecas de basura y 5 trapos'},
+  'FABIAN MENDOZA':{'Lunes':'Aseo servicio tecnico','Martes':'Aseo servicio tecnico','Miercoles':'Aseo servicio tecnico','Jueves':'Aseo servicio tecnico','Viernes':'Aseo servicio tecnico','Sabado':'Aseo servicio tecnico y lavar bano'}
+};
+
+function resolverNombreEmpAseo(clave){
+  // Busca el nombre real del empleado en las tarjetas del grid (#grid .ec)
+  var cards=document.querySelectorAll('#grid .ec');
+  var up=(clave||'').toUpperCase().trim();
+  for(var i=0;i<cards.length;i++){
+    var nom=(cards[i].dataset.nom||'').toUpperCase().trim();
+    if(!nom) continue;
+    // Coincidencia exacta
+    if(nom===up) return cards[i].dataset.nom;
+    // Coincidencia por primer nombre
+    if(nom.split(' ')[0]===up.split(' ')[0]) return cards[i].dataset.nom;
+    // La clave está contenida en el nombre
+    if(nom.indexOf(up)!==-1) return cards[i].dataset.nom;
+  }
+  return clave; // fallback: la clave original
 }
 
-// ── MODULO ASEO ──────────────────────────────────────────────────────
+function cargarBannerAseoDia(){
+  var banner=document.getElementById('aseo-dia-banner');
+  var lista=document.getElementById('aseo-dia-lista');
+  var label=document.getElementById('aseo-dia-label');
+  var n=new Date();
+  var diasNom=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+  var dia=diasNom[n.getDay()];
+  label.textContent=dia;
+  var tareas=[];
+  for(var nom in HORARIO_ASEO_LOCAL){
+    var t=HORARIO_ASEO_LOCAL[nom][dia];
+    if(t) tareas.push({nom:nom,tarea:t});
+  }
+  if(!tareas.length){banner.style.display='none';return;}
+  var html='';
+  tareas.forEach(function(t){
+    var nomReal=resolverNombreEmpAseo(t.nom);
+    html+='<div class="aseo-dia-item"><span class="aseo-dia-nom">'+nomReal+'</span><span class="aseo-dia-tar">'+t.tarea+'</span></div>';
+  });
+  lista.innerHTML=html;
+  banner.style.display='block';
+}
+
+// Legacy - mantener por compatibilidad
+function cargarBannerAseo(){cargarBannerAseoDia();}
+
+// ── MODULO ASEO (NUEVO FLUJO) ─────────────────────────────────────────
 var ASEO_CAM = null;
 var ASEO_FOTO = '';
 var ASEO_TAREA = '';
+var ASEO_EMP = {id:'',nom:'',ini:''};
 
+// Paso 1: muestra las tareas del dia para seleccionar
 function irAseo(){
-  if(!E.id){MODULO_DESTINO='aseo';cargar();ir(1);return;}
   var n=new Date();
   var dias=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
   var dia=dias[n.getDay()];
-  document.getElementById('aea').textContent=E.ini||'?';
-  document.getElementById('aen').textContent=E.nom;
-  document.getElementById('aei').textContent='Aseo — '+dia;
-  document.getElementById('aseo-tarea').textContent='Cargando...';
-  document.getElementById('aseo-hora').textContent='';
+  var lista=document.getElementById('aseo-lista-tareas');
+  var errT=document.getElementById('aseo-err-t');
+  errT.style.display='none';
+  ASEO_TAREA=''; ASEO_FOTO=''; ASEO_EMP={id:'',nom:'',ini:''};
+  lista.innerHTML='<div style="text-align:center;padding:20px;color:#9E9E9E;font-size:12px">Cargando...</div>';
+
+  // Obtener tareas del dia del horario local y verificar cuales ya se registraron
+  var tareasHoy=[];
+  for(var nom in HORARIO_ASEO_LOCAL){
+    var t=HORARIO_ASEO_LOCAL[nom][dia];
+    if(t) tareasHoy.push({nom:nom,tarea:t,hecho:false,hora:''});
+  }
+
+  if(!tareasHoy.length){
+    lista.innerHTML='<div style="background:#FFF8E1;border-radius:10px;padding:14px;text-align:center;color:#E65100;font-size:13px">No hay tareas de aseo programadas para hoy ('+dia+')</div>';
+    ir(8); return;
+  }
+
+  // Verificar registros de hoy en el backend
+  var fd=p2(n.getDate())+'/'+p2(n.getMonth()+1)+'/'+n.getFullYear();
+  fetch(PROXY+'?action=aseos&fecha='+fd)
+    .then(function(r){return r.json();}).then(function(aseos){
+      var reg=aseos||[];
+      tareasHoy.forEach(function(t){
+        var found=reg.find(function(a){return a.tarea===t.tarea;});
+        if(found){t.hecho=true;t.hora=found.hora;t.empReg=found.empNom;}
+      });
+      renderTareasAseo(tareasHoy, dia);
+    }).catch(function(){renderTareasAseo(tareasHoy,dia);});
+
+  ir(8);
+}
+
+function renderTareasAseo(tareas, dia){
+  var lista=document.getElementById('aseo-lista-tareas');
+  if(!tareas.length){lista.innerHTML='<div style="text-align:center;padding:20px;color:#9E9E9E">Sin tareas hoy</div>';return;}
+  var html='<div style="font-size:11px;color:#006064;font-weight:700;margin-bottom:10px;text-transform:uppercase">'+dia+' — Selecciona la tarea que vas a registrar:</div>';
+  tareas.forEach(function(t){
+    if(t.hecho){
+      html+='<div class="tarea-card" style="border-color:#43A047;background:#F1F8E9;opacity:.85;pointer-events:none">';
+      html+='<div class="tarea-nom">&#10003; '+t.tarea+'</div>';
+      html+='<div class="tarea-emp">'+t.nom+' — registrado a las '+t.hora+'</div>';
+      html+='</div>';
+    } else {
+      html+='<div class="tarea-card" onclick="seleccionarTareaAseo(\''+t.tarea.replace(/'/g,"\\'")+'\')">';
+      html+='<div class="tarea-nom">'+t.tarea+'</div>';
+      html+='<div class="tarea-emp">Asignado: '+t.nom+'</div>';
+      html+='</div>';
+    }
+  });
+  lista.innerHTML=html;
+}
+
+function seleccionarTareaAseo(tarea){
+  ASEO_TAREA=tarea;
+  document.getElementById('aseo-tarea-sel').textContent=tarea;
   ASEO_FOTO='';
   document.getElementById('prv-aseo').style.display='none';
   document.getElementById('vid-aseo').style.display='block';
   document.getElementById('cov-aseo').style.display='flex';
   document.getElementById('cok-aseo').style.display='none';
   document.getElementById('cret-aseo').style.display='none';
-  document.getElementById('btn-reg-aseo').disabled=true;
-  document.getElementById('aseo-err').style.display='none';
-
-  fetch(PROXY+'?action=horarioAseo&empId='+E.id+'&dia='+encodeURIComponent(dia))
-    .then(function(r){return r.json();}).then(function(d){
-      var tarea=(d&&d[0]&&d[0].tarea)||'Aseo general';
-      ASEO_TAREA=tarea;
-      document.getElementById('aseo-tarea').textContent=tarea;
-      var n2=new Date();
-      var fd=p2(n2.getDate())+'/'+p2(n2.getMonth()+1)+'/'+n2.getFullYear();
-      fetch(PROXY+'?action=aseos&fecha='+fd+'&empId='+E.id)
-        .then(function(r2){return r2.json();}).then(function(aseos){
-          var yaHecho=(aseos||[]).find(function(a){return a.tarea===tarea;});
-          if(yaHecho){
-            document.getElementById('aseo-hora').textContent='Ya registrado a las '+yaHecho.hora;
-            document.getElementById('aseo-hora').style.color='#2E7D32';
-          }
-        }).catch(function(){});
-    }).catch(function(){
-      ASEO_TAREA='Aseo general';
-      document.getElementById('aseo-tarea').textContent='Aseo general';
-    });
-
-  ir(8);
+  document.getElementById('btn-aseo-siguiente').disabled=true;
+  document.getElementById('aseo-err-f').style.display='none';
+  ir('8b');
   setTimeout(function(){iniciarCamAseo();},300);
 }
 
@@ -813,7 +917,7 @@ function iniciarCamAseo(){
       navigator.mediaDevices.getUserMedia({video:true,audio:false})
         .then(function(s){ASEO_CAM=s;v.srcObject=s;v.play();})
         .catch(function(){
-          var e=document.getElementById('aseo-err');
+          var e=document.getElementById('aseo-err-f');
           e.textContent='Sin acceso a camara';e.style.display='block';
         });
     });
@@ -831,7 +935,7 @@ function tomarFotoAseo(){
   document.getElementById('cov-aseo').style.display='none';
   document.getElementById('cok-aseo').style.display='block';
   document.getElementById('cret-aseo').style.display='block';
-  document.getElementById('btn-reg-aseo').disabled=false;
+  document.getElementById('btn-aseo-siguiente').disabled=false;
   if(ASEO_CAM){ASEO_CAM.getTracks().forEach(function(t){t.stop();});ASEO_CAM=null;}
 }
 
@@ -842,36 +946,71 @@ function retomarAseo(){
   document.getElementById('cov-aseo').style.display='flex';
   document.getElementById('cok-aseo').style.display='none';
   document.getElementById('cret-aseo').style.display='none';
-  document.getElementById('btn-reg-aseo').disabled=true;
+  document.getElementById('btn-aseo-siguiente').disabled=true;
   iniciarCamAseo();
 }
 
-function registrarAseo(){
+// Paso 3: seleccionar quien hizo el aseo
+function irAseoQuien(){
   if(!ASEO_FOTO){
-    var e=document.getElementById('aseo-err');
-    e.textContent='Toma una foto primero';e.style.display='block';return;
+    document.getElementById('aseo-err-f').textContent='Primero toma la foto';
+    document.getElementById('aseo-err-f').style.display='block';return;
   }
-  var btn=document.getElementById('btn-reg-aseo');
-  btn.disabled=true;btn.textContent='Guardando...';
-  document.getElementById('aseo-err').style.display='none';
+  document.getElementById('aseo-tarea-conf').textContent=ASEO_TAREA;
+  document.getElementById('srch-aseo').value='';
+  // Renderizar grid con los empleados
+  var g=document.getElementById('grid-aseo');
+  var html='';
+  var emps=document.querySelectorAll('#grid .ec');
+  for(var i=0;i<emps.length;i++){
+    var el=emps[i];
+    html+='<div class="ec" data-id="'+el.dataset.id+'" data-nom="'+el.dataset.nom+'" data-ini="'+el.dataset.ini+'" data-n="'+el.dataset.n+'">';
+    html+=el.innerHTML+'</div>';
+  }
+  if(!html) html='<div style="grid-column:span 3;text-align:center;padding:20px;color:#9E9E9E;font-size:12px">Cargando colaboradores...</div>';
+  g.innerHTML=html;
+  var cards=g.querySelectorAll('.ec');
+  for(var j=0;j<cards.length;j++){
+    cards[j].onclick=function(){registrarAseo(this.dataset.id,this.dataset.nom,this.dataset.ini);};
+  }
+  document.getElementById('aseo-err-q').style.display='none';
+  ir('8c');
+}
+
+function buscarAseo(q){
+  var cards=document.querySelectorAll('#grid-aseo .ec');
+  for(var i=0;i<cards.length;i++)cards[i].style.display=cards[i].dataset.n.indexOf(q.toLowerCase())!==-1?'':'none';
+}
+
+function registrarAseo(empId, empNom, empIni){
+  if(!ASEO_FOTO||!ASEO_TAREA||!empId){
+    document.getElementById('aseo-err-q').textContent='Faltan datos para registrar';
+    document.getElementById('aseo-err-q').style.display='block';return;
+  }
+  document.getElementById('aseo-err-q').style.display='none';
+  document.getElementById('load').classList.add('on');
+  document.getElementById('ltxt').textContent='Registrando aseo...';
   fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({action:'guardarAseo',empId:E.id,empNom:E.nom,tarea:ASEO_TAREA,foto:ASEO_FOTO})
+    body:JSON.stringify({action:'guardarAseo',empId:empId,empNom:empNom,tarea:ASEO_TAREA,foto:ASEO_FOTO})
   }).then(function(r){return r.json();}).then(function(r){
-    btn.disabled=false;btn.textContent='✓ Registrar aseo completado';
+    document.getElementById('load').classList.remove('on');
     if(r.ok){
-      var h=document.getElementById('aseo-hora');
-      h.textContent='Aseo registrado a las '+(r.hora||'');
-      h.style.color='#2E7D32';
-      alert('Aseo registrado correctamente a las '+(r.hora||''));
-      ir(2);
+      // Pantalla exito aseo
+      var steps=document.querySelectorAll('.step');
+      for(var i=0;i<steps.length;i++)steps[i].classList.remove('on');
+      document.getElementById('s8ok').classList.add('on');
+      document.getElementById('aseo-ok-nom').textContent=empNom;
+      document.getElementById('aseo-ok-tarea').textContent=ASEO_TAREA;
+      document.getElementById('aseo-ok-hora').textContent=r.hora||'';
+      ASEO_TAREA=''; ASEO_FOTO=''; ASEO_EMP={id:'',nom:'',ini:''};
     } else {
-      var e=document.getElementById('aseo-err');
-      e.textContent='Error: '+(r.error||'desconocido');e.style.display='block';
+      document.getElementById('aseo-err-q').textContent='Error: '+(r.error||'desconocido');
+      document.getElementById('aseo-err-q').style.display='block';
     }
   }).catch(function(ex){
-    btn.disabled=false;btn.textContent='✓ Registrar aseo completado';
-    var e=document.getElementById('aseo-err');
-    e.textContent='Error: '+ex.message;e.style.display='block';
+    document.getElementById('load').classList.remove('on');
+    document.getElementById('aseo-err-q').textContent='Error: '+ex.message;
+    document.getElementById('aseo-err-q').style.display='block';
   });
 }
 </script>
