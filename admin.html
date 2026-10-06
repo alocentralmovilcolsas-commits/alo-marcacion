@@ -196,9 +196,6 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
       </div>
       <div id="alerta-cumpl-hoy"></div>
       <div id="alerta-ct-hoy"></div>
-      <div style="display:flex;gap:8px;margin-bottom:12px">
-        <button class="btn-sm btn-sm-b" style="flex:1;padding:10px" onclick="recalcularFormulas()">&#128257; Recalcular formulas Sheet</button>
-      </div>
       <div class="stats">
         <div class="stat"><div class="stat-v grn" id="s-ent">-</div><div class="stat-l">Entradas</div></div>
         <div class="stat"><div class="stat-v org" id="s-ret">-</div><div class="stat-l">Retardos</div></div>
@@ -258,6 +255,10 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
         <button class="btn-sm btn-sm-b" onclick="generarResumen()" style="white-space:nowrap;padding:10px 14px">Generar</button>
       </div>
       <div id="lista-resumen"><div class="empty">Seleccióna el periodo y haz clic en Generar</div></div>
+      <div style="margin-top:18px;padding-top:14px;border-top:1.5px solid #EEE">
+        <div style="font-size:12px;color:#888;margin-bottom:8px">⚙️ Herramientas de mantenimiento</div>
+        <button class="btn-sm" style="background:#f5f5f5;color:#555;border:1.5px solid #DDD;padding:10px 14px;width:100%;font-size:13px" onclick="recalcularFormulas()">&#128257; Recalcular horas del mes seleccionado</button>
+      </div>
     </div>
 
     <!-- HORAS EXTRA -->
@@ -1652,11 +1653,19 @@ function renderResumenControl(){
 }
 
 function recalcularFormulas(){
-  load('Recalculando todas las marcaciones...');
-  api('recalcular').then(function(r){
+  var mes=document.getElementById('res-mes')?document.getElementById('res-mes').value:'';
+  var anio=document.getElementById('res-año')?document.getElementById('res-año').value:'';
+  var nombreMes=['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var label=mes&&anio?(nombreMes[parseInt(mes,10)]+' '+anio):'todo el historial';
+  if(!confirm('¿Recalcular horas de '+label+'?\n\nEsto puede tomar varios segundos. No actualiza horas extras existentes.'))return;
+  load('Recalculando '+label+'...');
+  var params={};
+  if(mes&&anio){params.mes=mes;params.anio=anio;}
+  api('recalcular',params).then(function(r){
     unload();
     if(r.ok||r.procesadas!==undefined){
-      alert('Recálculo completado.\n'+r.procesadas+' filas procesadas de '+r.total+' totales.');
+      alert('✅ Recálculo completado — '+label+'\n'+r.procesadas+' filas procesadas.');
+      generarResumen(); // refresca resumen del mes
     } else {
       alert('Error: '+(r.error||'desconocido'));
     }
@@ -2076,8 +2085,8 @@ function cargarBreaksAdmin(){
         html+='<div class="li" style="display:flex;align-items:center;gap:12px">';
         html+='<div class="li-av" style="background:#FF8F00;font-size:20px">&#9201;</div>';
         html+='<div style="flex:1">';
-        html+='<div class="li-nom">'+b.empNom+'</div>';
-        html+='<div class="li-sub">Inicio: '+b.inicio+(b.fin?' &bull; Fin: '+b.fin:'')+'</div>';
+        html+='<div class="li-nom">'+(b.nombre||b.empId||'—')+'</div>';
+        html+='<div class="li-sub">Inicio: '+(b.horaInicio||'—')+(b.horaFin?' &bull; Fin: '+b.horaFin:'')+'</div>';
         html+='<div class="li-sub" style="color:'+col+';font-weight:700">'+dur+'</div>';
         html+='</div></div>';
       });
