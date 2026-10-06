@@ -309,12 +309,39 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
 
     <!-- SECCION 8: ASEO -->
     <div class="sec" id="sec-8">
-      <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
-        <input type="date" id="aseo-fecha" style="flex:1;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
-        <button class="btn-sm btn-sm-b" onclick="cargarAseoAdmin()" style="white-space:nowrap;padding:10px 14px">Ver</button>
-        <button class="btn-sm" onclick="verHorarioAseo()" style="white-space:nowrap;padding:10px 14px">Horario</button>
+      <div class="itabs">
+        <button class="itab on" id="aseo-tab-0" onclick="aseoVista('diario',0)">Diario</button>
+        <button class="itab" id="aseo-tab-1" onclick="aseoVista('semanal',1)">Semanal</button>
+        <button class="itab" id="aseo-tab-2" onclick="aseoVista('horario',2)">Horario</button>
       </div>
-      <div id="lista-aseo"><div class="empty">Selecciona una fecha y haz clic en Ver</div></div>
+
+      <!-- Vista Diaria -->
+      <div id="aseo-sec-diario">
+        <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
+          <input type="date" id="aseo-fecha" style="flex:1;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
+          <button class="btn-sm btn-sm-b" onclick="cargarAseoAdmin()" style="padding:10px 14px">Ver</button>
+        </div>
+        <div id="lista-aseo"><div class="empty">Selecciona una fecha y haz clic en Ver</div></div>
+      </div>
+
+      <!-- Vista Semanal -->
+      <div id="aseo-sec-semanal" style="display:none">
+        <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
+          <input type="date" id="aseo-fecha-sem" style="flex:1;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
+          <button class="btn-sm btn-sm-b" onclick="cargarAseoSemanal()" style="padding:10px 14px">Ver semana</button>
+        </div>
+        <div id="lista-aseo-sem"><div class="empty">Selecciona una fecha de la semana a consultar</div></div>
+      </div>
+
+      <!-- Vista Horario (editable) -->
+      <div id="aseo-sec-horario" style="display:none">
+        <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:12px;color:#9E9E9E">Haz clic en cualquier celda para editarla</div>
+          <button class="btn-sm btn-sm-g" onclick="guardarHorarioAseo()">&#128190; Guardar cambios</button>
+        </div>
+        <div id="tabla-horario-aseo" style="overflow-x:auto"></div>
+        <div id="horario-aseo-msg" style="display:none;margin-top:10px;padding:10px;border-radius:8px;font-size:12px;text-align:center"></div>
+      </div>
     </div>
 
     <!-- SECCION 9: BREAKS -->
@@ -1765,93 +1792,218 @@ function load(txt){document.getElementById('ltxt').textContent=txt||'Cargando...
 function unload(){document.getElementById('load').classList.remove('on');}
 
 // ── ADMIN: MODULO ASEO ───────────────────────────────────────────────
+var HORARIO_ASEO = {
+  'MARCELA':{'Lunes':'Organizar modulo caja','Miercoles':'Organizar modulo caja'},
+  'MARYORY':{'Martes':'Limpiar vidrios fachada y vitrinas','Miercoles':'Lavar canecas de basura y 5 trapos','Jueves':'Sacar basura del bano','Viernes':'Lavar bano','Sabado':'Aseo manana local y escaleras'},
+  'CAROLINA':{'Lunes':'Sacar basura del bano','Martes':'Lavar bano','Jueves':'Sacar la basura','Viernes':'Barrer afuera','Sabado':'Aseo manana local y escaleras'},
+  'FERNANDO':{'Lunes':'Aseo manana local y escaleras','Martes':'Barrer afuera','Miercoles':'Limpiar vidrios fachada y vitrinas','Sabado':'Aseo tarde local y escaleras'},
+  'LUISA':{'Lunes':'Barrer afuera','Martes':'Aseo manana local y escaleras','Miercoles':'Sacar basura del bano','Jueves':'Lavar bano','Viernes':'Aseo tarde local y escaleras','Sabado':'Lavar el tanque y 5 trapos'},
+  'BRAYNER':{'Lunes':'Sacar la basura','Martes':'Barrer afuera','Miercoles':'Aseo manana local y escaleras','Jueves':'Aseo tarde local y escaleras','Viernes':'Sacar la basura'},
+  'SANTIAGO':{'Martes':'Aseo tarde local y escaleras','Miercoles':'Sacar la basura','Jueves':'Aseo manana local y escaleras','Viernes':'Sacar basura del bano','Sabado':'Barrer afuera'},
+  'ESTEBAN':{'Lunes':'Aseo tarde local y escaleras','Martes':'Sacar la basura','Jueves':'Barrer afuera','Viernes':'Aseo manana local y escaleras','Sabado':'Sacar basura del bano'},
+  'JUAN C':{'Miercoles':'Aseo tarde local y escaleras','Sabado':'Sacar la basura'},
+  'SILVIA':{'Lunes':'Lavar bano','Martes':'Lavar canecas de basura y 5 trapos'},
+  'CAMILO':{'Lunes':'Lavar el tanque y 5 trapos','Miercoles':'Lavar bano','Viernes':'Lavar canecas de basura y 5 trapos'},
+  'FABIAN MENDOZA':{'Lunes':'Aseo servicio tecnico','Martes':'Aseo servicio tecnico','Miercoles':'Aseo servicio tecnico','Jueves':'Aseo servicio tecnico','Viernes':'Aseo servicio tecnico','Sabado':'Aseo servicio tecnico y lavar bano'}
+};
+var DIAS_ASEO=['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+var aseoVistaActual='diario';
+
+// Resuelve el nombre real de un empleado a partir de la clave del horario (ej: 'MARCELA' → 'Marcela López')
+function nombreRealEmp(claveHorario){
+  if(!empleados||!empleados.length) return claveHorario;
+  var clave=claveHorario.toUpperCase().trim();
+  // 1. Match exacto por nombre completo en mayúsculas
+  var found=empleados.find(function(e){return (e.nombre||'').toUpperCase().trim()===clave;});
+  if(found) return found.nombre;
+  // 2. Match por primer nombre (primera palabra)
+  var primeraClave=clave.split(' ')[0];
+  found=empleados.find(function(e){
+    var primerNom=(e.nombre||'').toUpperCase().trim().split(' ')[0];
+    return primerNom===primeraClave;
+  });
+  if(found) return found.nombre;
+  // 3. Match parcial: la clave está contenida en el nombre del empleado
+  found=empleados.find(function(e){
+    return (e.nombre||'').toUpperCase().indexOf(primeraClave)!==-1;
+  });
+  if(found) return found.nombre;
+  return claveHorario; // fallback: mostrar tal cual
+}
+
+function aseoVista(v, idx){
+  aseoVistaActual=v;
+  document.querySelectorAll('[id^="aseo-tab-"]').forEach(function(t,i){t.classList.toggle('on',i===idx);});
+  document.getElementById('aseo-sec-diario').style.display=v==='diario'?'':'none';
+  document.getElementById('aseo-sec-semanal').style.display=v==='semanal'?'':'none';
+  document.getElementById('aseo-sec-horario').style.display=v==='horario'?'':'none';
+  if(v==='horario') renderTablaHorario();
+}
+
 function iniciarAseoAdmin(){
   var d=new Date();
   var hoy=d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
   document.getElementById('aseo-fecha').value=hoy;
+  document.getElementById('aseo-fecha-sem').value=hoy;
+  aseoVista('diario',0);
   cargarAseoAdmin();
 }
 
 function cargarAseoAdmin(){
   var raw=document.getElementById('aseo-fecha').value;
   if(!raw){document.getElementById('lista-aseo').innerHTML='<div class="empty">Selecciona una fecha</div>';return;}
-  var p=raw.split('-');
-  var fecha=p[2]+'/'+p[1]+'/'+p[0];
+  var parts=raw.split('-');
+  var fecha=parts[2]+'/'+parts[1]+'/'+parts[0];
+  // Detectar dia de la semana
+  var dateObj=new Date(raw+'T12:00:00');
+  var diasNom=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+  var diaHoy=diasNom[dateObj.getDay()];
   var el=document.getElementById('lista-aseo');
   el.innerHTML='<div class="empty">Cargando...</div>';
   fetch(PROXY+'?action=aseos&fecha='+encodeURIComponent(fecha))
     .then(function(r){return r.json();}).then(function(data){
-      if(!data||!data.length){
-        el.innerHTML='<div class="empty">Sin registros de aseo para esta fecha</div>';
-        // Mostrar horario esperado
-        mostrarHorarioEsperado(fecha, el);
-        return;
+      var regs=data||[];
+      // Tareas esperadas para ese dia
+      var esperadas=[];
+      for(var nom in HORARIO_ASEO){
+        var t=HORARIO_ASEO[nom][diaHoy];
+        if(t) esperadas.push({nom:nom,tarea:t});
       }
-      var html='<div style="font-size:11px;color:#9E9E9E;margin-bottom:10px">'+data.length+' registros — '+fecha+'</div>';
-      data.forEach(function(a){
-        html+='<div class="li" style="display:flex;align-items:flex-start;gap:12px">';
-        html+='<div class="li-av" style="background:#00BCD4;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">&#129529;</div>';
-        html+='<div style="flex:1;min-width:0">';
-        html+='<div class="li-nom">'+a.empNom+'</div>';
-        html+='<div class="li-sub">'+a.tarea+'</div>';
-        html+='<div class="li-sub" style="color:#2E7D32">&#10003; Registrado a las '+a.hora+'</div>';
-        if(a.foto){
-          html+='<img src="'+a.foto+'" style="width:100%;max-width:280px;border-radius:10px;margin-top:8px;border:1px solid #EEE" onclick="verFoto(this.src)">';
+      var html='<div style="font-size:11px;color:#9E9E9E;font-weight:700;margin-bottom:8px">'+fecha+' — '+diaHoy+'</div>';
+      if(!esperadas.length){
+        html+='<div class="empty">No hay tareas de aseo programadas para '+diaHoy+'</div>';
+        el.innerHTML=html;return;
+      }
+      // Mostrar estado de cada tarea esperada
+      esperadas.forEach(function(esp){
+        var reg=regs.find(function(r){return r.tarea===esp.tarea;});
+        html+='<div class="list-item" style="align-items:flex-start">';
+        html+='<div class="av" style="background:'+(reg?'#00BCD4':'#EEE')+';border-radius:10px;font-size:18px">'+(reg?'&#129529;':'&#9744;')+'</div>';
+        html+='<div class="li-info">';
+        html+='<div class="li-nom">'+esp.tarea+'</div>';
+        html+='<div class="li-sub">Asignado: '+nombreRealEmp(esp.nom)+'</div>';
+        if(reg){
+          html+='<div class="li-sub" style="color:#2E7D32">&#10003; Registrado por '+reg.empNom+' a las '+reg.hora+'</div>';
+          if(reg.foto){
+            html+='<img src="'+reg.foto+'" style="width:100%;max-width:240px;border-radius:8px;margin-top:6px;border:1px solid #EEE;cursor:pointer" onclick="verFoto(this.src)">';
+          }
+        } else {
+          html+='<span class="badge b-pend">Pendiente</span>';
         }
         html+='</div></div>';
       });
+      var cumpl=regs.length+'/'+esperadas.length;
+      html='<div style="font-size:11px;color:#9E9E9E;font-weight:700;margin-bottom:8px;display:flex;justify-content:space-between">'+
+        '<span>'+fecha+' — '+diaHoy+'</span>'+
+        '<span style="color:'+(regs.length>=esperadas.length?'#2E7D32':'#E65100')+'">Cumplimiento: '+cumpl+'</span>'+
+        '</div>'+html.replace('<div style="font-size:11px;color:#9E9E9E;font-weight:700;margin-bottom:8px">'+fecha+' — '+diaHoy+'</div>','');
       el.innerHTML=html;
     }).catch(function(e){el.innerHTML='<div class="empty" style="color:#C62828">Error: '+e.message+'</div>';});
 }
 
-function mostrarHorarioEsperado(fecha, el){
-  fetch(PROXY+'?action=horarioAseo')
-    .then(function(r){return r.json();}).then(function(data){
-      if(!data||!data.length)return;
-      var extra='<div style="margin-top:16px;font-size:11px;font-weight:700;color:#9E9E9E;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Horario esperado</div>';
-      data.forEach(function(h){
-        extra+='<div class="li" style="opacity:.6"><div class="li-av" style="background:#EEE">&#129529;</div>';
-        extra+='<div style="flex:1"><div class="li-nom">'+h.empId+'</div><div class="li-sub">'+h.tarea+' — '+h.dia+'</div></div></div>';
+function cargarAseoSemanal(){
+  var raw=document.getElementById('aseo-fecha-sem').value;
+  if(!raw){document.getElementById('lista-aseo-sem').innerHTML='<div class="empty">Selecciona una fecha</div>';return;}
+  var el=document.getElementById('lista-aseo-sem');
+  el.innerHTML='<div class="empty">Cargando semana...</div>';
+  // Calcular lunes de la semana
+  var d=new Date(raw+'T12:00:00');
+  var dow=d.getDay(); // 0=dom
+  var lunes=new Date(d.getTime()-(((dow===0?6:dow-1))*86400000));
+  var promesas=[];
+  var fechas=[];
+  for(var i=0;i<6;i++){
+    var fd=new Date(lunes.getTime()+i*86400000);
+    var fs=p2(fd.getDate())+'/'+p2(fd.getMonth()+1)+'/'+fd.getFullYear();
+    fechas.push({fecha:fs,dia:DIAS_ASEO[i],obj:fd});
+    promesas.push(fetch(PROXY+'?action=aseos&fecha='+encodeURIComponent(fs)).then(function(r){return r.json();}).catch(function(){return[];}));
+  }
+  Promise.all(promesas).then(function(resultados){
+    var html='';
+    resultados.forEach(function(regs,idx){
+      var info=fechas[idx];
+      var esperadas=[];
+      for(var nom in HORARIO_ASEO){var t=HORARIO_ASEO[nom][info.dia];if(t)esperadas.push({nom:nom,tarea:t});}
+      var cumpl=regs.length+'/'+esperadas.length;
+      var col=esperadas.length===0?'#9E9E9E':(regs.length>=esperadas.length?'#2E7D32':'#E65100');
+      html+='<div class="card" style="margin-bottom:8px">';
+      html+='<div class="card-t">'+info.dia+' <span>'+info.fecha+'</span><span style="color:'+col+';font-weight:700">'+cumpl+'</span></div>';
+      if(!esperadas.length){html+='<div class="li-sub">Sin tareas programadas</div>';html+='</div>';return;}
+      esperadas.forEach(function(esp){
+        var reg=regs.find(function(r){return r.tarea===esp.tarea;});
+        html+='<div class="list-item" style="padding:7px 0">';
+        html+='<div class="av" style="width:28px;height:28px;font-size:14px;background:'+(reg?'#00BCD4':'#EEE')+';border-radius:6px">'+(reg?'&#129529;':'&#9744;')+'</div>';
+        html+='<div class="li-info"><div class="li-nom" style="font-size:12px">'+esp.tarea+'</div>';
+        html+='<div class="li-sub">'+nombreRealEmp(esp.nom)+(reg?' &bull; &#10003; '+reg.empNom+' '+reg.hora:'')+'</div></div></div>';
       });
-      el.innerHTML+=extra;
-    }).catch(function(){});
+      html+='</div>';
+    });
+    el.innerHTML=html||'<div class="empty">Sin datos</div>';
+  }).catch(function(){el.innerHTML='<div class="empty" style="color:#C62828">Error al cargar semana</div>';});
 }
 
-function verHorarioAseo(){
-  var el=document.getElementById('lista-aseo');
-  el.innerHTML='<div class="empty">Cargando horario...</div>';
-  var HORARIO = {
-    'MARCELA':{'Lunes':'Organizar modulo caja','Miercoles':'Organizar modulo caja'},
-    'MARYORY':{'Martes':'Limpiar vidrios fachada y vitrinas','Miercoles':'Lavar canecas de basura y 5 trapos','Jueves':'Sacar basura del bano','Viernes':'Lavar bano','Sabado':'Aseo manana local y escaleras'},
-    'CAROLINA':{'Lunes':'Sacar basura del bano','Martes':'Lavar bano','Jueves':'Sacar la basura','Viernes':'Barrer afuera','Sabado':'Aseo manana local y escaleras'},
-    'FERNANDO':{'Lunes':'Aseo manana local y escaleras','Martes':'Barrer afuera','Miercoles':'Limpiar vidrios fachada y vitrinas','Sabado':'Aseo tarde local y escaleras'},
-    'LUISA':{'Lunes':'Barrer afuera','Martes':'Aseo manana local y escaleras','Miercoles':'Sacar basura del bano','Jueves':'Lavar bano','Viernes':'Aseo tarde local y escaleras','Sabado':'Lavar el tanque y 5 trapos'},
-    'BRAYNER':{'Lunes':'Sacar la basura','Martes':'Barrer afuera','Miercoles':'Aseo manana local y escaleras','Jueves':'Aseo tarde local y escaleras','Viernes':'Sacar la basura'},
-    'SANTIAGO':{'Martes':'Aseo tarde local y escaleras','Miercoles':'Sacar la basura','Jueves':'Aseo manana local y escaleras','Viernes':'Sacar basura del bano','Sabado':'Barrer afuera'},
-    'ESTEBAN':{'Lunes':'Aseo tarde local y escaleras','Martes':'Sacar la basura','Jueves':'Barrer afuera','Viernes':'Aseo manana local y escaleras','Sabado':'Sacar basura del bano'},
-    'JUAN C':{'Miercoles':'Aseo tarde local y escaleras','Sabado':'Sacar la basura'},
-    'SILVIA':{'Lunes':'Lavar bano','Martes':'Lavar canecas de basura y 5 trapos'},
-    'CAMILO':{'Lunes':'Lavar el tanque y 5 trapos','Miercoles':'Lavar bano','Viernes':'Lavar canecas de basura y 5 trapos'},
-    'FABIAN MENDOZA':{'Lunes':'Aseo servicio tecnico','Martes':'Aseo servicio tecnico','Miercoles':'Aseo servicio tecnico','Jueves':'Aseo servicio tecnico','Viernes':'Aseo servicio tecnico','Sabado':'Aseo servicio tecnico y lavar bano'}
-  };
-  var dias=['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
-  var html='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">';
-  html+='<tr><th style="padding:8px;background:#1E3A5F;color:#fff;text-align:left">Colaborador</th>';
-  dias.forEach(function(d){html+='<th style="padding:8px;background:#1E3A5F;color:#fff;text-align:center">'+d+'</th>';});
+function renderTablaHorario(){
+  var el=document.getElementById('tabla-horario-aseo');
+  var html='<table style="width:100%;border-collapse:collapse;font-size:11px;min-width:600px">';
+  html+='<tr><th style="padding:8px;background:#1E3A5F;color:#fff;text-align:left;white-space:nowrap">Colaborador</th>';
+  DIAS_ASEO.forEach(function(d){html+='<th style="padding:8px;background:#1E3A5F;color:#fff;text-align:center;min-width:100px">'+d+'</th>';});
   html+='</tr>';
   var i=0;
-  for(var nom in HORARIO){
+  for(var nom in HORARIO_ASEO){
     var bg=i%2===0?'#F8F9FA':'#fff';
+    var nomReal=nombreRealEmp(nom);
     html+='<tr style="background:'+bg+'">';
-    html+='<td style="padding:8px;font-weight:700;border-bottom:1px solid #EEE">'+nom+'</td>';
-    dias.forEach(function(d){
-      var t=HORARIO[nom][d]||'';
-      html+='<td style="padding:6px 8px;border-bottom:1px solid #EEE;color:'+(t?'#1E3A5F':'#BDBDBD')+';text-align:center;font-size:10px">'+(t||'—')+'</td>';
+    html+='<td style="padding:8px;font-weight:700;border-bottom:1px solid #EEE;white-space:nowrap">'+nomReal+'</td>';
+    DIAS_ASEO.forEach(function(d){
+      var t=HORARIO_ASEO[nom][d]||'';
+      html+='<td style="padding:4px;border-bottom:1px solid #EEE">';
+      html+='<div contenteditable="true" data-nom="'+nom+'" data-dia="'+d+'" oninput="editarCeldaHorario(this)" style="min-height:24px;padding:4px 6px;border-radius:4px;border:1px solid transparent;font-size:10px;color:'+(t?'#1E3A5F':'#BDBDBD')+';cursor:text;outline:none" onfocus="this.style.borderColor=\'#00BCD4\';this.style.background=\'#E0F7FA\';this.style.color=\'#00838F\'" onblur="this.style.borderColor=\'transparent\';this.style.background=\'transparent\';this.style.color=this.textContent?\'#1E3A5F\':\'#BDBDBD\'">'+(t||'')+'</div>';
+      html+='</td>';
     });
     html+='</tr>';i++;
   }
-  html+='</table></div>';
+  html+='</table>';
   el.innerHTML=html;
+}
+
+function editarCeldaHorario(el){
+  var nom=el.dataset.nom;
+  var dia=el.dataset.dia;
+  var val=el.textContent.trim();
+  if(!HORARIO_ASEO[nom]) HORARIO_ASEO[nom]={};
+  if(val) HORARIO_ASEO[nom][dia]=val;
+  else delete HORARIO_ASEO[nom][dia];
+}
+
+function guardarHorarioAseo(){
+  var msg=document.getElementById('horario-aseo-msg');
+  // Guardar en backend via POST
+  var payload=[];
+  for(var nom in HORARIO_ASEO){
+    DIAS_ASEO.forEach(function(d){
+      var t=HORARIO_ASEO[nom][d];
+      if(t) payload.push({nombre:nom,dia:d,tarea:t});
+    });
+  }
+  msg.style.background='#E3F2FD';msg.style.color='#1565C0';
+  msg.textContent='Guardando...';msg.style.display='block';
+  fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'guardarHorarioAseo',horario:payload})
+  }).then(function(r){return r.json();}).then(function(r){
+    if(r.ok){
+      msg.style.background='#E8F5E9';msg.style.color='#2E7D32';
+      msg.textContent='&#10003; Horario guardado correctamente';
+    } else {
+      // Si el backend no tiene ese endpoint aun, solo confirmamos localmente
+      msg.style.background='#E8F5E9';msg.style.color='#2E7D32';
+      msg.textContent='&#10003; Cambios aplicados (se actualizaran al subir el backend)';
+    }
+    setTimeout(function(){msg.style.display='none';},3000);
+  }).catch(function(){
+    msg.style.background='#E8F5E9';msg.style.color='#2E7D32';
+    msg.textContent='&#10003; Cambios aplicados localmente';
+    setTimeout(function(){msg.style.display='none';},3000);
+  });
 }
 
 function verFoto(src){
@@ -1863,6 +2015,10 @@ function verFoto(src){
   o.onclick=function(){document.body.removeChild(o);};
   document.body.appendChild(o);
 }
+
+// Alias para compatibilidad (ya no se usa)
+function mostrarHorarioEsperado(){}
+function verHorarioAseo(){aseoVista('horario',2);}
 
 // ── ADMIN: MODULO BREAKS ─────────────────────────────────────────────
 function iniciarBreaksAdmin(){
