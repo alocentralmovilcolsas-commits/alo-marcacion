@@ -35,21 +35,27 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
 .mod-marc .mod-ico{background:#FFEBEE;color:#E53935}.mod-marc .mod-nom{color:#212121}
 .mod-aseo .mod-ico{background:#E0F7FA;color:#00838F}.mod-aseo .mod-nom{color:#212121}
 .mod-nov .mod-ico{background:#FFF8E1;color:#E65100}.mod-nov .mod-nom{color:#212121}
-/* ASEO BANNER DIA */
-.aseo-dia-banner{background:linear-gradient(135deg,#1E3A5F 0%,#1a4a7a 100%);border-radius:14px;padding:14px 16px;margin-bottom:14px;box-shadow:0 3px 12px rgba(30,58,95,.25)}
-.aseo-dia-tit{font-size:10px;font-weight:700;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.aseo-dia-tit span{color:#64B5F6;font-weight:800}
-.aseo-dia-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+/* ASEO BANNER DIA — alerta sutil */
+.aseo-dia-banner{background:#fff;border-radius:12px;margin-top:12px;margin-bottom:4px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);border:1px solid #E3F2FD}
+.aseo-dia-tit{font-size:10px;font-weight:700;color:#1565C0;text-transform:uppercase;letter-spacing:.08em;padding:9px 14px 8px;background:#E3F2FD;display:flex;align-items:center;gap:6px;border-bottom:1px solid #BBDEFB}
+.aseo-dia-tit span{color:#0D47A1;font-weight:800}
+.aseo-dia-item{display:flex;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid #F5F5F5}
 .aseo-dia-item:last-child{border-bottom:none}
-.aseo-dia-item::before{content:'🧹';font-size:13px;flex-shrink:0}
-.aseo-dia-nom{font-size:12px;font-weight:700;color:#90CAF9;min-width:110px;flex-shrink:0}
-.aseo-dia-tar{font-size:12px;color:rgba(255,255,255,.88);flex:1}
+.aseo-dia-item::before{content:'🧹';font-size:12px;flex-shrink:0}
+.aseo-dia-nom{font-size:12px;font-weight:700;color:#1565C0;min-width:110px;flex-shrink:0}
+.aseo-dia-tar{font-size:12px;color:#424242;flex:1}
 /* ASEO: seleccion tarea */
-.tarea-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border:1.5px solid #EEE;cursor:pointer;transition:all .15s}
-.tarea-card.sel{border-color:#00BCD4;background:#E0F7FA}
-.tarea-card:active{background:#F0FDFF}
-.tarea-nom{font-size:13px;font-weight:700;color:#00838F}
-.tarea-emp{font-size:11px;color:#9E9E9E;margin-top:2px}
+.aseo-header{background:linear-gradient(135deg,#1E3A5F 0%,#1a4a7a 100%);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.aseo-header-dia{font-size:10px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.1em}
+.aseo-header-tit{font-size:15px;font-weight:800;color:#fff;margin-top:2px}
+.tarea-card{background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:8px;border:1.5px solid #E8EEF8;cursor:pointer;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.tarea-card.sel{border-color:#1565C0;background:#E3F2FD}
+.tarea-card.hecho{border-color:#43A047;background:#F1F8E9;pointer-events:none}
+.tarea-card:active{background:#E8EEF8}
+.tarea-nom{font-size:13px;font-weight:700;color:#1E3A5F}
+.tarea-emp{font-size:11px;color:#9E9E9E;margin-top:3px}
+.tarea-nom-hecho{font-size:13px;font-weight:700;color:#2E7D32}
+.tarea-emp-hecho{font-size:11px;color:#66BB6A;margin-top:3px}
 /* LOGIN */
 .lw{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 60px);padding:20px}
 .lb{background:#fff;border-radius:20px;padding:36px 28px;width:100%;max-width:360px;box-shadow:0 4px 24px rgba(0,0,0,.12)}
@@ -187,11 +193,6 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
 
     <!-- PANTALLA MODULOS -->
     <div class="step on" id="s0m">
-      <!-- Banner aseo del dia (general, sin requerir empleado) -->
-      <div id="aseo-dia-banner" class="aseo-dia-banner" style="display:none">
-        <div class="aseo-dia-tit">&#129529; Aseo de hoy — <span id="aseo-dia-label"></span></div>
-        <div id="aseo-dia-lista"></div>
-      </div>
       <div class="slbl">Selecciona un modulo</div>
       <div class="mod-grid">
         <div class="mod-card mod-marc" onclick="irModulo('marcaciones')">
@@ -209,6 +210,11 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
           <div><div class="mod-nom">Novedades</div><div class="mod-desc">Solicita un permiso o novedad</div></div>
           <span class="mod-arr">&#8250;</span>
         </div>
+      </div>
+      <!-- Banner aseo del dia — debajo de los módulos, solo día actual -->
+      <div id="aseo-dia-banner" class="aseo-dia-banner" style="display:none">
+        <div class="aseo-dia-tit">&#129529; Aseo de hoy — <span id="aseo-dia-label"></span></div>
+        <div id="aseo-dia-lista"></div>
       </div>
     </div>
 
@@ -785,7 +791,14 @@ var HORARIO_ASEO_LOCAL = {
   'Juan Carlos':{'Miércoles':'Aseo tarde local y escaleras','Sábado':'Sacar la basura'},
   'Silvia Alejandra':{'Lunes':'Lavar baño','Martes':'Lavar canecas de basura y 5 trapos'},
   'Camilo Alexander':{'Lunes':'Lavar el tanque y 5 trapos','Miércoles':'Lavar baño','Viernes':'Lavar canecas de basura y 5 trapos'},
-  'Fabián Stiven':{'Lunes':'Aseo servicio técnico','Martes':'Aseo servicio técnico','Miércoles':'Aseo servicio técnico','Jueves':'Aseo servicio técnico','Viernes':'Aseo servicio técnico','Sábado':'Aseo servicio técnico y lavar baño'}
+  'Fabián Stiven':{
+    'Lunes':    ['Aseo servicio técnico mañana','Aseo servicio técnico tarde'],
+    'Martes':   ['Aseo servicio técnico mañana','Aseo servicio técnico tarde'],
+    'Miércoles':['Aseo servicio técnico mañana','Aseo servicio técnico tarde'],
+    'Jueves':   ['Aseo servicio técnico mañana','Aseo servicio técnico tarde'],
+    'Viernes':  ['Aseo servicio técnico mañana','Aseo servicio técnico tarde'],
+    'Sábado':   ['Aseo servicio técnico mañana','Aseo servicio técnico tarde','Lavar baño']
+  }
 };
 
 function resolverNombreEmpAseo(clave){
@@ -816,7 +829,10 @@ function cargarBannerAseoDia(){
   var tareas=[];
   for(var nom in HORARIO_ASEO_LOCAL){
     var t=HORARIO_ASEO_LOCAL[nom][dia];
-    if(t) tareas.push({nom:nom,tarea:t});
+    if(!t) continue;
+    // Soporte para tareas múltiples (array) o tarea única (string)
+    var lista=Array.isArray(t)?t:[t];
+    lista.forEach(function(tarea){tareas.push({nom:nom,tarea:tarea});});
   }
   if(!tareas.length){banner.style.display='none';return;}
   var html='';
@@ -849,10 +865,13 @@ function irAseo(){
   lista.innerHTML='<div style="text-align:center;padding:20px;color:#9E9E9E;font-size:12px">Cargando...</div>';
 
   // Obtener tareas del dia del horario local y verificar cuales ya se registraron
+  // Soporta tareas múltiples (array) o tarea única (string)
   var tareasHoy=[];
   for(var nom in HORARIO_ASEO_LOCAL){
     var t=HORARIO_ASEO_LOCAL[nom][dia];
-    if(t) tareasHoy.push({nom:nom,tarea:t,hecho:false,hora:''});
+    if(!t) continue;
+    var lista=Array.isArray(t)?t:[t];
+    lista.forEach(function(tarea){tareasHoy.push({nom:nom,tarea:tarea,hecho:false,hora:''}); });
   }
 
   if(!tareasHoy.length){
@@ -878,25 +897,32 @@ function irAseo(){
 function renderTareasAseo(tareas, dia){
   var lista=document.getElementById('aseo-lista-tareas');
   if(!tareas.length){lista.innerHTML='<div style="text-align:center;padding:20px;color:#9E9E9E">Sin tareas hoy</div>';return;}
-  var html='<div style="font-size:11px;color:#006064;font-weight:700;margin-bottom:10px;text-transform:uppercase">'+dia+' — Selecciona la tarea que vas a registrar:</div>';
+  var hechas=tareas.filter(function(t){return t.hecho;}).length;
+  var html='<div class="aseo-header">';
+  html+='<div class="aseo-header-dia">'+dia+' · '+hechas+'/'+tareas.length+' completadas</div>';
+  html+='<div class="aseo-header-tit">Selecciona tu tarea</div>';
+  html+='</div>';
   tareas.forEach(function(t){
+    var nomReal=resolverNombreEmpAseo(t.nom);
     if(t.hecho){
-      html+='<div class="tarea-card" style="border-color:#43A047;background:#F1F8E9;opacity:.85;pointer-events:none">';
-      html+='<div class="tarea-nom">&#10003; '+t.tarea+'</div>';
-      html+='<div class="tarea-emp">'+t.nom+' — registrado a las '+t.hora+'</div>';
+      html+='<div class="tarea-card hecho">';
+      html+='<div class="tarea-nom-hecho">&#10003; '+t.tarea+'</div>';
+      html+='<div class="tarea-emp-hecho">'+nomReal+' · '+t.hora+'</div>';
       html+='</div>';
     } else {
-      html+='<div class="tarea-card" onclick="seleccionarTareaAseo(\''+t.tarea.replace(/'/g,"\\'")+'\')">';
+      html+='<div class="tarea-card" onclick="seleccionarTareaAseo(\''+t.tarea.replace(/'/g,"\\'")+'\',\''+t.nom.replace(/'/g,"\\'")+'\')">';
       html+='<div class="tarea-nom">'+t.tarea+'</div>';
-      html+='<div class="tarea-emp">Asignado: '+t.nom+'</div>';
+      html+='<div class="tarea-emp">Asignado: '+nomReal+'</div>';
       html+='</div>';
     }
   });
   lista.innerHTML=html;
 }
 
-function seleccionarTareaAseo(tarea){
+function seleccionarTareaAseo(tarea,nomAsignado){
   ASEO_TAREA=tarea;
+  // Guardar el nombre del asignado para pre-seleccionar después
+  ASEO_EMP={id:'',nom:nomAsignado||'',ini:''};
   document.getElementById('aseo-tarea-sel').textContent=tarea;
   ASEO_FOTO='';
   document.getElementById('prv-aseo').style.display='none';
