@@ -72,6 +72,27 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
 .strip-item{text-align:center}
 .strip-n{font-size:18px;font-weight:700}
 .strip-l{font-size:9px;color:#9E9E9E;text-transform:uppercase}
+
+.tab-bar{display:flex;gap:0;border-bottom:2px solid #E1BEE7;margin-bottom:0;background:#fff;position:sticky;top:56px;z-index:15}
+.tab-btn{flex:1;padding:10px 4px;border:none;background:none;font-size:12px;font-weight:600;color:#9E9E9E;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.tab-btn.act{color:#6A1B9A;border-bottom-color:#6A1B9A}
+.tab-content{display:none;padding:12px 14px 80px}
+.tab-content.act{display:block}
+.brk-card{background:#fff;border-radius:14px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.07)}
+.brk-head{display:flex;align-items:center;padding:12px 14px;gap:10px}
+.brk-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0}
+.brk-info{flex:1}
+.brk-nom{font-size:14px;font-weight:700;color:#212121}
+.brk-cargo{font-size:11px;color:#9E9E9E}
+.brk-timer{font-size:22px;font-weight:900;color:#E65100;font-variant-numeric:tabular-nums;min-width:60px;text-align:right}
+.brk-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px 14px}
+.brk-btn{padding:10px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.brk-btn.start{background:#E65100;color:#fff}
+.brk-btn.end{background:#2E7D32;color:#fff}
+.brk-btn.start:disabled,.brk-btn.end:disabled{opacity:.4;cursor:default}
+.brk-status{font-size:10px;color:#9E9E9E;padding:2px 14px 10px;text-align:center}
+.brk-status.active{color:#E65100;font-weight:700}
+.brk-status.done{color:#2E7D32;font-weight:700}
 </style>
 </head>
 <body>
@@ -95,13 +116,20 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
     <div><div class="logo">Alo<em>!</em></div><div class="logos">Control de Personal</div></div>
     <span class="badge" id="badge-fecha">HOY</span>
   </div></div>
-  <div class="body" id="body-content">
-    <div class="empty">Cargando...</div>
+  <div class="tab-bar">
+    <button class="tab-btn act" onclick="irTab(0,this)">&#128203; Control</button>
+    <button class="tab-btn" onclick="irTab(1,this)">&#9201; Breaks</button>
+  </div>
+  <div class="tab-content act" id="tab-control">
+    <div class="body" id="body-content"><div class="empty">Cargando...</div></div>
+  </div>
+  <div class="tab-content" id="tab-breaks">
+    <div id="breaks-content"><div class="empty">Cargando breaks...</div></div>
   </div>
 </div>
 
 <script>
-var PROXY    = 'https://alo-marcacion.onrender.com/api/proxy';
+var PROXY    = '/api/proxy';
 var CLAVE    = '@control2024*';
 var KEY      = 'alo_control_v1';
 var CL       = ['#1E3A5F','#C62828','#2E7D32','#E65100','#6A1B9A','#1565C0','#F57F17','#00897B','#D81B60','#546E7A','#3949AB','#00ACC1','#6D4C41','#43A047'];
@@ -148,7 +176,7 @@ function cargar(){
     existentes.forEach(function(e){
       // Solo pre-cargar si el registro es de HOY
       if(e.fecha===fechaHoy){
-        registros[e.empId]={camisa:e.camisa,pantalón:e.pantalón,celular:e.celular,aseo:e.aseo,radar:e.radar,obs:e.observación};
+        registros[e.empId]={camisa:e.camisa,pantalon:e.pantalon,celular:e.celular,aseo:e.aseo,radar:e.radar,obs:e.observacion};
         guardados[e.empId]=true;
       }
     });
@@ -188,7 +216,7 @@ function render(){
     html+='</div>';
     html+='<div class="controles">';
     html+=ctrl2('camisa',e.id,'&#128248; Camisa',reg.camisa);
-    html+=ctrl2('pantalón',e.id,'&#128062; Pantalón',reg.pantalón);
+    html+=ctrl2('pantalon',e.id,'&#128062; Pantalón',reg.pantalon);
     html+=ctrl2('celular',e.id,'&#128241; Celular',reg.celular);
     html+=ctrl3('aseo',e.id,'&#129529; Aseo',reg.aseo);
     html+=ctrl2('radar',e.id,'&#128205; Radar',reg.radar);
@@ -249,9 +277,9 @@ function guardarEmp(empId){
   fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({action:'guardarControlDiario',fecha:fechaHoy,
       registros:[{empId:emp.id,nombre:emp.nombre,
-        camisa:reg.camisa||'',pantalón:reg.pantalón||'',
+        camisa:reg.camisa||'',pantalon:reg.pantalon||'',
         celular:reg.celular||'',aseo:reg.aseo||'',
-        radar:reg.radar||'',observación:reg.obs||''}],
+        radar:reg.radar||'',observacion:reg.obs||''}],
       registradoPor:'Control'})
   }).then(function(r){return r.json();}).then(function(r){
     if(r.ok){
@@ -285,6 +313,135 @@ function actualizarResumen(){
     if(items[0])items[0].textContent=total;
     if(items[1])items[1].textContent=empleados.length-total;
   }
+}
+
+
+// ── TABS ─────────────────────────────────────────────────────────────
+function irTab(n, btn) {
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('act');});
+  document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('act');});
+  if(btn) btn.classList.add('act');
+  if(n===0){ document.getElementById('tab-control').classList.add('act'); }
+  if(n===1){ document.getElementById('tab-breaks').classList.add('act'); cargarBreaks(); }
+}
+
+// ── BREAKS ───────────────────────────────────────────────────────────
+var breaksActivos = {}; // empId → {id, horaInicio, timer}
+
+function cargarBreaks() {
+  var n=new Date();
+  var fd=p2(n.getDate())+'/'+p2(n.getMonth()+1)+'/'+n.getFullYear();
+  fetch(PROXY+'?action=breaks&fecha='+fd).then(function(r){return r.json();}).then(function(data){
+    renderBreaks(data||[]);
+  }).catch(function(){renderBreaks([]);});
+}
+
+function renderBreaks(brkData) {
+  // Build map of existing breaks
+  var brkMap = {};
+  (brkData||[]).forEach(function(b){ brkMap[b.empId] = b; });
+
+  var html = '';
+  empleados.forEach(function(e,idx){
+    var brk = brkMap[e.id];
+    var activo = breaksActivos[e.id];
+    var enBreak = (brk && brk.estado==='En break') || !!activo;
+    var completo = brk && brk.estado==='Completado';
+    var bg = bgEmp(idx);
+
+    html += '<div class="brk-card" id="brk-'+e.id+'">';
+    html += '<div class="brk-head">';
+    html += '<div class="brk-av" style="background:'+bg+'">'+ini(e.nombre)+'</div>';
+    html += '<div class="brk-info"><div class="brk-nom">'+e.nombre+'</div>';
+    html += '<div class="brk-cargo">'+(e.cargo||'Colaborador')+'</div></div>';
+    if(enBreak) {
+      html += '<div class="brk-timer" id="tmr-'+e.id+'">00:00</div>';
+    } else if(completo) {
+      html += '<div style="font-size:18px;color:#2E7D32;font-weight:700">&#10003; '+brk.duracion+'min</div>';
+    } else {
+      html += '<div style="font-size:13px;color:#BDBDBD">Sin break</div>';
+    }
+    html += '</div>';
+
+    html += '<div class="brk-btns">';
+    html += '<button class="brk-btn start" '+(enBreak||completo?'disabled':'')+' onclick="iniciarBreak(''+e.id+'',''+e.nombre+'')">';
+    html += enBreak ? '&#9201; En break...' : completo ? '&#10003; Completado' : '&#9654; Iniciar break';
+    html += '</button>';
+    html += '<button class="brk-btn end" '+(enBreak?'':'disabled')+' onclick="finalizarBreak(''+e.id+'')">';
+    html += '&#9646;&#9646; Finalizar (12min)';
+    html += '</button>';
+    html += '</div>';
+
+    if(enBreak) {
+      var horaIni = activo ? activo.horaInicio : (brk ? brk.horaInicio : '');
+      html += '<div class="brk-status active" id="bst-'+e.id+'">&#9200; Break desde '+horaIni+' — máx 12 minutos</div>';
+    } else if(completo) {
+      html += '<div class="brk-status done">&#10003; Break completado en '+brk.duracion+' min ('+brk.horaInicio+' - '+brk.horaFin+')</div>';
+    } else {
+      html += '<div class="brk-status">Break de 12 min para consumir alimentos</div>';
+    }
+    html += '</div>';
+  });
+
+  document.getElementById('breaks-content').innerHTML = html || '<div class="empty">No hay colaboradores activos</div>';
+
+  // Reiniciar timers para los que están en break
+  Object.keys(breaksActivos).forEach(function(eid){
+    var a = breaksActivos[eid];
+    if(a.interval) clearInterval(a.interval);
+    iniciarTimer(eid, a.horaInicio);
+  });
+}
+
+function iniciarTimer(empId, horaInicio) {
+  var interval = setInterval(function(){
+    var now = new Date();
+    var p = horaInicio.split(':');
+    var iniSecs = parseInt(p[0])*3600 + parseInt(p[1])*60;
+    var nowSecs = now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds();
+    var diff = Math.max(0, nowSecs - iniSecs);
+    var mm = Math.floor(diff/60);
+    var ss = diff%60;
+    var el = document.getElementById('tmr-'+empId);
+    if(el) {
+      el.textContent = p2(mm)+':'+p2(ss);
+      if(mm >= 12) { el.style.color='#C62828'; }
+    }
+    if(!document.getElementById('brk-'+empId)) clearInterval(interval);
+  }, 1000);
+  if(breaksActivos[empId]) breaksActivos[empId].interval = interval;
+}
+
+function iniciarBreak(empId, empNom) {
+  fetch(PROXY, {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({action:'guardarBreak', empId:empId, empNom:empNom, accion:'inicio'})
+  }).then(function(r){return r.json();}).then(function(r){
+    if(r.ok) {
+      breaksActivos[empId] = {horaInicio: r.horaInicio, id: r.id, interval: null};
+      toast(empNom.split(' ')[0]+' — Break iniciado a las '+r.horaInicio,'ok');
+      cargarBreaks();
+      iniciarTimer(empId, r.horaInicio);
+    } else {
+      toast(r.error||'Error al iniciar break','err');
+    }
+  }).catch(function(e){ toast('Error: '+e.message,'err'); });
+}
+
+function finalizarBreak(empId) {
+  var emp = empleados.find(function(e){return e.id===empId;});
+  var empNom = emp ? emp.nombre : empId;
+  fetch(PROXY, {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({action:'guardarBreak', empId:empId, empNom:empNom, accion:'fin'})
+  }).then(function(r){return r.json();}).then(function(r){
+    if(r.ok) {
+      if(breaksActivos[empId] && breaksActivos[empId].interval) clearInterval(breaksActivos[empId].interval);
+      delete breaksActivos[empId];
+      toast(empNom.split(' ')[0]+' — Break finalizado: '+r.duracion+' min','ok');
+      cargarBreaks();
+    } else {
+      toast(r.error||'Error al finalizar break','err');
+    }
+  }).catch(function(e){ toast('Error: '+e.message,'err'); });
 }
 
 function load(txt){document.getElementById('ltxt').textContent=txt||'Cargando...';document.getElementById('load').classList.add('on');}
