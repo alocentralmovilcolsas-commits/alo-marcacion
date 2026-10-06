@@ -403,7 +403,28 @@ function renderBreaks(brkData) {
   });
 }
 
+var alertasEnviadas = {}; // empId → minuto en que se alertó, para no repetir
+
+function beep(tipo) {
+  try {
+    var ctx = new (window.AudioContext||window.webkitAudioContext)();
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    if(tipo==='warn') { osc.frequency.value=880; gain.gain.value=0.3; osc.type='square'; }
+    else { osc.frequency.value=440; gain.gain.value=0.2; osc.type='sine'; }
+    osc.start(); osc.stop(ctx.currentTime+0.25);
+    if(tipo==='warn') setTimeout(function(){
+      var o2=ctx.createOscillator(); var g2=ctx.createGain();
+      o2.connect(g2); g2.connect(ctx.destination);
+      o2.frequency.value=660; g2.gain.value=0.3; o2.type='square';
+      o2.start(); o2.stop(ctx.currentTime+0.25);
+    }, 300);
+  } catch(e){}
+}
+
 function iniciarTimer(empId, horaInicio) {
+  if(!alertasEnviadas[empId]) alertasEnviadas[empId] = {};
   var interval = setInterval(function(){
     var now = new Date();
     var p = horaInicio.split(':');
@@ -413,11 +434,34 @@ function iniciarTimer(empId, horaInicio) {
     var mm = Math.floor(diff/60);
     var ss = diff%60;
     var el = document.getElementById('tmr-'+empId);
+    var bst = document.getElementById('bst-'+empId);
     if(el) {
       el.textContent = p2(mm)+':'+p2(ss);
-      if(mm >= 12) { el.style.color='#C62828'; }
+      if(mm >= 12) {
+        el.style.color='#C62828';
+        el.style.fontWeight='800';
+        // Alerta al llegar a 12 min (una sola vez)
+        if(!alertasEnviadas[empId][12]) {
+          alertasEnviadas[empId][12] = true;
+          var emp = empleados.find(function(e){return e.id===empId;});
+          var nom = emp ? emp.nombre.split(' ')[0] : empId;
+          beep('warn');
+          toast('⚠️ '+nom+' — Break excedió los 12 minutos!','err');
+          if(bst) { bst.style.background='#FFEBEE'; bst.style.color='#C62828'; bst.style.fontWeight='700';
+                    bst.innerHTML='⚠️ EXCEDIÓ 12 MINUTOS — Debe regresar ya'; }
+        }
+        // Alerta adicional cada 5 min después de los 12
+        var extraMin = mm - 12;
+        if(extraMin>0 && extraMin%5===0 && !alertasEnviadas[empId]['e'+extraMin]) {
+          alertasEnviadas[empId]['e'+extraMin] = true;
+          var emp2 = empleados.find(function(e){return e.id===empId;});
+          var nom2 = emp2 ? emp2.nombre.split(' ')[0] : empId;
+          beep('warn');
+          toast('🚨 '+nom2+' — '+mm+' min en break (+'+(extraMin)+' min extra)','err');
+        }
+      }
     }
-    if(!document.getElementById('brk-'+empId)) clearInterval(interval);
+    if(!document.getElementById('brk-'+empId)) { clearInterval(interval); delete alertasEnviadas[empId]; }
   }, 1000);
   if(breaksActivos[empId]) breaksActivos[empId].interval = interval;
 }
@@ -446,7 +490,20 @@ function finalizarBreak(empId) {
     if(r.ok) {
       if(breaksActivos[empId] && breaksActivos[empId].interval) clearInterval(breaksActivos[empId].interval);
       delete breaksActivos[empId];
-      toast(empNom.split(' ')[0]+' — Break finalizado: '+r.duracion+' min','ok');
+      delete alertasEnviadas[empId];
+      var dur = parseInt(r.duracion)||0;
+      var nom = empNom.split(' ')[0];
+      if(dur > 12) {
+        beep('warn');
+        alert('⚠️ ' + nom + '\nBreak finalizado — EXCEDIÓ el tiempo\n\n⏱ Duración: ' + dur + ' minutos\n(Límite: 12 min — Exceso: '+(dur-12)+' min)');
+        toast(nom+' — Break: '+dur+' min ⚠️ EXCEDIDO','err');
+      } else if(dur < 12 && dur > 0) {
+        beep('ok');
+        alert('✅ ' + nom + '\nBreak finalizado antes del límite\n\n⏱ Duración: ' + dur + ' minutos\n(Restaban '+(12-dur)+' min del límite)');
+        toast(nom+' — Break: '+dur+' min ✅','ok');
+      } else {
+        toast(nom+' — Break finalizado: '+dur+' min','ok');
+      }
       cargarBreaks();
     } else {
       toast(r.error||'Error al finalizar break','err');
