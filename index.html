@@ -179,6 +179,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
         <div class="tc tsa" id="btn-salida-alm" onclick="selTipo('Salida almuerzo')"><span class="tico">&#127374;</span><div class="tnm">Salida almuerzo</div></div>
         <div class="tc tra" id="btn-regreso-alm" onclick="selTipo('Regreso almuerzo')"><span class="tico">&#8617;</span><div class="tnm">Regreso almuerzo</div></div>
         <div class="tc ts" id="btn-salida" onclick="selTipo('Salida')"><span class="tico">&#128308;</span><div class="tnm">Salida</div></div>
+        <div class="tc" style="background:#00BCD4;border-color:#00ACC1" id="btn-aseo" onclick="irAseo()"><span class="tico">&#129529;</span><div class="tnm" style="color:#fff">Aseo</div></div>
       </div>
       <button class="nov-btn" onclick="irNovedades()">&#128203; Solicitar novedad o permiso</button>
       <button class="btn btns" style="margin-top:8px" onclick="ir(1)">Atras</button>
@@ -239,6 +240,35 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
       </div>
     </div>
 
+
+    <!-- PASO 8: Aseo -->
+    <div class="step" id="s8">
+      <div class="slbl">Modulo de Aseo</div>
+      <div class="esb" id="aseo-emp-info">
+        <div class="esb-av" id="aea">?</div>
+        <div><div class="esb-n" id="aen">-</div><div class="esb-i" id="aei">Tarea de hoy</div></div>
+      </div>
+      <div style="background:#E0F7FA;border-radius:12px;padding:14px;margin-bottom:14px">
+        <div style="font-size:13px;color:#006064;font-weight:700;margin-bottom:6px">&#129529; Tarea asignada hoy:</div>
+        <div id="aseo-tarea" style="font-size:20px;font-weight:900;color:#00838F;text-align:center;padding:10px 0">Cargando...</div>
+        <div id="aseo-hora" style="font-size:12px;color:#9E9E9E;text-align:center"></div>
+      </div>
+      <!-- Camara aseo -->
+      <div class="cc" id="aseo-cam-wrap">
+        <div class="ch"><div class="ci">&#128247;</div><div><div class="ct">Foto del aseo</div><div class="cs">Toma la foto del area limpia</div></div></div>
+        <div class="cb">
+          <video id="vid-aseo" autoplay playsinline muted></video>
+          <img id="prv-aseo">
+          <div class="cov" id="cov-aseo"><button class="sht" onclick="tomarFotoAseo()">&#128247;</button></div>
+          <span class="cok" id="cok-aseo">Foto tomada</span>
+          <button class="cret" id="cret-aseo" onclick="retomarAseo()">Retomar</button>
+        </div>
+      </div>
+      <div id="aseo-err" class="serr" style="display:none"></div>
+      <button class="btn btnp" id="btn-reg-aseo" onclick="registrarAseo()" disabled>&#10003; Registrar aseo completado</button>
+      <button class="btn btns" onclick="ir(2)">Atras</button>
+    </div>
+
     <!-- PASO 6: Novedades -->
     <div class="step" id="s6">
       <div class="slbl">Solicitud de novedad</div>
@@ -286,11 +316,11 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
 </div>
 
 <script>
-var PROXY = 'https://alo-marcacion.onrender.com/api/proxy';
+var PROXY = '/api/proxy';
 var CK = ["alocentralmovil22@gmail.com","formatogarantiaacm@gmail.com","servitecnicosalocentralmovil@gmail.com","alocentralmovilcolsas@gmail.com","alocentralmovilcolsaskr22@gmail.com","lauravella94@gmail.com","heidysotonieto@gmail.com"];
 var KK = '@102023*';
 var KEY = 'alo_v8';
-var E = {co:'',id:'',nom:'',ini:'',tipo:'',foto:'',lat:'',lng:''};
+var E = {co:'',id:'',nom:'',ini:'',tipo:'',foto:'',fotoEntrada:'',fotoSalidaAlm:'',fotoRegresoAlm:'',fotoSalida:'',lat:'',lng:''};
 var CAM = null;
 var CL = ['#E53935','#D81B60','#8E24AA','#3949AB','#1E88E5','#00897B','#43A047','#FB8C00','#F4511E','#6D4C41','#546E7A','#00ACC1'];
 var marcHoy = {}; // estado marcacion hoy por empleado
@@ -503,6 +533,11 @@ function tomarFoto(){
   c.width=v.videoWidth||640; c.height=v.videoHeight||480;
   c.getContext('2d').drawImage(v,0,0);
   E.foto=c.toDataURL('image/jpeg',0.8);
+  // Guardar foto individual por tipo
+  if(E.tipo==='Entrada') E.fotoEntrada=E.foto;
+  else if(E.tipo==='Salida almuerzo') E.fotoSalidaAlm=E.foto;
+  else if(E.tipo==='Regreso almuerzo') E.fotoRegresoAlm=E.foto;
+  else if(E.tipo==='Salida') E.fotoSalida=E.foto;
   document.getElementById('prv').src=E.foto;
   document.getElementById('prv').style.display='block';
   v.style.display='none';
@@ -609,7 +644,7 @@ function enviarNovedad(){
 
 function nueva(){
   pararCam();
-  E.id='';E.nom='';E.ini='';E.tipo='';E.foto='';E.lat='';E.lng='';
+  E.id='';E.nom='';E.ini='';E.tipo='';E.foto='';E.fotoEntrada='';E.fotoSalidaAlm='';E.fotoRegresoAlm='';E.fotoSalida='';E.lat='';E.lng='';
   var cards=document.querySelectorAll('.ec');
   for(var i=0;i<cards.length;i++)cards[i].classList.remove('sel');
   document.getElementById('prv').style.display='none';
@@ -621,6 +656,125 @@ function nueva(){
   document.getElementById('serr').style.display='none';
   document.getElementById('srch').value='';
   buscar(''); ir(1);
+}
+
+// ── MODULO ASEO ──────────────────────────────────────────────────────
+var ASEO_CAM = null;
+var ASEO_FOTO = '';
+var ASEO_TAREA = '';
+
+function irAseo(){
+  if(!E.id){ir(1);return;}
+  var n=new Date();
+  var dias=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+  var dia=dias[n.getDay()];
+  document.getElementById('aea').textContent=E.ini||'?';
+  document.getElementById('aen').textContent=E.nom;
+  document.getElementById('aei').textContent='Aseo — '+dia;
+  document.getElementById('aseo-tarea').textContent='Cargando...';
+  document.getElementById('aseo-hora').textContent='';
+  ASEO_FOTO='';
+  document.getElementById('prv-aseo').style.display='none';
+  document.getElementById('vid-aseo').style.display='block';
+  document.getElementById('cov-aseo').style.display='flex';
+  document.getElementById('cok-aseo').style.display='none';
+  document.getElementById('cret-aseo').style.display='none';
+  document.getElementById('btn-reg-aseo').disabled=true;
+  document.getElementById('aseo-err').style.display='none';
+
+  fetch(PROXY+'?action=horarioAseo&empId='+E.id+'&dia='+encodeURIComponent(dia))
+    .then(function(r){return r.json();}).then(function(d){
+      var tarea=(d&&d[0]&&d[0].tarea)||'Aseo general';
+      ASEO_TAREA=tarea;
+      document.getElementById('aseo-tarea').textContent=tarea;
+      var n2=new Date();
+      var fd=p2(n2.getDate())+'/'+p2(n2.getMonth()+1)+'/'+n2.getFullYear();
+      fetch(PROXY+'?action=aseos&fecha='+fd+'&empId='+E.id)
+        .then(function(r2){return r2.json();}).then(function(aseos){
+          var yaHecho=(aseos||[]).find(function(a){return a.tarea===tarea;});
+          if(yaHecho){
+            document.getElementById('aseo-hora').textContent='Ya registrado a las '+yaHecho.hora;
+            document.getElementById('aseo-hora').style.color='#2E7D32';
+          }
+        }).catch(function(){});
+    }).catch(function(){
+      ASEO_TAREA='Aseo general';
+      document.getElementById('aseo-tarea').textContent='Aseo general';
+    });
+
+  ir(8);
+  setTimeout(function(){iniciarCamAseo();},300);
+}
+
+function iniciarCamAseo(){
+  if(ASEO_CAM){ASEO_CAM.getTracks().forEach(function(t){t.stop();});ASEO_CAM=null;}
+  var v=document.getElementById('vid-aseo');
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false})
+    .then(function(s){ASEO_CAM=s;v.srcObject=s;v.play();})
+    .catch(function(){
+      navigator.mediaDevices.getUserMedia({video:true,audio:false})
+        .then(function(s){ASEO_CAM=s;v.srcObject=s;v.play();})
+        .catch(function(){
+          var e=document.getElementById('aseo-err');
+          e.textContent='Sin acceso a camara';e.style.display='block';
+        });
+    });
+}
+
+function tomarFotoAseo(){
+  var v=document.getElementById('vid-aseo');
+  var c=document.createElement('canvas');
+  c.width=v.videoWidth||640;c.height=v.videoHeight||480;
+  c.getContext('2d').drawImage(v,0,0);
+  ASEO_FOTO=c.toDataURL('image/jpeg',0.8);
+  document.getElementById('prv-aseo').src=ASEO_FOTO;
+  document.getElementById('prv-aseo').style.display='block';
+  v.style.display='none';
+  document.getElementById('cov-aseo').style.display='none';
+  document.getElementById('cok-aseo').style.display='block';
+  document.getElementById('cret-aseo').style.display='block';
+  document.getElementById('btn-reg-aseo').disabled=false;
+  if(ASEO_CAM){ASEO_CAM.getTracks().forEach(function(t){t.stop();});ASEO_CAM=null;}
+}
+
+function retomarAseo(){
+  ASEO_FOTO='';
+  document.getElementById('prv-aseo').style.display='none';
+  document.getElementById('vid-aseo').style.display='block';
+  document.getElementById('cov-aseo').style.display='flex';
+  document.getElementById('cok-aseo').style.display='none';
+  document.getElementById('cret-aseo').style.display='none';
+  document.getElementById('btn-reg-aseo').disabled=true;
+  iniciarCamAseo();
+}
+
+function registrarAseo(){
+  if(!ASEO_FOTO){
+    var e=document.getElementById('aseo-err');
+    e.textContent='Toma una foto primero';e.style.display='block';return;
+  }
+  var btn=document.getElementById('btn-reg-aseo');
+  btn.disabled=true;btn.textContent='Guardando...';
+  document.getElementById('aseo-err').style.display='none';
+  fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'guardarAseo',empId:E.id,empNom:E.nom,tarea:ASEO_TAREA,foto:ASEO_FOTO})
+  }).then(function(r){return r.json();}).then(function(r){
+    btn.disabled=false;btn.textContent='✓ Registrar aseo completado';
+    if(r.ok){
+      var h=document.getElementById('aseo-hora');
+      h.textContent='Aseo registrado a las '+(r.hora||'');
+      h.style.color='#2E7D32';
+      alert('Aseo registrado correctamente a las '+(r.hora||''));
+      ir(2);
+    } else {
+      var e=document.getElementById('aseo-err');
+      e.textContent='Error: '+(r.error||'desconocido');e.style.display='block';
+    }
+  }).catch(function(ex){
+    btn.disabled=false;btn.textContent='✓ Registrar aseo completado';
+    var e=document.getElementById('aseo-err');
+    e.textContent='Error: '+ex.message;e.style.display='block';
+  });
 }
 </script>
 </body>
