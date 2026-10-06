@@ -140,6 +140,21 @@ var fechaHoy = '';
 
 function p2(v){return String(v).padStart(2,'0');}
 function ini(nom){return(nom||'?').split(' ').map(function(p){return(p[0]||'').toUpperCase();}).slice(0,2).join('');}
+
+// Limpia hora: si el backend devuelve "Sat Dec 30 1899 17:26:00 GMT..." extrae HH:mm
+function limpiarHora(val){
+  if(!val) return '';
+  var s = String(val).trim();
+  // Si es un string de fecha completo (contiene año o GMT), extraer HH:mm
+  if(s.indexOf('1899') !== -1 || s.indexOf('GMT') !== -1 || s.indexOf('Dec') !== -1){
+    var m = s.match(/(\d{2}):(\d{2}):\d{2}/);
+    if(m) return m[1]+':'+m[2];
+    return '';
+  }
+  // Si ya es HH:mm normal
+  if(/^\d{1,2}:\d{2}$/.test(s)) return s;
+  return s;
+}
 function bgEmp(idx){return CL[Math.abs(idx)%CL.length];}
 
 try{
@@ -364,10 +379,13 @@ function renderBreaks(brkData) {
     html += '<div class="brk-av" style="background:'+bg+'">'+ini(e.nombre)+'</div>';
     html += '<div class="brk-info"><div class="brk-nom">'+e.nombre+'</div>';
     html += '<div class="brk-cargo">'+(e.cargo||'Colaborador')+'</div></div>';
+    var durRaw = brk ? brk.duracion : 0;
+    var durMin = (isNaN(parseInt(durRaw)) || String(durRaw).indexOf('#')!==-1) ? 0 : (parseInt(durRaw)||0);
+    var durColor = durMin > 12 ? '#C62828' : '#2E7D32';
     if(enBreak) {
       html += '<div class="brk-timer" id="tmr-'+e.id+'">00:00</div>';
     } else if(completo) {
-      html += '<div style="font-size:18px;color:#2E7D32;font-weight:700">&#10003; '+brk.duracion+'min</div>';
+      html += '<div style="font-size:18px;color:'+durColor+';font-weight:700">&#10003; '+durMin+'min'+(durMin>12?' ⚠️':'')+'</div>';
     } else {
       html += '<div style="font-size:13px;color:#BDBDBD">Sin break</div>';
     }
@@ -383,10 +401,14 @@ function renderBreaks(brkData) {
     html += '</div>';
 
     if(enBreak) {
-      var horaIni = activo ? activo.horaInicio : (brk ? brk.horaInicio : '');
+      var horaIni = limpiarHora(activo ? activo.horaInicio : (brk ? brk.horaInicio : ''));
       html += '<div class="brk-status active" id="bst-'+e.id+'">&#9200; Break desde '+horaIni+' — máx 12 minutos</div>';
     } else if(completo) {
-      html += '<div class="brk-status done">&#10003; Break completado en '+brk.duracion+' min ('+brk.horaInicio+' - '+brk.horaFin+')</div>';
+      var hIni = limpiarHora(brk.horaInicio);
+      var hFin = limpiarHora(brk.horaFin);
+      var durStr = durMin + ' min';
+      var durCss = durMin > 12 ? 'color:#C62828' : 'color:#2E7D32';
+      html += '<div class="brk-status done" style="'+durCss+'">&#10003; Break: '+hIni+' → '+hFin+' — <strong>'+durStr+'</strong>'+(durMin>12?' ⚠️ EXCEDIDO':'')+'</div>';
     } else {
       html += '<div class="brk-status">Break de 12 min para consumir alimentos</div>';
     }
