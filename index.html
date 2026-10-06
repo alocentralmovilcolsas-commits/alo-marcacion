@@ -171,6 +171,11 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
     <!-- PANTALLA MODULOS -->
     <div class="step on" id="s0m">
       <div class="slbl">Selecciona un modulo</div>
+      <div id="aseo-banner" style="display:none;background:#E0F7FA;border:1.5px solid #00BCD4;border-radius:14px;padding:13px 16px;margin-bottom:14px">
+        <div style="font-size:10px;font-weight:700;color:#006064;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">&#129529; Tu tarea de aseo hoy</div>
+        <div id="aseo-banner-tarea" style="font-size:16px;font-weight:800;color:#00838F"></div>
+        <div id="aseo-banner-estado" style="font-size:11px;color:#9E9E9E;margin-top:3px"></div>
+      </div>
       <div class="mod-grid">
         <div class="mod-card mod-marc" onclick="irModulo('marcaciones')">
           <div class="mod-ico">&#128203;</div>
@@ -212,7 +217,6 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
         <div class="tc tsa" id="btn-salida-alm" onclick="selTipo('Salida almuerzo')"><span class="tico">&#127374;</span><div class="tnm">Salida almuerzo</div></div>
         <div class="tc tra" id="btn-regreso-alm" onclick="selTipo('Regreso almuerzo')"><span class="tico">&#8617;</span><div class="tnm">Regreso almuerzo</div></div>
         <div class="tc ts" id="btn-salida" onclick="selTipo('Salida')"><span class="tico">&#128308;</span><div class="tnm">Salida</div></div>
-        <div class="tc" style="background:#00BCD4;border-color:#00ACC1" id="btn-aseo" onclick="irAseo()"><span class="tico">&#129529;</span><div class="tnm" style="color:#fff">Aseo</div></div>
       </div>
       <button class="btn btns" style="margin-top:8px" onclick="irInicio()">&#8592; Inicio</button>
     </div>
@@ -444,6 +448,8 @@ function ir(n){
   for(var i=0;i<steps.length;i++)steps[i].classList.remove('on');
   if(n===0){
     document.getElementById('s0m').classList.add('on');
+    if(E.id) cargarBannerAseo();
+    else document.getElementById('aseo-banner').style.display='none';
   } else {
     document.getElementById('s'+n).classList.add('on');
   }
@@ -712,6 +718,42 @@ function nueva(){
   document.getElementById('serr').style.display='none';
   document.getElementById('srch').value='';
   buscar(''); ir(0);
+}
+
+function cargarBannerAseo(){
+  var banner=document.getElementById('aseo-banner');
+  var btarea=document.getElementById('aseo-banner-tarea');
+  var bestado=document.getElementById('aseo-banner-estado');
+  if(!E.id){banner.style.display='none';return;}
+  var n=new Date();
+  var dias=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+  var dia=dias[n.getDay()];
+  fetch(PROXY+'?action=horarioAseo&empId='+E.id+'&dia='+encodeURIComponent(dia))
+    .then(function(r){return r.json();}).then(function(d){
+      var tarea=(d&&d[0]&&d[0].tarea)||'';
+      if(!tarea||tarea==='Sin asignacion'||tarea==='Sin asignacion este dia'){
+        banner.style.display='none';return;
+      }
+      btarea.textContent=tarea;
+      bestado.textContent='';
+      banner.style.display='block';
+      // Verificar si ya lo hizo hoy
+      var n2=new Date();
+      var fd=p2(n2.getDate())+'/'+p2(n2.getMonth()+1)+'/'+n2.getFullYear();
+      fetch(PROXY+'?action=aseos&fecha='+fd+'&empId='+E.id)
+        .then(function(r2){return r2.json();}).then(function(aseos){
+          var yaHecho=(aseos||[]).find(function(a){return a.tarea===tarea;});
+          if(yaHecho){
+            bestado.textContent='Ya registrado a las '+yaHecho.hora+' ✓';
+            bestado.style.color='#2E7D32';
+            banner.style.background='#E8F5E9';
+            banner.style.borderColor='#43A047';
+          } else {
+            bestado.textContent='Pendiente';
+            bestado.style.color='#E65100';
+          }
+        }).catch(function(){});
+    }).catch(function(){banner.style.display='none';});
 }
 
 // ── MODULO ASEO ──────────────────────────────────────────────────────
