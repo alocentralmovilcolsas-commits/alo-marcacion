@@ -395,6 +395,18 @@ var empHorActivo   = null;
 
 function p2(v){return String(v).padStart(2,'0');}
 function fmtFecha(d){return p2(d.getDate())+'/'+p2(d.getMonth()+1)+'/'+d.getFullYear();}
+
+// Limpia hora: si el backend devuelve "Sat Dec 30 1899 17:35:00 GMT..." extrae HH:mm
+function limpiarHora(val){
+  if(!val) return '';
+  var s=String(val).trim();
+  if(s.indexOf('1899')!==-1||s.indexOf('GMT')!==-1||s.indexOf('Dec')!==-1){
+    var m=s.match(/(\d{2}):(\d{2}):\d{2}/);
+    return m?m[1]+':'+m[2]:'';
+  }
+  if(/^\d{1,2}:\d{2}$/.test(s)) return s;
+  return s;
+}
 function fmtBonita(d){
   var dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   var mes=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -1919,7 +1931,7 @@ function cargarAseoAdmin(){
         html+='<div class="li-nom" style="color:'+(hecho?'#1E3A5F':'#424242')+'">'+esp.tarea+'</div>';
         html+='<div class="li-sub" style="color:#5C6BC0;font-weight:600">👤 '+nombreRealEmp(esp.nom)+'</div>';
         if(reg){
-          html+='<div class="li-sub" style="color:#2E7D32;margin-top:2px">✓ Registrado por <strong>'+reg.empNom+'</strong> a las '+reg.hora+'</div>';
+          html+='<div class="li-sub" style="color:#2E7D32;margin-top:2px">✓ Registrado por <strong>'+reg.empNom+'</strong> a las '+limpiarHora(reg.hora)+'</div>';
           if(reg.foto){
             html+='<img src="'+reg.foto+'" style="width:100%;max-width:240px;border-radius:10px;margin-top:8px;border:2px solid #E8EDF2;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.1)" onclick="verFoto(this.src)">';
           }
@@ -1974,7 +1986,7 @@ function cargarAseoSemanal(){
         html+='<div class="list-item" style="padding:7px 0">';
         html+='<div class="av" style="width:28px;height:28px;font-size:14px;background:'+(reg?'#00BCD4':'#EEE')+';border-radius:6px">'+(reg?'&#129529;':'&#9744;')+'</div>';
         html+='<div class="li-info"><div class="li-nom" style="font-size:12px">'+esp.tarea+'</div>';
-        html+='<div class="li-sub">'+nombreRealEmp(esp.nom)+(reg?' &bull; &#10003; '+reg.empNom+' '+reg.hora:'')+'</div></div></div>';
+        html+='<div class="li-sub">'+nombreRealEmp(esp.nom)+(reg?' &bull; &#10003; '+reg.empNom+' '+limpiarHora(reg.hora):'')+'</div></div></div>';
       });
       html+='</div>';
     });
@@ -2089,14 +2101,14 @@ function cargarBreaksAdmin(){
       }
       var html='<div style="font-size:11px;color:#9E9E9E;margin-bottom:10px">'+data.length+' breaks — '+fecha+'</div>';
       data.forEach(function(b){
-        var dur=b.duracion?b.duracion+' min':'En curso';
-        var col=b.duracion&&parseFloat(b.duracion)>12?'#C62828':'#2E7D32';
+        var durBrk=(isNaN(parseInt(b.duracion))||String(b.duracion).indexOf('#')!==-1)?0:(parseInt(b.duracion)||0);
+        var durColBrk=durBrk>12?'#C62828':'#2E7D32';
         html+='<div class="li" style="display:flex;align-items:center;gap:12px">';
         html+='<div class="li-av" style="background:#FF8F00;font-size:20px">&#9201;</div>';
         html+='<div style="flex:1">';
         html+='<div class="li-nom">'+(b.nombre||b.empId||'—')+'</div>';
-        html+='<div class="li-sub">Inicio: '+(b.horaInicio||'—')+(b.horaFin?' &bull; Fin: '+b.horaFin:'')+'</div>';
-        html+='<div class="li-sub" style="color:'+col+';font-weight:700">'+dur+'</div>';
+        html+='<div class="li-sub">Inicio: '+limpiarHora(b.horaInicio||'')+(b.horaFin?' → Fin: '+limpiarHora(b.horaFin):'')+'</div>';
+        html+='<div class="li-sub" style="color:'+durColBrk+';font-weight:700">'+(b.estado==='Completado'?durBrk+' min'+(durBrk>12?' ⚠️ EXCEDIDO':'  ✓'):'⏳ En curso')+'</div>';
         html+='</div></div>';
       });
       el.innerHTML=html;
