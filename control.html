@@ -142,7 +142,17 @@ function p2(v){return String(v).padStart(2,'0');}
 function ini(nom){return(nom||'?').split(' ').map(function(p){return(p[0]||'').toUpperCase();}).slice(0,2).join('');}
 function bgEmp(idx){return CL[Math.abs(idx)%CL.length];}
 
-try{if(localStorage.getItem(KEY)==='1')iniciarApp();}catch(ex){}
+try{
+  if(localStorage.getItem(KEY)==='1'){
+    // Solo auto-login si el DOM está completamente listo
+    var n=new Date();
+    fechaHoy=p2(n.getDate())+'/'+p2(n.getMonth()+1)+'/'+n.getFullYear();
+    iniciarApp();
+  }
+}catch(ex){
+  // Si falla el auto-login, limpiar localStorage y mostrar login normal
+  try{localStorage.removeItem(KEY);}catch(e2){}
+}
 
 function login(){
   var c=document.getElementById('l-clave').value;
@@ -364,10 +374,10 @@ function renderBreaks(brkData) {
     html += '</div>';
 
     html += '<div class="brk-btns">';
-    html += '<button class="brk-btn start" '+(enBreak||completo?'disabled':'')+' onclick="iniciarBreak(''+e.id+'',''+e.nombre+'')">';
+    html += '<button class="brk-btn start" '+(enBreak||completo?'disabled':'')+' onclick="iniciarBreak(\''+e.id+'\',\''+e.nombre+'\')">';
     html += enBreak ? '&#9201; En break...' : completo ? '&#10003; Completado' : '&#9654; Iniciar break';
     html += '</button>';
-    html += '<button class="brk-btn end" '+(enBreak?'':'disabled')+' onclick="finalizarBreak(''+e.id+'')">';
+    html += '<button class="brk-btn end" '+(enBreak?'':'disabled')+' onclick="finalizarBreak(\''+e.id+'\')">';
     html += '&#9646;&#9646; Finalizar (12min)';
     html += '</button>';
     html += '</div>';
