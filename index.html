@@ -820,7 +820,7 @@ function resolverNombreEmpAseo(clave){
 
 function cargarBannerAseoDia(){
   var banner=document.getElementById('aseo-dia-banner');
-  var lista=document.getElementById('aseo-dia-lista');
+  var listaEl=document.getElementById('aseo-dia-lista');
   var label=document.getElementById('aseo-dia-label');
   var n=new Date();
   var diasNom=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
@@ -831,8 +831,8 @@ function cargarBannerAseoDia(){
     var t=HORARIO_ASEO_LOCAL[nom][dia];
     if(!t) continue;
     // Soporte para tareas múltiples (array) o tarea única (string)
-    var lista=Array.isArray(t)?t:[t];
-    lista.forEach(function(tarea){tareas.push({nom:nom,tarea:tarea});});
+    var tArr=Array.isArray(t)?t:[t];
+    tArr.forEach(function(tarea){tareas.push({nom:nom,tarea:tarea});});
   }
   if(!tareas.length){banner.style.display='none';return;}
   var html='';
@@ -840,7 +840,7 @@ function cargarBannerAseoDia(){
     var nomReal=resolverNombreEmpAseo(t.nom);
     html+='<div class="aseo-dia-item"><span class="aseo-dia-nom">'+nomReal+'</span><span class="aseo-dia-tar">'+t.tarea+'</span></div>';
   });
-  lista.innerHTML=html;
+  listaEl.innerHTML=html;
   banner.style.display='block';
 }
 
