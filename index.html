@@ -415,6 +415,18 @@ var marcHoy = {}; // estado marcacion hoy por empleado
 
 function p2(v){return String(v).padStart(2,'0');}
 
+// Limpia hora: si el backend devuelve "Sat Dec 30 1899 17:35:00 GMT..." extrae HH:mm
+function limpiarHora(val){
+  if(!val) return '';
+  var s=String(val).trim();
+  if(s.indexOf('1899')!==-1||s.indexOf('GMT')!==-1||s.indexOf('Dec')!==-1){
+    var m=s.match(/(\d{2}):(\d{2}):\d{2}/);
+    return m?m[1]+':'+m[2]:'';
+  }
+  if(/^\d{1,2}:\d{2}$/.test(s)) return s;
+  return s;
+}
+
 function tick(){
   var n=new Date();
   var h=p2(n.getHours())+':'+p2(n.getMinutes())+':'+p2(n.getSeconds());
@@ -845,7 +857,7 @@ function cargarBannerAseoDia(){
           for(var t=0;t<tareas.length;t++){
             if(tareas[t].tarea===completados[c].tarea){
               tareas[t].hecho=true;
-              tareas[t].hora=completados[c].hora||'';
+              tareas[t].hora=limpiarHora(completados[c].hora||'');
             }
           }
         }
