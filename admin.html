@@ -1812,7 +1812,14 @@ var HORARIO_ASEO = {
   'Juan Carlos':{'Miércoles':'Aseo tarde local y escaleras','Sábado':'Sacar la basura'},
   'Silvia Alejandra':{'Lunes':'Lavar baño','Martes':'Lavar canecas de basura y 5 trapos'},
   'Camilo Alexander':{'Lunes':'Lavar el tanque y 5 trapos','Miércoles':'Lavar baño','Viernes':'Lavar canecas de basura y 5 trapos'},
-  'Fabián Stiven':{'Lunes':'Aseo servicio técnico','Martes':'Aseo servicio técnico','Miércoles':'Aseo servicio técnico','Jueves':'Aseo servicio técnico','Viernes':'Aseo servicio técnico','Sábado':'Aseo servicio técnico y lavar baño'}
+  'Fabián Stiven':{
+    'Lunes':    ['Aseo servicio técnico mañana','Aseo servicio técnico tarde'],
+    'Martes':   ['Aseo servicio técnico mañana','Aseo servicio técnico tarde'],
+    'Miércoles':['Aseo servicio técnico mañana','Aseo servicio técnico tarde'],
+    'Jueves':   ['Aseo servicio técnico mañana','Aseo servicio técnico tarde'],
+    'Viernes':  ['Aseo servicio técnico mañana','Aseo servicio técnico tarde'],
+    'Sábado':   ['Aseo servicio técnico mañana','Aseo servicio técnico tarde','Lavar baño']
+  }
 };
 var DIAS_ASEO=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 var aseoVistaActual='diario';
@@ -1871,11 +1878,13 @@ function cargarAseoAdmin(){
   fetch(PROXY+'?action=aseos&fecha='+encodeURIComponent(fecha))
     .then(function(r){return r.json();}).then(function(data){
       var regs=data||[];
-      // Tareas esperadas para ese dia
+      // Tareas esperadas para ese dia (soporte array o string)
       var esperadas=[];
       for(var nom in HORARIO_ASEO){
         var t=HORARIO_ASEO[nom][diaHoy];
-        if(t) esperadas.push({nom:nom,tarea:t});
+        if(!t) continue;
+        var arr=Array.isArray(t)?t:[t];
+        arr.forEach(function(tarea){esperadas.push({nom:nom,tarea:tarea});});
       }
       var html='<div style="font-size:11px;color:#9E9E9E;font-weight:700;margin-bottom:8px">'+fecha+' — '+diaHoy+'</div>';
       if(!esperadas.length){
@@ -1936,7 +1945,7 @@ function cargarAseoSemanal(){
     resultados.forEach(function(regs,idx){
       var info=fechas[idx];
       var esperadas=[];
-      for(var nom in HORARIO_ASEO){var t=HORARIO_ASEO[nom][info.dia];if(t)esperadas.push({nom:nom,tarea:t});}
+      for(var nom in HORARIO_ASEO){var t=HORARIO_ASEO[nom][info.dia];if(!t)continue;var arr=Array.isArray(t)?t:[t];arr.forEach(function(tarea){esperadas.push({nom:nom,tarea:tarea});});}
       var cumpl=regs.length+'/'+esperadas.length;
       var col=esperadas.length===0?'#9E9E9E':(regs.length>=esperadas.length?'#2E7D32':'#E65100');
       html+='<div class="card" style="margin-bottom:8px">';
@@ -1970,8 +1979,11 @@ function renderTablaHorario(){
     html+='<td style="padding:9px 12px;font-weight:700;font-size:11px;color:#1E3A5F;border-bottom:1px solid #EEF1F5;white-space:nowrap;border-left:3px solid #1E3A5F">'+nomReal+'</td>';
     DIAS_ASEO.forEach(function(d){
       var t=HORARIO_ASEO[nom][d]||'';
+      // Si es array, mostrar cada tarea en líneas separadas
+      var tDisplay=Array.isArray(t)?t.join('\n'):t;
+      var tColor=tDisplay?'#263238':'#CFD8DC';
       html+='<td style="padding:4px 6px;border-bottom:1px solid #EEF1F5">';
-      html+='<div contenteditable="true" data-nom="'+nom+'" data-dia="'+d+'" oninput="editarCeldaHorario(this)" style="min-height:26px;padding:5px 7px;border-radius:6px;border:1.5px solid transparent;font-size:10px;line-height:1.4;color:'+(t?'#263238':'#CFD8DC')+';cursor:text;outline:none;transition:all .15s" onfocus="this.style.borderColor=\'#5C6BC0\';this.style.background=\'#EDE7F6\';this.style.color=\'#311B92\'" onblur="this.style.borderColor=\'transparent\';this.style.background=\'\';this.style.color=this.textContent.trim()?\'#263238\':\'#CFD8DC\'">'+(t||'')+'</div>';
+      html+='<div contenteditable="true" data-nom="'+nom+'" data-dia="'+d+'" oninput="editarCeldaHorario(this)" style="min-height:26px;padding:5px 7px;border-radius:6px;border:1.5px solid transparent;font-size:10px;line-height:1.4;color:'+tColor+';cursor:text;outline:none;transition:all .15s;white-space:pre-line" onfocus="this.style.borderColor=\'#5C6BC0\';this.style.background=\'#EDE7F6\';this.style.color=\'#311B92\'" onblur="this.style.borderColor=\'transparent\';this.style.background=\'\';this.style.color=this.textContent.trim()?\'#263238\':\'#CFD8DC\'">'+(tDisplay||'')+'</div>';
       html+='</td>';
     });
     html+='</tr>';i++;
@@ -1996,7 +2008,10 @@ function guardarHorarioAseo(){
   for(var nom in HORARIO_ASEO){
     DIAS_ASEO.forEach(function(d){
       var t=HORARIO_ASEO[nom][d];
-      if(t) payload.push({nombre:nom,dia:d,tarea:t});
+      if(!t) return;
+      // Soporte para arrays (múltiples tareas por día)
+      var arr=Array.isArray(t)?t:[t];
+      arr.forEach(function(tarea){payload.push({nombre:nom,dia:d,tarea:tarea});});
     });
   }
   msg.style.background='#E3F2FD';msg.style.color='#1565C0';
