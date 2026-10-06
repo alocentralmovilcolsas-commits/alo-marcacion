@@ -448,6 +448,8 @@ function abrirApp(){
   document.getElementById('pg1').classList.add('on');
   cargar();
   ir(0);
+  // Pequeño delay para asegurar que el DOM esté listo antes de mostrar banner
+  setTimeout(function(){ cargarBannerAseoDia(); }, 200);
 }
 
 function cargar(){
@@ -819,29 +821,54 @@ function resolverNombreEmpAseo(clave){
 }
 
 function cargarBannerAseoDia(){
-  var banner=document.getElementById('aseo-dia-banner');
-  var listaEl=document.getElementById('aseo-dia-lista');
-  var label=document.getElementById('aseo-dia-label');
-  var n=new Date();
-  var diasNom=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  var dia=diasNom[n.getDay()];
-  label.textContent=dia;
-  var tareas=[];
-  for(var nom in HORARIO_ASEO_LOCAL){
-    var t=HORARIO_ASEO_LOCAL[nom][dia];
-    if(!t) continue;
-    // Soporte para tareas múltiples (array) o tarea única (string)
-    var tArr=Array.isArray(t)?t:[t];
-    tArr.forEach(function(tarea){tareas.push({nom:nom,tarea:tarea});});
-  }
-  if(!tareas.length){banner.style.display='none';return;}
-  var html='';
-  tareas.forEach(function(t){
-    var nomReal=resolverNombreEmpAseo(t.nom);
-    html+='<div class="aseo-dia-item"><span class="aseo-dia-nom">'+nomReal+'</span><span class="aseo-dia-tar">'+t.tarea+'</span></div>';
-  });
-  listaEl.innerHTML=html;
-  banner.style.display='block';
+  try {
+    var banner=document.getElementById('aseo-dia-banner');
+    var listaEl=document.getElementById('aseo-dia-lista');
+    var label=document.getElementById('aseo-dia-label');
+    if(!banner||!listaEl||!label) return;
+    var n=new Date();
+    var diasNom=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+    var dia=diasNom[n.getDay()];
+    if(label) label.textContent=dia.toUpperCase();
+    var tareas=[];
+    for(var nom in HORARIO_ASEO_LOCAL){
+      var t=HORARIO_ASEO_LOCAL[nom][dia];
+      if(!t) continue;
+      var tArr=Array.isArray(t)?t:[t];
+      for(var k=0;k<tArr.length;k++) tareas.push({nom:nom,tarea:tArr[k],hecho:false,hora:''});
+    }
+    if(!tareas.length){banner.style.display='none';return;}
+    // Mostrar inmediatamente con estado pendiente
+    function renderBanner(completados){
+      if(completados){
+        for(var c=0;c<completados.length;c++){
+          for(var t=0;t<tareas.length;t++){
+            if(tareas[t].tarea===completados[c].tarea){
+              tareas[t].hecho=true;
+              tareas[t].hora=completados[c].hora||'';
+            }
+          }
+        }
+      }
+      var html='';
+      for(var j=0;j<tareas.length;j++){
+        var hecho=tareas[j].hecho;
+        html+='<div class="aseo-dia-item" style="opacity:'+(hecho?'0.65':'1')+'">';
+        html+='<span style="font-size:14px;width:18px;flex-shrink:0">'+(hecho?'✅':'○')+'</span>';
+        html+='<span class="aseo-dia-nom" style="text-decoration:'+(hecho?'line-through':'none')+'">'+tareas[j].nom+'</span>';
+        html+='<span class="aseo-dia-tar">'+tareas[j].tarea+(hecho&&tareas[j].hora?' <small style="color:#999">'+tareas[j].hora+'</small>':'')+'</span>';
+        html+='</div>';
+      }
+      listaEl.innerHTML=html;
+      banner.style.display='block';
+    }
+    renderBanner(null); // mostrar rápido sin esperar red
+    // Consultar completados de hoy en background
+    var hoy=n.getFullYear()+'-'+(String(n.getMonth()+1).padStart(2,'0'))+'-'+(String(n.getDate()).padStart(2,'0'));
+    fetch(PROXY+'?action=aseos&fecha='+encodeURIComponent(hoy.split('-')[2]+'/'+hoy.split('-')[1]+'/'+hoy.split('-')[0]))
+      .then(function(r){return r.json();}).then(function(data){renderBanner(Array.isArray(data)?data:[]);})
+      .catch(function(){/* sin red — ya mostró pendientes */});
+  } catch(e){ console.error('Banner aseo error:',e); }
 }
 
 // Legacy - mantener por compatibilidad
