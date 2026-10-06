@@ -89,9 +89,6 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
 .spin{width:40px;height:40px;border:3px solid #D0DBE8;border-top-color:#1E3A5F;border-radius:50%;animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 .load p{font-size:13px;color:#9E9E9E}
-.res-tab{padding:8px 14px;border:none;background:none;font-size:13px;font-weight:500;color:#9E9E9E;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:inherit}
-.res-tab-a{color:#1E3A5F;border-bottom-color:#1E3A5F;font-weight:700}
-.res-tab:hover{color:#1E3A5F}
 .empty{text-align:center;padding:30px 20px;color:#BDBDBD;font-size:13px}
 .sw-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #F5F5F5}
 .sw-row:last-child{border-bottom:none}
@@ -246,89 +243,37 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
 
     <!-- RESUMEN MENSUAL -->
     <div class="sec" id="sec-4">
-      <!-- Sub-tabs Resumen -->
-      <div style="display:flex;gap:6px;margin-bottom:14px;border-bottom:2px solid #EEE;padding-bottom:0">
-        <button class="res-tab res-tab-a" id="rt-diario" onclick="setResTab('diario')">&#128197; Diario</button>
-        <button class="res-tab" id="rt-semanal" onclick="setResTab('semanal')">&#128336; Semanal</button>
-        <button class="res-tab" id="rt-mensual" onclick="setResTab('mensual')">&#128200; Mensual</button>
-      </div>
-
-      <!-- DIARIO -->
-      <div id="res-diario">
-        <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
-          <input type="date" id="res-fecha-d" style="flex:1;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
-          <button class="btn-sm btn-sm-b" onclick="cargarResumenDiario()" style="white-space:nowrap;padding:10px 14px">Ver dia</button>
-        </div>
-        <div id="lista-res-diario"><div class="empty">Selecciona una fecha</div></div>
-      </div>
-
-      <!-- SEMANAL -->
-      <div id="res-semanal" style="display:none">
-        <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
-          <select id="res-mes-s" style="flex:1;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
-            <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
-            <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
-            <option value="07">Julio</option><option value="08">Agosto</option><option value="09" selected>Septiembre</option>
-            <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
-          </select>
-          <select id="res-ano-s" style="width:90px;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
-            <option value="2026" selected>2026</option><option value="2025">2025</option>
-          </select>
-          <button class="btn-sm btn-sm-b" onclick="cargarResumenSemanal()" style="white-space:nowrap;padding:10px 14px">Ver semanas</button>
-        </div>
-        <div id="lista-res-semanal"><div class="empty">Selecciona el periodo</div></div>
-      </div>
-
-      <!-- MENSUAL -->
-      <div id="res-mensual" style="display:none">
-        <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
-          <select id="res-mes" style="flex:1;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
-            <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
-            <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
-            <option value="07">Julio</option><option value="08">Agosto</option><option value="09" selected>Septiembre</option>
-            <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
-          </select>
-          <select id="res-ano" style="width:90px;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
-            <option value="2026" selected>2026</option><option value="2025">2025</option>
-          </select>
-          <button class="btn-sm btn-sm-b" onclick="generarResumen()" style="white-space:nowrap;padding:10px 14px">Generar</button>
-        </div>
-        <div id="lista-resumen"><div class="empty">Selecciona el periodo y haz clic en Generar</div></div>
-      </div>
-    </div>
-
-    <!-- HORAS EXTRA UNIFICADO -->
-    <div class="sec" id="sec-4">
-      <div class="info-box info-pur">
-        <strong>Ley 2466/2025:</strong> Limite semanal 42h. Las <strong>detectadas</strong> son generadas automaticamente al marcar salida. Las <strong>autorizadas</strong> son permisos previos para trabajar horas adicionales.
-      </div>
-      <!-- Filtros -->
-      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
-        <select id="he-emp" style="flex:1;min-width:160px;padding:9px;border:1.5px solid #EEE;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;outline:none">
-          <option value="">Todos los colaboradores</option>
-        </select>
-        <select id="he-mes" style="width:110px;padding:9px;border:1.5px solid #EEE;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;outline:none">
+      <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
+        <select id="res-mes" style="flex:1;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
           <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
           <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
-          <option value="07">Julio</option><option value="08">Agosto</option><option value="09" selected>Sep</option>
+          <option value="07" selected>Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
           <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
         </select>
-        <select id="he-ano" style="width:80px;padding:9px;border:1.5px solid #EEE;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;outline:none">
+        <select id="res-año" style="width:90px;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
           <option value="2026" selected>2026</option><option value="2025">2025</option>
         </select>
-        <button class="btn-sm btn-sm-b" onclick="renderHorasExtraUnificado()" style="padding:9px 14px">Ver</button>
-        <button class="btn-sm" onclick="abrirNuevaAutorizacion()" style="padding:9px 14px;background:#EDE7F6;color:#6A1B9A;border-color:#CE93D8">+ Autorizar</button>
+        <button class="btn-sm btn-sm-b" onclick="generarResumen()" style="white-space:nowrap;padding:10px 14px">Generar</button>
       </div>
-      <!-- Sub-tabs -->
-      <div style="display:flex;gap:6px;margin-bottom:12px;border-bottom:2px solid #EEE">
-        <button class="res-tab res-tab-a" id="he-tab-det" onclick="setHeTab('detectadas')">&#9650; Detectadas</button>
-        <button class="res-tab" id="he-tab-aut" onclick="setHeTab('autorizadas')">&#10003; Autorizadas</button>
-      </div>
-      <div id="he-lista-detectadas"><div class="empty">Cargando...</div></div>
-      <div id="he-lista-autorizadas" style="display:none"><div class="empty">Cargando...</div></div>
+      <div id="lista-resumen"><div class="empty">Seleccióna el periodo y haz clic en Generar</div></div>
     </div>
 
-<!-- CONTRATOS -->
+    <!-- HORAS EXTRA -->
+    <div class="sec" id="sec-5">
+      <div class="info-box info-pur">
+        <strong>Ley 2466/2025:</strong> Limite semanal 42h. El sistema detecta cuando un colaborador supera su jornada. El admin autoriza y puede ajustar las horas.
+      </div>
+      <div class="itabs">
+        <button class="itab on" id="he-tab-0" onclick="filtroHE('Pendiente',0)">Pendientes</button>
+        <button class="itab" id="he-tab-1" onclick="filtroHE('Aprobada',1)">Aprobadas</button>
+        <button class="itab" id="he-tab-2" onclick="filtroHE('Rechazada',2)">Rechazadas</button>
+        <button class="itab" id="he-tab-3" onclick="filtroHE('',3)">Todas</button>
+        <button class="itab" id="he-tab-4" onclick="filtroHE('autorizaciones',4)">&#9201; Autorizaciónes fijas</button>
+      </div>
+      <div id="lista-he"><div class="empty">Cargando...</div></div>
+    </div>
+
+    <!-- CONTRATOS -->
     <div class="sec" id="sec-6">
       <div class="itabs">
         <button class="itab on" id="ct-tab-0" onclick="filtroContratos('activos',0)">Activos</button>
@@ -357,14 +302,14 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
         <button class="itab on" id="ctrl-tab-0" onclick="filtroCtrl('hoy',0)">Hoy</button>
         <button class="itab" id="ctrl-tab-1" onclick="filtroCtrl('resumen',1)">Resumen mensual</button>
       </div>
-      <div id="lista-ctrl"><div class="empty">Seleccióna el período y haz clic en Ver</div></div>
+      <div id="lista-ctrl"><div class="empty">Seleccióna el periodo y haz clic en Ver</div></div>
     </div>
 
   </div>
 </div>
 
 <script>
-var PROXY = 'https://alo-marcacion.onrender.com/api/proxy';
+var PROXY = '/api/proxy';
 var CLAVE = '@admin2024*';
 var KEY   = 'alo_admin_v2';
 var CL    = ['#1E3A5F','#C62828','#2E7D32','#E65100','#6A1B9A','#1565C0','#F57F17','#00897B','#D81B60','#546E7A','#3949AB','#00ACC1','#6D4C41','#43A047'];
@@ -426,11 +371,12 @@ function irTab(n){
   document.querySelectorAll('.sec').forEach(function(s,i){s.classList.toggle('on',i===n);});
   if(n===0) cargarMarcaciones();
   if(n===1) renderNovedades();
-  if(n===2) renderHorarios();
-  if(n===3) {} // Resumen - manual
-  if(n===4) renderHorasExtraUnificado();
-  if(n===5) renderContratos();
-  if(n===6) renderControlHoy();
+  if(n===2) renderEmpleados();
+  if(n===3) renderHorarios();
+  if(n===4) renderResumenTab();
+  if(n===5) renderHorasExtra();
+  if(n===6) renderContratos();
+  if(n===7) cargarControlAdmin();
 }
 
 function cargarTodo(){
@@ -540,23 +486,23 @@ function renderNovedades(){
     html+='<div style="font-size:11px;color:#9E9E9E">'+n.tipo+' &bull; '+n.fechaInicio;
     if(n.fechaFin&&n.fechaFin!==n.fechaInicio)html+=' - '+n.fechaFin;
     html+='</div></div><span class="badge '+bc+'">'+n.estado+'</span></div>';
-    html+='<div style="font-size:12px;color:#424242;margin-bottom:8px">'+n.descripcion+'</div>';
+    html+='<div style="font-size:12px;color:#424242;margin-bottom:8px">'+n.descripción+'</div>';
     if(n.horas>0)html+='<div style="font-size:11px;color:#9E9E9E;margin-bottom:6px">Horas de ausencia: <strong>'+n.horas+'h</strong></div>';
-    if(n.estado==='Pendiente')html+='<button class="btn-sm btn-sm-g" onclick="abrirGestionNov(\''+n.id+'\')">Aprobar / Rechazar</button>';
+    if(n.estado==='Pendiente')html+='<button class="btn-sm btn-sm-g" onclick="abrirGestiónNov(\''+n.id+'\')">Aprobar / Rechazar</button>';
     else if(n.observacion)html+='<div style="font-size:11px;color:#9E9E9E">Obs: '+n.observacion+'</div>';
     html+='</div>';
   });
   document.getElementById('lista-nov').innerHTML=html||'<div class="empty">Sin novedades '+(novFiltro||'')+'</div>';
 }
 
-function abrirGestionNov(id){
+function abrirGestiónNov(id){
   var n=novedades.find(function(x){return x.id===id;});
   if(!n)return;
   var body='<div class="card" style="background:#F8F9FA;margin-bottom:14px">';
   body+='<div style="font-size:13px;font-weight:600;margin-bottom:4px">'+n.nombre+'</div>';
   body+='<div style="font-size:12px;color:#9E9E9E">'+n.tipo+' &bull; '+n.fechaInicio+'</div>';
-  body+='<div style="font-size:12px;color:#424242;margin-top:6px">'+n.descripcion+'</div></div>';
-  body+='<div class="form-group"><label>Observacion</label><textarea id="nov-obs" placeholder="Comentario opcional..."></textarea></div>';
+  body+='<div style="font-size:12px;color:#424242;margin-top:6px">'+n.descripción+'</div></div>';
+  body+='<div class="form-group"><label>Observación</label><textarea id="nov-obs" placeholder="Comentario opcional..."></textarea></div>';
   body+='<button class="btn btn-g" onclick="aprobarNov(\''+id+'\',\'Aprobada\')">&#10003; Aprobar</button>';
   body+='<button class="btn btn-r" onclick="aprobarNov(\''+id+'\',\'Rechazada\')">&#10007; Rechazar</button>';
   body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-nov\')">Cancelar</button>';
@@ -739,13 +685,13 @@ function renderTipos(){
     var inact=(t.activo==='NO');
     html+='<div class="card" style="'+(inact?'opacity:0.55':'')+'">';
     html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
-    html+='<span class="hora-pill">'+t.codigo+'</span>';
+    html+='<span class="hora-pill">'+t.código+'</span>';
     html+='<div style="display:flex;gap:5px;align-items:center">';
     html+='<span class="badge '+(t.recargoNoct==='SI'?'b-ret':'b-no')+'">'+(t.recargoNoct==='SI'?'&#127769; Noct':'Sin recargo')+'</span>';
-    html+='<button class="btn-sm btn-sm-b" onclick="editarTipoHorario(\''+t.codigo+'\')" style="padding:4px 8px">Editar</button>';
-    html+='<button class="btn-sm" style="background:'+(inact?'#E8F5E9':'#FFEBEE')+';color:'+(inact?'#2E7D32':'#C62828')+'" onclick="toggleTipoHorario(\''+t.codigo+'\',\''+(inact?'SI':'NO')+'\')">'+(inact?'Activar':'Desactivar')+'</button>';
+    html+='<button class="btn-sm btn-sm-b" onclick="editarTipoHorario(\''+t.código+'\')" style="padding:4px 8px">Editar</button>';
+    html+='<button class="btn-sm" style="background:'+(inact?'#E8F5E9':'#FFEBEE')+';color:'+(inact?'#2E7D32':'#C62828')+'" onclick="toggleTipoHorario(\''+t.código+'\',\''+(inact?'SI':'NO')+'\')">'+(inact?'Activar':'Desactivar')+'</button>';
     html+='</div></div>';
-    html+='<div style="font-size:13px;font-weight:500;margin-bottom:5px">'+t.descripcion+'</div>';
+    html+='<div style="font-size:13px;font-weight:500;margin-bottom:5px">'+t.descripción+'</div>';
     html+='<div style="font-size:11px;color:#9E9E9E">';
     if(t.entrada)html+='Entrada: '+t.entrada+' ';
     if(t.salidaAlm)html+='S.Alm: '+t.salidaAlm+' ';
@@ -771,7 +717,7 @@ function abrirHorDesdeGrupo(empId){
 function abrirModalHor(empId,nombre){
   empHorActivo={id:empId,nom:nombre};
   var opciones=tipos.filter(function(t){return t.activo==='SI';}).map(function(t){
-    return '<option value="'+t.codigo+'">'+t.codigo+' — '+t.descripcion+' ('+t.horas+'h)</option>';
+    return '<option value="'+t.código+'">'+t.código+' — '+t.descripción+' ('+t.horas+'h)</option>';
   }).join('');
   var dias=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   var horEmp={};
@@ -844,27 +790,27 @@ function guardarCambioHor(){
     .catch(function(e){unload();alert('Error: '+e.message);});
 }
 
-function editarTipoHorario(codigo){
-  var t=tipos.find(function(x){return x.codigo===codigo;});
+function editarTipoHorario(código){
+  var t=tipos.find(function(x){return x.código===código;});
   if(!t)return;
-  var body='<div style="font-size:13px;font-weight:700;color:#1E3A5F;margin-bottom:14px">Editar '+codigo+'</div>';
-  body+='<div class="form-group"><label>Descripcion</label><input id="nt-desc" value="'+t.descripcion+'"></div>';
+  var body='<div style="font-size:13px;font-weight:700;color:#1E3A5F;margin-bottom:14px">Editar '+código+'</div>';
+  body+='<div class="form-group"><label>Descripción</label><input id="nt-desc" value="'+t.descripción+'"></div>';
   body+='<div class="form-row"><div class="form-group"><label>Hora entrada</label><input id="nt-e" value="'+t.entrada+'"></div>';
   body+='<div class="form-group"><label>Salida almuerzo</label><input id="nt-sa" value="'+t.salidaAlm+'"></div></div>';
   body+='<div class="form-row"><div class="form-group"><label>Regreso almuerzo</label><input id="nt-ra" value="'+t.regresoAlm+'"></div>';
   body+='<div class="form-group"><label>Hora salida</label><input id="nt-s" value="'+t.salida+'"></div></div>';
   body+='<div class="form-row"><div class="form-group"><label>Horas totales</label><input id="nt-h" type="number" value="'+t.horas+'"></div>';
   body+='<div class="form-group"><label>Rec. nocturno</label><select id="nt-noct"><option value="NO" '+(t.recargoNoct!=='SI'?'selected':'')+'>No</option><option value="SI" '+(t.recargoNoct==='SI'?'selected':'')+'>Si</option></select></div></div>';
-  body+='<button class="btn btn-p" onclick="guardarEdicionHorario(\''+codigo+'\')">Guardar cambios</button>';
+  body+='<button class="btn btn-p" onclick="guardarEdicionHorario(\''+código+'\')">Guardar cambios</button>';
   body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-hor\')">Cancelar</button>';
   document.getElementById('modal-hor-body').innerHTML=body;
-  document.getElementById('modal-hor-titulo').innerHTML='Editar Horario '+codigo+' <button class="modal-close" onclick="cerrarModal(\'modal-hor\')">&#x2715;</button>';
+  document.getElementById('modal-hor-titulo').innerHTML='Editar Horario '+código+' <button class="modal-close" onclick="cerrarModal(\'modal-hor\')">&#x2715;</button>';
   abrirModal('modal-hor');
 }
 
-function guardarEdicionHorario(codigo){
+function guardarEdicionHorario(código){
   cerrarModal('modal-hor');load('Guardando...');
-  post({action:'editarHorario',codigo:codigo,descripcion:gv('nt-desc'),
+  post({action:'editarHorario',código:código,descripción:gv('nt-desc'),
         entrada:gv('nt-e'),salidaAlm:gv('nt-sa'),regresoAlm:gv('nt-ra'),
         salida:gv('nt-s'),horas:parseFloat(gv('nt-h')||'0'),recargoNoct:gv('nt-noct'),
         horaExtra:parseFloat(gv('nt-extra')||'0')
@@ -873,16 +819,16 @@ function guardarEdicionHorario(codigo){
   .catch(function(e){unload();alert('Error: '+e.message);});
 }
 
-function toggleTipoHorario(codigo,activo){
+function toggleTipoHorario(código,activo){
   load('Actualizando...');
-  post({action:'toggleHorario',codigo:codigo,activo:activo})
+  post({action:'toggleHorario',código:código,activo:activo})
   .then(function(r){if(!r.ok)throw new Error(r.error);return api('tiposHorario');})
   .then(function(d){tipos=d||[];unload();renderTipos();})
   .catch(function(e){unload();alert('Error: '+e.message);});
 }
 
 function abrirNuevoTipo(){
-  var body='<div class="form-group"><label>Descripcion</label><input id="nt-desc" placeholder="Ej: Tarde 2PM-8PM"></div>';
+  var body='<div class="form-group"><label>Descripción</label><input id="nt-desc" placeholder="Ej: Tarde 2PM-8PM"></div>';
   body+='<div class="form-row"><div class="form-group"><label>Hora entrada</label><input id="nt-e" placeholder="09:00"></div>';
   body+='<div class="form-group"><label>Salida almuerzo</label><input id="nt-sa" placeholder="13:00"></div></div>';
   body+='<div class="form-row"><div class="form-group"><label>Regreso almuerzo</label><input id="nt-ra" placeholder="15:00"></div>';
@@ -898,7 +844,7 @@ function abrirNuevoTipo(){
 
 function guardarNuevoTipo(){
   cerrarModal('modal-hor');load('Guardando tipo de horario...');
-  post({action:'agregarHorario',descripcion:gv('nt-desc'),entrada:gv('nt-e'),salidaAlm:gv('nt-sa'),
+  post({action:'agregarHorario',descripción:gv('nt-desc'),entrada:gv('nt-e'),salidaAlm:gv('nt-sa'),
         regresoAlm:gv('nt-ra'),salida:gv('nt-s'),horas:parseFloat(gv('nt-h')||'0'),recargoNoct:gv('nt-noct'),horaExtra:parseFloat(gv('nt-extra')||'0')
   }).then(function(r){if(!r.ok)throw new Error(r.error||'Error');return api('tiposHorario');})
   .then(function(d){tipos=d||[];unload();renderTipos();})
@@ -906,113 +852,39 @@ function guardarNuevoTipo(){
 }
 
 // RESUMEN MENSUAL
-function setResTab(tab){
-  ['diario','semanal','mensual'].forEach(function(t){
-    var el=document.getElementById('res-'+t);
-    if(el) el.style.display=t===tab?'block':'none';
-    var btn=document.getElementById('rt-'+t);
-    if(btn) btn.className='res-tab'+(t===tab?' res-tab-a':'');
+function cargarControlAdmin(){
+  var ahora=new Date();
+  var fd=String(ahora.getDate()).padStart(2,'0')+'/'+String(ahora.getMonth()+1).padStart(2,'0')+'/'+ahora.getFullYear();
+  api('controlDiario&fecha='+fd).then(function(d){
+    var el=document.getElementById('sec7')||document.querySelector('.sec:nth-child(8)');
+    if(!el||!d) return;
+    var html='<div style="padding:12px"><h3 style="margin-bottom:12px;font-size:15px">Control Diario - HOY</h3>';
+    (d||[]).forEach(function(r){
+      html+='<div style="background:#fff;border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:13px">';
+      html+='<b>'+r.nombre+'</b> — Camisa: '+(r.control?r.control.camisa:'-')+' | Pantalon: '+(r.control?r.control.pantalon:'-')+'</div>';
+    });
+    html+='</div>';
+    el.innerHTML=html;
   });
-  if(tab==='diario'){
-    var fi=document.getElementById('res-fecha-d');
-    if(fi&&!fi.value){
-      var hoy=new Date();
-      var p2=function(v){return String(v).padStart(2,'0');};
-      fi.value=hoy.getFullYear()+'-'+p2(hoy.getMonth()+1)+'-'+p2(hoy.getDate());
-      cargarResumenDiario();
-    }
-  }
 }
 
-function cargarResumenDiario(){
-  var fv=document.getElementById('res-fecha-d').value;
-  if(!fv) return;
-  var pp=fv.split('-');
-  var fecha=pp[2]+'/'+pp[1]+'/'+pp[0];
-  document.getElementById('lista-res-diario').innerHTML='<div class="empty">Cargando...</div>';
-  api('resumenDiario&fecha='+fecha).then(function(data){
-    if(!data||data.error){document.getElementById('lista-res-diario').innerHTML='<div class="empty">Error: '+(data&&data.error||'sin datos')+'</div>';return;}
-    var presentes=data.filter(function(e){return e.marcacion&&e.marcacion.entrada;});
-    var ausentes=data.filter(function(e){return !e.marcacion||!e.marcacion.entrada;});
-    var html='<div style="font-size:12px;color:#9E9E9E;margin-bottom:10px">'+fecha+' &bull; '+presentes.length+' presentes &bull; '+ausentes.length+' ausentes</div>';
-    presentes.forEach(function(e){
-      var m=e.marcacion; var c=e.control;
-      var estado=m.estado==='Retardo'?'<span class="badge b-ret">Retardo</span>':'<span class="badge b-ok">A tiempo</span>';
-      html+='<div class="card" style="margin-bottom:8px">';
-      html+='<div style="display:flex;justify-content:space-between;margin-bottom:8px">';
-      html+='<div><div style="font-size:13px;font-weight:700">'+e.nombre+'</div>';
-      html+='<div style="font-size:10px;color:#9E9E9E">'+e.cargo+'</div></div>'+estado+'</div>';
-      html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">';
-      [['Entrada',m.entrada,'#43A047'],['S.Alm',m.salidaAlm,'#FF8F00'],['R.Alm',m.regresoAlm,'#1E88E5'],['Salida',m.salida,'#E53935']].forEach(function(h){
-        html+='<div style="text-align:center;background:#F8F9FA;border-radius:8px;padding:6px">';
-        html+='<div style="font-size:9px;color:#9E9E9E">'+h[0]+'</div>';
-        html+='<div style="font-size:13px;font-weight:700;color:'+(h[1]?h[2]:'#BDBDBD')+'">'+(h[1]||'--:--')+'</div></div>';
-      });
-      html+='</div>';
-      if(m.horas>0){
-        html+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">';
-        html+='<span class="badge b-ok">'+m.horas+'h trabajadas</span>';
-        if(m.recargoNoct>0) html+='<span class="badge b-ret">Noct: '+m.recargoNoct+'h</span>';
-        if(m.recargoDom>0) html+='<span class="badge b-rec">Dom: '+m.recargoDom+'h</span>';
-        if(m.horasExtra>0) html+='<span class="badge" style="background:#EDE7F6;color:#6A1B9A">Extra: '+m.horasExtra+'h</span>';
-        html+='</div>';
-      }
-      if(c){
-        html+='<div style="padding-top:8px;border-top:1px solid #F5F5F5">';
-        html+='<div style="font-size:10px;color:#9E9E9E;margin-bottom:4px">CONTROL</div>';
-        html+='<div style="display:flex;gap:5px;flex-wrap:wrap">';
-        [['Camisa',c.camisa],['Pantalon',c.pantalon],['Celular',c.celular],['Aseo',c.aseo],['Radar',c.radar]].forEach(function(it){
-          html+='<span class="badge '+(it[1]==='SI'?'b-ok':'b-rec')+'">'+it[0]+': '+(it[1]||'--')+'</span>';
-        });
-        if(c.obs) html+='<div style="font-size:11px;color:#616161;margin-top:4px">'+c.obs+'</div>';
-        html+='</div></div>';
-      }
-      html+='</div>';
-    });
-    if(ausentes.length){
-      html+='<div style="font-size:11px;color:#9E9E9E;margin:10px 0 6px;font-weight:600">SIN MARCACION ('+ausentes.length+')</div>';
-      ausentes.forEach(function(e){
-        html+='<div style="background:#FFEBEE;border-radius:10px;padding:10px 14px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center">';
-        html+='<div><div style="font-size:13px;font-weight:600;color:#C62828">'+e.nombre+'</div>';
-        html+='<div style="font-size:10px;color:#EF9A9A">'+e.cargo+'</div></div>';
-        html+='<span class="badge b-rec">Sin marcar</span></div>';
-      });
-    }
-    document.getElementById('lista-res-diario').innerHTML=html||'<div class="empty">Sin datos</div>';
-  }).catch(function(err){document.getElementById('lista-res-diario').innerHTML='<div class="empty">Error: '+err.message+'</div>';});
-}
-
-function cargarResumenSemanal(){
-  var mes=document.getElementById('res-mes-s').value;
-  var ano=document.getElementById('res-ano-s').value;
-  var periodo=mes+'/'+ano;
-  document.getElementById('lista-res-semanal').innerHTML='<div class="empty">Cargando...</div>';
-  api('resumenSemanal&periodo='+periodo).then(function(data){
-    if(!data||data.error){document.getElementById('lista-res-semanal').innerHTML='<div class="empty">Error</div>';return;}
-    var html='';
-    data.forEach(function(s){
-      var over=s.superaLimite;
-      html+='<div class="card" style="background:'+(over?'#FFEBEE':'#F1F8E9')+';border:1.5px solid '+(over?'#FFCDD2':'#C8E6C9')+';margin-bottom:8px">';
-      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
-      html+='<div style="font-size:13px;font-weight:700;color:#1E3A5F">Semana del '+s.lunes+'</div>';
-      html+=(over?'<span class="badge b-rec">&#9888; Supera 42h</span>':'<span class="badge b-ok">Dentro del limite</span>');
-      html+='</div>';
-      html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">';
-      [['Dias',s.dias,''],['Horas',s.horas+'h',over?'#C62828':'#2E7D32'],['Noct',s.noct+'h','#E65100'],['Extra',s.extra+'h','#6A1B9A']].forEach(function(it){
-        html+='<div style="background:rgba(255,255,255,0.7);border-radius:8px;padding:8px">';
-        html+='<div style="font-size:9px;color:#9E9E9E">'+it[0]+'</div>';
-        html+='<div style="font-size:16px;font-weight:700;color:'+(it[2]||'#424242')+'">'+it[1]+'</div></div>';
-      });
-      html+='</div></div>';
-    });
-    document.getElementById('lista-res-semanal').innerHTML=html||'<div class="empty">Sin datos para este periodo</div>';
+function renderResumenTab(){
+  // Tab de resumen mensual: mostrar selector de periodo y tabla si hay datos
+  var sel=document.getElementById('sel-periodo')||document.getElementById('mes-sel');
+  // Auto-cargar resumen del mes actual si hay datos
+  var ahora=new Date();
+  var mes=String(ahora.getMonth()+1).padStart(2,'0');
+  var anio=ahora.getFullYear();
+  var periodoActual=mes+'/'+anio;
+  api('resumenMensual&periodo='+periodoActual).then(function(d){
+    if(d&&d.length>0) renderResumen(d);
   });
 }
 
 function generarResumen(){
   var mes=document.getElementById('res-mes').value;
-  var ano=document.getElementById('res-ano').value;
-  
+  var año=document.getElementById('res-año').value;
+  var periodo=mes+'/'+año;
   document.getElementById('lista-resumen').innerHTML='<div class="empty">Calculando resumen...</div>';
   load('Generando resumen mensual...');
   post({action:'generarResumen',periodo:periodo}).then(function(r){
@@ -1020,7 +892,7 @@ function generarResumen(){
     if(!r.ok){document.getElementById('lista-resumen').innerHTML='<div class="empty">Error: '+(r.error||'desconocido')+'</div>';return;}
     api('resumenMensual&periodo='+periodo).then(function(data){
       if(!data||!data.length){document.getElementById('lista-resumen').innerHTML='<div class="empty">Sin datos para '+periodo+'</div>';return;}
-      var html='<div style="font-size:12px;color:#9E9E9E;margin-bottom:12px">'+r.registros+' colaboradores &bull; Periodo '+periodo+' &bull; Limite semanal: 42h</div>';
+      var html='<div style="font-size:12px;color:#9E9E9E;margin-bottom:12px">'+r.registros+' colaboradores &bull; Período '+periodo+' &bull; Limite semanal: 42h</div>';
       data.forEach(function(e){
         var pct=e.cumplimiento;
         var bc=pct>=90?'b-ok':pct>=70?'b-ret':'b-rec';
@@ -1106,7 +978,7 @@ function renderAutorizacionesExtra(){
   html+='<div style="background:#FCE4EC;border-radius:10px;padding:10px 14px;font-size:11px;color:#880E4F;margin-bottom:12px;line-height:1.6">';
   html+='<strong>Autorizaciónes temporales de H. Extra</strong><br>';
   html+='Define para que empleado, en que fechas y en que tipo (Entrada anticipada o Salida tardia) se autorizan horas extra. El sistema las aplica al momento de la marcación.</div>';
-  html+='<button class="btn btn-p" style="margin-bottom:14px" onclick="abrirNuevaAutorizacion()">+ Nueva autorizacion</button>';
+  html+='<button class="btn btn-p" style="margin-bottom:14px" onclick="abrirNuevaAutorización()">+ Nueva autorización</button>';
   var activas=autorizacionesData.filter(function(a){return a.estado==='Activa';});
   var pasadas=autorizacionesData.filter(function(a){return a.estado!=='Activa';});
   if(!activas.length&&!pasadas.length){
@@ -1141,34 +1013,34 @@ function renderAutorizacionesExtra(){
   document.getElementById('lista-he').innerHTML=html;
 }
 
-function abrirNuevaAutorizacion(){
+function abrirNuevaAutorización(){
   var empOpts=empleados.map(function(e){
     return '<option value="'+e.id+'">'+e.nombre+'</option>';
   }).join('');
   var body='<div class="form-group"><label>Colaborador</label><select id="aut-emp">'+empOpts+'</select></div>';
-  body+='<div class="form-group"><label>Tipo de autorizacion</label>';
+  body+='<div class="form-group"><label>Tipo de autorización</label>';
   body+='<select id="aut-tipo"><option value="Entrada">Entrada anticipada (entra antes de lo normal)</option><option value="Salida">Salida tardia (sale después de lo normal)</option></select></div>';
   body+='<div class="form-row"><div class="form-group"><label>Fecha inicio</label><input type="date" id="aut-ini"></div>';
   body+='<div class="form-group"><label>Fecha fin</label><input type="date" id="aut-fin"></div></div>';
   body+='<div class="form-row"><div class="form-group"><label>Horas autorizadas</label>';
   body+='<select id="aut-horas"><option value="0.5">0.5h</option><option value="1" selected>1h</option><option value="1.5">1.5h</option><option value="2">2h</option></select></div>';
   body+='<div class="form-group"><label>Horario base del empleado</label><select id="aut-horario">';
-  var codOpts=tipos.map(function(t){return '<option value="'+t.codigo+'">'+t.codigo+' — '+t.descripcion+'</option>';}).join('');
+  var codOpts=tipos.map(function(t){return '<option value="'+t.código+'">'+t.código+' — '+t.descripción+'</option>';}).join('');
   body+=codOpts+'</select></div></div>';
-  body+='<div class="form-group"><label>Observacion</label><input id="aut-obs" placeholder="Ej: Cobertura de turno, pedido especial..."></div>';
-  body+='<button class="btn btn-p" onclick="guardarNuevaAutorizacion()">Guardar autorizacion</button>';
+  body+='<div class="form-group"><label>Observación</label><input id="aut-obs" placeholder="Ej: Cobertura de turno, pedido especial..."></div>';
+  body+='<button class="btn btn-p" onclick="guardarNuevaAutorización()">Guardar autorización</button>';
   body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-nov\')">Cancelar</button>';
   document.getElementById('modal-nov-body').innerHTML=body;
   document.querySelector('#modal-nov .modal-t').innerHTML='Nueva Autorización H.Extra <button class="modal-close" onclick="cerrarModal(\'modal-nov\')">&#x2715;</button>';
   abrirModal('modal-nov');
 }
 
-function guardarNuevaAutorizacion(){
+function guardarNuevaAutorización(){
   var empSel=document.getElementById('aut-emp');
   var empId=empSel?empSel.value:'';
   var empNom=empSel?empSel.options[empSel.selectedIndex].text:'';
   cerrarModal('modal-nov');
-  load('Guardando autorizacion...');
+  load('Guardando autorización...');
   post({action:'guardarAutorizacionExtra',
         empId:empId,empNom:empNom,
         codHorario:gv('aut-horario'),
@@ -1190,7 +1062,7 @@ function guardarNuevaAutorizacion(){
 }
 
 function cancelarAut(autId){
-  if(!confirm('Cancelar esta autorizacion?'))return;
+  if(!confirm('Cancelar esta autorización?'))return;
   load('Cancelando...');
   post({action:'cancelarAutorizacionExtra',autId:autId})
   .then(function(r){
@@ -1230,7 +1102,7 @@ function renderHorasExtra(){
       html+='<div style="font-size:12px;color:#424242;flex-shrink:0">Horas a autorizar:</div>';
       html+='<input type="number" id="he-h-'+h.id+'" value="'+h.horasDetec+'" min="0.5" max="12" step="0.5" style="width:70px;padding:7px;border:1.5px solid #EEE;border-radius:8px;font-size:14px;font-weight:700;color:#6A1B9A;text-align:center;font-family:inherit">';
       html+='<div style="font-size:11px;color:#9E9E9E">horas</div></div>';
-      html+='<div class="form-group"><label>Observacion</label><input type="text" id="he-obs-'+h.id+'" placeholder="Ej: Autorizado por jefe de zona"></div>';
+      html+='<div class="form-group"><label>Observación</label><input type="text" id="he-obs-'+h.id+'" placeholder="Ej: Autorizado por jefe de zona"></div>';
       html+='<div style="display:flex;gap:8px">';
       html+='<button class="btn-sm btn-sm-g" style="flex:1;padding:10px" onclick="aprobarHE(\''+h.id+'\',\'Aprobada\')">&#10003; Aprobar</button>';
       html+='<button class="btn-sm btn-sm-r" style="flex:1;padding:10px" onclick="aprobarHE(\''+h.id+'\',\'Rechazada\')">&#10007; Rechazar</button>';
@@ -1285,7 +1157,7 @@ function renderContratos(){
       vencCol=diasR<=0?'#C62828':diasR<=15?'#E65100':diasR<=35?'#F57F17':'#2E7D32';
       vencTxt=diasR<=0?'VENCIDO':diasR+'d para vencer';
     }
-    var prorTxt=c.numProrroga>0?'Prórroga #'+c.numProrroga:'Contrato inicial';
+    var prorTxt=c.numPrórroga>0?'Prórroga #'+c.numPrórroga:'Contrato inicial';
     var regimenTxt=c.regimen==='Anterior'?'Historial anterior Ley 2466':'Ley 2466/2025';
     var regimenCol=c.regimen==='Anterior'?'#9E9E9E':'#1565C0';
     // Antigüedad
@@ -1310,7 +1182,7 @@ function renderContratos(){
     if(c.salario)html+='<div style="font-size:13px;font-weight:600;margin-bottom:8px">Salario: $'+Number(c.salario).toLocaleString('es-CO')+'</div>';
     // Duración + antigüedad + cumpleaños
     html+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">';
-    if(c.duracionMeses)html+='<span class="badge b-no">&#128336; '+c.duracionMeses+' meses ('+(c.duracionMeses*30)+'d)</span>';
+    if(c.duraciónMeses)html+='<span class="badge b-no">&#128336; '+c.duraciónMeses+' meses ('+(c.duraciónMeses*30)+'d)</span>';
     if(antTxt)html+='<span class="badge" style="background:#E3F2FD;color:#1565C0">&#127942; '+antTxt+' antigüedad</span>';
     html+='<span class="badge" style="background:#F5F5F5;color:'+regimenCol+'">'+regimenTxt+'</span>';
     if(cumplInfo){
@@ -1384,12 +1256,11 @@ function renderContratos(){
     if(c.estado==='Activo'){
       html+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">';
       html+='<button class="btn-sm btn-sm-b" onclick="editarContratoId(\''+c.id+'\'  )">&#9998; Editar</button>';
-      html+='<button class="btn-sm btn-sm-o" onclick="prorrogaFromId(\''+c.id+'\'  )">&#8635; Prórroga</button>';
+      html+='<button class="btn-sm btn-sm-o" onclick="prórrogaFromId(\''+c.id+'\'  )">&#8635; Prórroga</button>';
       html+='<button class="btn-sm btn-sm-g" onclick="vacFromId(\''+c.id+'\'  )">&#127774; Vacaciones</button>';
       if(diasR!==null&&diasR<=35&&!preavisosData.some(function(p){return p.contratoId===c.id&&p.estado==='Notificado';})){
         html+='<button class="btn-sm btn-sm-ret" onclick="preavisoFromId(\''+c.id+'\'  )">&#128276; Preaviso</button>';
       }
-      html+='<button class="btn-sm" style="background:#E3F2FD;color:#1565C0;border-color:#90CAF9" onclick="setEstadoEspecialId(\''+c.empId+'\',\''+c.nombre.replace(/\'/g,'')+'\')">&#9193; Estado</button>';
       html+='<button class="btn-sm" style="background:#FFEBEE;color:#C62828" onclick="retirarDesdeContratoId(\''+c.id+'\',\''+c.empId+'\',\''+c.nombre.replace(/'/g,'')+'\'  )">&#10008; Retirar empleado</button>';
       html+='</div>';
     }
@@ -1444,7 +1315,7 @@ function abrirNuevoContrato(){
   body+='<div class="form-row"><div class="form-group"><label>Duración meses</label><input type="number" id="ct-meses" placeholder="6"></div>';
   body+='<div class="form-group"><label>Salario mensual</label><input type="number" id="ct-salario" placeholder="1300000"></div></div>';
   body+='<div class="form-row"><div class="form-group"><label>Fecha nacimiento</label><input type="date" id="ct-fn"></div>';
-  body+='<div class="form-group"><label>Observacion</label><textarea id="ct-obs" placeholder="Notas del contrato..."></textarea></div></div>';
+  body+='<div class="form-group"><label>Observación</label><textarea id="ct-obs" placeholder="Notas del contrato..."></textarea></div></div>';
   body+='<button class="btn btn-p" onclick="guardarContrato()">Guardar contrato</button>';
   body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-ct\')">Cancelar</button>';
   document.getElementById('modal-ct-body').innerHTML=body;
@@ -1458,9 +1329,9 @@ function guardarContrato(){
   var empNom=empSel?empSel.options[empSel.selectedIndex].text:'';
   cerrarModal('modal-ct');load('Guardando contrato...');
   post({action:'guardarContrato',empId:empId,empNom:empNom,
-        tipo:gv('ct-tipo'),cargo:gv('ct-cargo'),regimen:gv('ct-régimen')||'Ley2466',
+        tipo:gv('ct-tipo'),cargo:gv('ct-cargo'),régimen:gv('ct-régimen')||'Ley2466',
         fechaInicio:fmtDateInput(gv('ct-inicio')),fechaFin:fmtDateInput(gv('ct-fin')),
-        duracionMeses:gv('ct-meses'),salario:gv('ct-salario'),
+        duraciónMeses:gv('ct-meses'),salario:gv('ct-salario'),
         observacion:gv('ct-obs')
   }).then(function(r){
     if(!r.ok)throw new Error(r.error||'Error guardando contrato');
@@ -1490,7 +1361,7 @@ function renovarContrato(ctId,empId,nombre){
   cerrarModal('modal-ct');load('Registrando prórroga...');
   post({action:'renovarContrato',contratoId:ctId,empId:empId,empNom:nombre,
         tipo:'Termino fijo',fechaInicio:fmtDateInput(gv('ct-inicio')),
-        fechaFin:fmtDateInput(gv('ct-fin')),duracionMeses:gv('ct-meses'),
+        fechaFin:fmtDateInput(gv('ct-fin')),duraciónMeses:gv('ct-meses'),
         salario:gv('ct-salario'),cargo:gv('ct-cargo')
   }).then(function(r){
     if(!r.ok)throw new Error(r.error||'Error');
@@ -1502,7 +1373,7 @@ function renovarContrato(ctId,empId,nombre){
 }
 
 function registrarPreaviso(ctId,empId,nombre,fechaVenc){
-  var obs=prompt('Observacion del preaviso (opcional):', 'Preaviso de terminacion notificado al colaborador');
+  var obs=prompt('Observación del preaviso (opcional):', 'Preaviso de terminacion notificado al colaborador');
   if(obs===null)return;
   load('Registrando preaviso...');
   post({action:'registrarPreaviso',contratoId:ctId,empId:empId,empNom:nombre,
@@ -1523,7 +1394,7 @@ function abrirNuevasVacaciones(ctId,empId,nombre){
   body+='<div class="form-row"><div class="form-group"><label>Fecha inicio</label><input type="date" id="vac-ini"></div>';
   body+='<div class="form-group"><label>Fecha fin</label><input type="date" id="vac-fin"></div></div>';
   body+='<div id="vac-dias-preview" style="background:#E8F5E9;border-radius:8px;padding:10px;text-align:center;margin-bottom:12px;font-size:13px;color:#2E7D32">Seleccióna las fechas</div>';
-  body+='<div class="form-group"><label>Observacion</label><input id="vac-obs" placeholder="Vacaciones primer período..."></div>';
+  body+='<div class="form-group"><label>Observación</label><input id="vac-obs" placeholder="Vacaciones primer periodo..."></div>';
   body+='<button class="btn btn-g" onclick="guardarVacacionesConfirm()">Guardar vacaciones</button>';
   body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-ct\')">Cancelar</button>';
   document.getElementById('modal-ct-body').innerHTML=body;
@@ -1603,7 +1474,7 @@ function vacFromId(id){
   var c=contratosData.find(function(x){return x.id===id;});
   if(c) abrirNuevasVacaciones(c.id,c.empId,c.nombre);
 }
-function prorrogaFromId(id){
+function prórrogaFromId(id){
   var c=contratosData.find(function(x){return x.id===id;});
   if(c) abrirRenovarContrato(c.id,c.empId,c.nombre,c.cargo,c.salario);
 }
@@ -1620,12 +1491,12 @@ function filtroCtrl(vista,idx){
 
 function cargarControl(){
   var mes=document.getElementById('ctrl-mes').value;
-  var ano=document.getElementById('ctrl-año').value;
+  var año=document.getElementById('ctrl-año').value;
   load('Cargando control...');
   var hoyStr=hoy();
   Promise.all([
     api('controlDiario&fecha='+hoyStr),
-    api('resumenControl&período='+mes+'/'+ano)
+    api('resumenControl&periodo='+mes+'/'+año)
   ]).then(function(res){
     controlData=res[0]||[];
     resumenCtrl=res[1]||[];
@@ -1688,7 +1559,7 @@ function renderControlHoy(){
 }
 
 function renderResumenControl(){
-  if(!resumenCtrl.length){document.getElementById('lista-ctrl').innerHTML='<div class="empty">Sin datos de control para este período</div>';return;}
+  if(!resumenCtrl.length){document.getElementById('lista-ctrl').innerHTML='<div class="empty">Sin datos de control para este periodo</div>';return;}
   var html='<div style="font-size:12px;color:#9E9E9E;margin-bottom:10px">'+resumenCtrl.length+' colaboradores &bull; Cumplimiento mensual</div>';
   resumenCtrl.forEach(function(e){
     var campos=[
@@ -1749,10 +1620,10 @@ function editarContratoId(ctId){
   body+='</select></div>';
   body+='<div class="form-row"><div class="form-group"><label>Fecha inicio</label><input type="date" id="ce-ini" value="'+fmtParaInput(c.fechaInicio)+'"></div>';
   body+='<div class="form-group"><label>Fecha fin</label><input type="date" id="ce-fin" value="'+fmtParaInput(c.fechaFin)+'"></div></div>';
-  body+='<div class="form-row"><div class="form-group"><label>Duración meses</label><input type="number" id="ce-meses" value="'+c.duracionMeses+'"></div>';
+  body+='<div class="form-row"><div class="form-group"><label>Duración meses</label><input type="number" id="ce-meses" value="'+c.duraciónMeses+'"></div>';
   body+='<div class="form-group"><label>Salario</label><input type="number" id="ce-sal" value="'+c.salario+'"></div></div>';
   body+='<div class="form-row"><div class="form-group"><label>Fecha nacimiento</label><input type="date" id="ce-fn" value="'+fmtParaInput(c.fechaNacimiento)+'"></div>';
-  body+='<div class="form-group"><label>Observacion</label><textarea id="ce-obs">'+c.observacion+'</textarea></div></div>';
+  body+='<div class="form-group"><label>Observación</label><textarea id="ce-obs">'+c.observacion+'</textarea></div></div>';
   body+='<button class="btn btn-p" onclick="guardarEdicionContrato(\''+ctId+'\')">Guardar cambios</button>';
   body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-ct\')">Cancelar</button>';
   document.getElementById('modal-ct-body').innerHTML=body;
@@ -1767,9 +1638,9 @@ function guardarEdicionContrato(ctId){
         tipo:gv('ce-tipo'),cargo:gv('ce-cargo'),
         fechaInicio:fmtDateInput(gv('ce-ini')),
         fechaFin:fmtDateInput(gv('ce-fin')),
-        duracionMeses:gv('ce-meses'),salario:gv('ce-sal'),
+        duraciónMeses:gv('ce-meses'),salario:gv('ce-sal'),
         fechaNacimiento:fmtDateInput(gv('ce-fn')),
-        regimen:gv('ce-régimen'),
+        régimen:gv('ce-régimen'),
         observacion:gv('ce-obs')
   }).then(function(r){
     if(!r.ok)throw new Error(r.error||'Error');
@@ -1778,127 +1649,6 @@ function guardarEdicionContrato(ctId){
     contratosData=res[0]||[];alertasData=res[1]||[];
     unload();renderContratos();mostrarToast('Contrato actualizado','ok');
   }).catch(function(e){unload();alert('Error: '+e.message);});
-}
-
-function setEstadoEspecialId(empId, nombre){
-  var opts=['','Vacaciones','Permiso no remunerado','Licencia','Incapacidad'];
-  var actual='';
-  var sel='<select id="est-esp-sel" style="width:100%;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:12px">';
-  opts.forEach(function(o){sel+='<option value="'+o+'"'+(o===actual?' selected':'')+'>'+( o||'Activo (sin estado especial)')+'</option>';});
-  sel+='</select>';
-  var body=sel;
-  body+='<button class="btn btn-p" onclick="confirmarEstadoEspecial(\''+empId+'\',\''+nombre.replace(/\'/g,'')+'\')" >Guardar</button>';
-  body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-est\')">Cancelar</button>';
-  var m=document.getElementById('modal-est');
-  if(!m){
-    m=document.createElement('div');
-    m.id='modal-est';
-    m.className='modal-overlay';
-    m.innerHTML='<div class="modal-box"><div class="modal-hdr"><span style="font-weight:700;color:#1E3A5F">Estado del colaborador</span><button class="modal-cls" onclick="cerrarModal(\'modal-est\')">&#10005;</button></div><div id="modal-est-body"></div></div>';
-    document.body.appendChild(m);
-  }
-  document.getElementById('modal-est-body').innerHTML='<div style="font-size:13px;font-weight:600;color:#1E3A5F;margin-bottom:12px">'+nombre+'</div>'+body;
-  m.style.display='flex';
-}
-
-function confirmarEstadoEspecial(empId, nombre){
-  var estado=document.getElementById('est-esp-sel').value;
-  cerrarModal('modal-est');
-  load('Actualizando estado...');
-  post({action:'setEstadoEspecial',empId:empId,nombre:nombre,estado:estado})
-  .then(function(r){
-    unload();
-    if(!r.ok){alert('Error: '+(r.error||'desconocido'));return;}
-    renderContratos();
-  }).catch(function(e){unload();alert('Error: '+e.message);});
-}
-
-function setHeTab(tab){
-  ['detectadas','autorizadas'].forEach(function(t){
-    var el=document.getElementById('he-lista-'+t);
-    if(el) el.style.display=t===tab?'block':'none';
-    var btn=document.getElementById('he-tab-'+t.substring(0,3));
-    if(btn) btn.className='res-tab'+(t===tab?' res-tab-a':'');
-  });
-}
-
-function renderHorasExtraUnificado(){
-  var empId=document.getElementById('he-emp')?document.getElementById('he-emp').value:'';
-  var mes=document.getElementById('he-mes').value;
-  var ano=document.getElementById('he-ano').value;
-  var periodo=mes+'/'+ano;
-  document.getElementById('he-lista-detectadas').innerHTML='<div class="empty">Cargando...</div>';
-  document.getElementById('he-lista-autorizadas').innerHTML='<div class="empty">Cargando...</div>';
-  api('horasExtraUnificado&empId='+empId+'&periodo='+periodo).then(function(data){
-    if(!data||data.error){
-      document.getElementById('he-lista-detectadas').innerHTML='<div class="empty">Error</div>';
-      return;
-    }
-    // Detectadas
-    var det=data.detectadas||[];
-    var html='';
-    if(!det.length){html='<div class="empty">Sin horas extra detectadas</div>';}
-    else{
-      det.forEach(function(h){
-        var bc=h.estado==='Aprobada'?'b-ok':h.estado==='Rechazada'?'b-rec':'b-ret';
-        html+='<div class="card" style="margin-bottom:8px">';
-        html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
-        html+='<div><div style="font-size:13px;font-weight:700">'+h.nombre+'</div>';
-        html+='<div style="font-size:10px;color:#9E9E9E">'+h.fecha+' &bull; '+h.dia+'</div></div>';
-        html+='<span class="badge '+bc+'">'+h.estado+'</span></div>';
-        html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center;margin-bottom:8px">';
-        html+='<div style="background:#F8F9FA;border-radius:8px;padding:6px"><div style="font-size:9px;color:#9E9E9E">Trabajadas</div><div style="font-weight:700">'+h.horasTrab+'h</div></div>';
-        html+='<div style="background:#F8F9FA;border-radius:8px;padding:6px"><div style="font-size:9px;color:#9E9E9E">Programadas</div><div style="font-weight:700">'+h.horasProg+'h</div></div>';
-        html+='<div style="background:#EDE7F6;border-radius:8px;padding:6px"><div style="font-size:9px;color:#6A1B9A">Extra</div><div style="font-weight:700;color:#6A1B9A">'+h.horasDetec+'h</div></div>';
-        html+='</div>';
-        if(h.estado==='Pendiente'){
-          html+='<div style="display:flex;gap:6px">';
-          html+='<button class="btn-sm btn-sm-b" onclick="aprobarHoraExtra(\''+h.id+'\',\'Aprobada\')">Aprobar</button>';
-          html+='<button class="btn-sm" style="background:#FFEBEE;color:#C62828;border-color:#FFCDD2" onclick="aprobarHoraExtra(\''+h.id+'\',\'Rechazada\')">Rechazar</button>';
-          html+='</div>';
-        }
-        html+='</div>';
-      });
-    }
-    document.getElementById('he-lista-detectadas').innerHTML=html;
-
-    // Autorizadas
-    var aut=data.autorizadas||[];
-    var html2='';
-    if(!aut.length){html2='<div class="empty">Sin autorizaciones activas</div>';}
-    else{
-      aut.forEach(function(a){
-        html2+='<div class="card" style="margin-bottom:8px">';
-        html2+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
-        html2+='<div><div style="font-size:13px;font-weight:700">'+a.nombre+'</div>';
-        html2+='<div style="font-size:10px;color:#9E9E9E">'+a.fechaInicio+' → '+a.fechaFin+'</div></div>';
-        var ac=a.estado==='Activa'?'b-ok':'b-rec';
-        html2+='<span class="badge '+ac+'">'+a.estado+'</span></div>';
-        html2+='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">';
-        html2+='<span class="badge" style="background:#EDE7F6;color:#6A1B9A">'+a.horasAut+'h aut. &bull; '+a.tipo+'</span>';
-        html2+='<span style="font-size:11px;color:#9E9E9E">'+a.codHorario+'</span>';
-        if(a.obs) html2+='<span style="font-size:11px;color:#616161">'+a.obs+'</span>';
-        html2+='</div>';
-        if(a.estado==='Activa'){
-          html2+='<button class="btn-sm" style="margin-top:8px;background:#FFEBEE;color:#C62828;border-color:#FFCDD2" onclick="cancelarAutorizacionExtraId(\''+a.id+'\')">Cancelar</button>';
-        }
-        html2+='</div>';
-      });
-    }
-    document.getElementById('he-lista-autorizadas').innerHTML=html2;
-
-    // Poblar selector de empleados
-    var sel=document.getElementById('he-emp');
-    if(sel&&sel.options.length<=1){
-      api('empleados').then(function(emps){
-        (emps||[]).forEach(function(e){
-          var opt=document.createElement('option');
-          opt.value=e.id; opt.textContent=e.nombre;
-          sel.appendChild(opt);
-        });
-      });
-    }
-  });
 }
 
 function retirarDesdeContratoId(ctId,empId,nombre){
@@ -1943,7 +1693,7 @@ function editarVacId(vacId){
     body+='<div class="form-group"><label>Fecha fin</label><input type="date" id="ev-fin" value="'+fmtParaInput(v.fechaFin)+'"></div></div>';
   }
   body+='<div class="form-group"><label>Dias hábiles</label><input type="number" id="ev-dias" value="'+(v.diasCalendario||v.diasTomados)+'" min="1"></div>';
-  body+='<div class="form-group"><label>Observacion</label><input id="ev-obs" value="'+v.observacion+'"></div>';
+  body+='<div class="form-group"><label>Observación</label><input id="ev-obs" value="'+v.observacion+'"></div>';
   body+='<button class="btn btn-p" onclick="guardarEdicionVac(\''+vacId+'\')">'+'Guardar cambios'+'</button>';
   body+='<button class="btn btn-s" onclick="cerrarModal(\'modal-ct\')">Cancelar</button>';
   document.getElementById('modal-ct-body').innerHTML=body;
@@ -1957,7 +1707,7 @@ function guardarEdicionVac(vacId){
   post({action:'editarVacacion',vacId:vacId,
         fechaInicio:fmtDateInput(gv('ev-ini')),
         fechaFin:fmtDateInput(gv('ev-fin')),
-        diasHabiles:parseInt(gv('ev-dias'))||0,
+        diasHábiles:parseInt(gv('ev-dias'))||0,
         modalidad:gv('ev-mod'),
         observacion:gv('ev-obs')
   }).then(function(r){
