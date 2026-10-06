@@ -309,17 +309,25 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
 
     <!-- SECCION 8: ASEO -->
     <div class="sec" id="sec-8">
+      <!-- Header decorativo -->
+      <div style="background:linear-gradient(135deg,#1E3A5F 0%,#1a4a7a 100%);border-radius:14px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:26px">🧹</span>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#fff">Control de Aseo</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.6)">Seguimiento y horarios de limpieza</div>
+        </div>
+      </div>
       <div class="itabs">
-        <button class="itab on" id="aseo-tab-0" onclick="aseoVista('diario',0)">Diario</button>
-        <button class="itab" id="aseo-tab-1" onclick="aseoVista('semanal',1)">Semanal</button>
-        <button class="itab" id="aseo-tab-2" onclick="aseoVista('horario',2)">Horario</button>
+        <button class="itab on" id="aseo-tab-0" onclick="aseoVista('diario',0)">📅 Diario</button>
+        <button class="itab" id="aseo-tab-1" onclick="aseoVista('semanal',1)">📊 Semanal</button>
+        <button class="itab" id="aseo-tab-2" onclick="aseoVista('horario',2)">📋 Horario</button>
       </div>
 
       <!-- Vista Diaria -->
       <div id="aseo-sec-diario">
         <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
-          <input type="date" id="aseo-fecha" style="flex:1;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
-          <button class="btn-sm btn-sm-b" onclick="cargarAseoAdmin()" style="padding:10px 14px">Ver</button>
+          <input type="date" id="aseo-fecha" style="flex:1;padding:10px;border:1.5px solid #E8EDF2;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none;color:#1E3A5F;font-weight:500">
+          <button class="btn-sm btn-sm-b" onclick="cargarAseoAdmin()" style="padding:10px 18px;border-radius:10px">Ver</button>
         </div>
         <div id="lista-aseo"><div class="empty">Selecciona una fecha y haz clic en Ver</div></div>
       </div>
@@ -327,19 +335,19 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
       <!-- Vista Semanal -->
       <div id="aseo-sec-semanal" style="display:none">
         <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
-          <input type="date" id="aseo-fecha-sem" style="flex:1;padding:10px;border:1.5px solid #EEE;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none">
-          <button class="btn-sm btn-sm-b" onclick="cargarAseoSemanal()" style="padding:10px 14px">Ver semana</button>
+          <input type="date" id="aseo-fecha-sem" style="flex:1;padding:10px;border:1.5px solid #E8EDF2;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;outline:none;color:#1E3A5F;font-weight:500">
+          <button class="btn-sm btn-sm-b" onclick="cargarAseoSemanal()" style="padding:10px 18px;border-radius:10px">Ver semana</button>
         </div>
         <div id="lista-aseo-sem"><div class="empty">Selecciona una fecha de la semana a consultar</div></div>
       </div>
 
       <!-- Vista Horario (editable) -->
       <div id="aseo-sec-horario" style="display:none">
-        <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
-          <div style="font-size:12px;color:#9E9E9E">Haz clic en cualquier celda para editarla</div>
-          <button class="btn-sm btn-sm-g" onclick="guardarHorarioAseo()">&#128190; Guardar cambios</button>
+        <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;background:#F0F4F9;border-radius:10px;padding:10px 14px">
+          <div style="font-size:12px;color:#5C6BC0;font-weight:600">✏️ Toca cualquier celda para editar</div>
+          <button class="btn-sm btn-sm-g" onclick="guardarHorarioAseo()" style="border-radius:8px">💾 Guardar</button>
         </div>
-        <div id="tabla-horario-aseo" style="overflow-x:auto"></div>
+        <div id="tabla-horario-aseo" style="overflow-x:auto;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)"></div>
         <div id="horario-aseo-msg" style="display:none;margin-top:10px;padding:10px;border-radius:8px;font-size:12px;text-align:center"></div>
       </div>
     </div>
@@ -1793,20 +1801,20 @@ function unload(){document.getElementById('load').classList.remove('on');}
 
 // ── ADMIN: MODULO ASEO ───────────────────────────────────────────────
 var HORARIO_ASEO = {
-  'MARCELA':{'Lunes':'Organizar modulo caja','Miercoles':'Organizar modulo caja'},
-  'MARYORY':{'Martes':'Limpiar vidrios fachada y vitrinas','Miercoles':'Lavar canecas de basura y 5 trapos','Jueves':'Sacar basura del bano','Viernes':'Lavar bano','Sabado':'Aseo manana local y escaleras'},
-  'CAROLINA':{'Lunes':'Sacar basura del bano','Martes':'Lavar bano','Jueves':'Sacar la basura','Viernes':'Barrer afuera','Sabado':'Aseo manana local y escaleras'},
-  'FERNANDO':{'Lunes':'Aseo manana local y escaleras','Martes':'Barrer afuera','Miercoles':'Limpiar vidrios fachada y vitrinas','Sabado':'Aseo tarde local y escaleras'},
-  'LUISA':{'Lunes':'Barrer afuera','Martes':'Aseo manana local y escaleras','Miercoles':'Sacar basura del bano','Jueves':'Lavar bano','Viernes':'Aseo tarde local y escaleras','Sabado':'Lavar el tanque y 5 trapos'},
-  'BRAYNER':{'Lunes':'Sacar la basura','Martes':'Barrer afuera','Miercoles':'Aseo manana local y escaleras','Jueves':'Aseo tarde local y escaleras','Viernes':'Sacar la basura'},
-  'SANTIAGO':{'Martes':'Aseo tarde local y escaleras','Miercoles':'Sacar la basura','Jueves':'Aseo manana local y escaleras','Viernes':'Sacar basura del bano','Sabado':'Barrer afuera'},
-  'ESTEBAN':{'Lunes':'Aseo tarde local y escaleras','Martes':'Sacar la basura','Jueves':'Barrer afuera','Viernes':'Aseo manana local y escaleras','Sabado':'Sacar basura del bano'},
-  'JUAN C':{'Miercoles':'Aseo tarde local y escaleras','Sabado':'Sacar la basura'},
-  'SILVIA':{'Lunes':'Lavar bano','Martes':'Lavar canecas de basura y 5 trapos'},
-  'CAMILO':{'Lunes':'Lavar el tanque y 5 trapos','Miercoles':'Lavar bano','Viernes':'Lavar canecas de basura y 5 trapos'},
-  'FABIAN MENDOZA':{'Lunes':'Aseo servicio tecnico','Martes':'Aseo servicio tecnico','Miercoles':'Aseo servicio tecnico','Jueves':'Aseo servicio tecnico','Viernes':'Aseo servicio tecnico','Sabado':'Aseo servicio tecnico y lavar bano'}
+  'Juliana Marcela':{'Lunes':'Organizar módulo caja','Miércoles':'Organizar módulo caja'},
+  'Maryory Channel':{'Martes':'Limpiar vidrios fachada y vitrinas','Miércoles':'Lavar canecas de basura y 5 trapos','Jueves':'Sacar basura del baño','Viernes':'Lavar baño','Sábado':'Aseo mañana local y escaleras'},
+  'Brenda Carolina':{'Lunes':'Sacar basura del baño','Martes':'Lavar baño','Jueves':'Sacar la basura','Viernes':'Barrer afuera','Sábado':'Aseo mañana local y escaleras'},
+  'Juan Fernando':{'Lunes':'Aseo mañana local y escaleras','Martes':'Barrer afuera','Miércoles':'Limpiar vidrios fachada y vitrinas','Sábado':'Aseo tarde local y escaleras'},
+  'Luisa Fernanda':{'Lunes':'Barrer afuera','Martes':'Aseo mañana local y escaleras','Miércoles':'Sacar basura del baño','Jueves':'Lavar baño','Viernes':'Aseo tarde local y escaleras','Sábado':'Lavar el tanque y 5 trapos'},
+  'Brayner Ernesto':{'Lunes':'Sacar la basura','Martes':'Barrer afuera','Miércoles':'Aseo mañana local y escaleras','Jueves':'Aseo tarde local y escaleras','Viernes':'Sacar la basura'},
+  'Santiago Moscoso':{'Martes':'Aseo tarde local y escaleras','Miércoles':'Sacar la basura','Jueves':'Aseo mañana local y escaleras','Viernes':'Sacar basura del baño','Sábado':'Barrer afuera'},
+  'Juan Esteban':{'Lunes':'Aseo tarde local y escaleras','Martes':'Sacar la basura','Jueves':'Barrer afuera','Viernes':'Aseo mañana local y escaleras','Sábado':'Sacar basura del baño'},
+  'Juan Carlos':{'Miércoles':'Aseo tarde local y escaleras','Sábado':'Sacar la basura'},
+  'Silvia Alejandra':{'Lunes':'Lavar baño','Martes':'Lavar canecas de basura y 5 trapos'},
+  'Camilo Alexander':{'Lunes':'Lavar el tanque y 5 trapos','Miércoles':'Lavar baño','Viernes':'Lavar canecas de basura y 5 trapos'},
+  'Fabián Stiven':{'Lunes':'Aseo servicio técnico','Martes':'Aseo servicio técnico','Miércoles':'Aseo servicio técnico','Jueves':'Aseo servicio técnico','Viernes':'Aseo servicio técnico','Sábado':'Aseo servicio técnico y lavar baño'}
 };
-var DIAS_ASEO=['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+var DIAS_ASEO=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 var aseoVistaActual='diario';
 
 // Resuelve el nombre real de un empleado a partir de la clave del horario (ej: 'MARCELA' → 'Marcela López')
@@ -1877,26 +1885,31 @@ function cargarAseoAdmin(){
       // Mostrar estado de cada tarea esperada
       esperadas.forEach(function(esp){
         var reg=regs.find(function(r){return r.tarea===esp.tarea;});
-        html+='<div class="list-item" style="align-items:flex-start">';
-        html+='<div class="av" style="background:'+(reg?'#00BCD4':'#EEE')+';border-radius:10px;font-size:18px">'+(reg?'&#129529;':'&#9744;')+'</div>';
-        html+='<div class="li-info">';
-        html+='<div class="li-nom">'+esp.tarea+'</div>';
-        html+='<div class="li-sub">Asignado: '+nombreRealEmp(esp.nom)+'</div>';
+        var hecho=!!reg;
+        html+='<div class="list-item" style="align-items:flex-start;border-left:3px solid '+(hecho?'#43A047':'#E8EDF2')+';padding-left:10px;margin-left:-10px">';
+        html+='<div class="av" style="background:'+(hecho?'#1E3A5F':'#F0F4F9')+';border-radius:10px;font-size:18px;width:40px;height:40px;flex-shrink:0;color:'+(hecho?'#fff':'#9E9E9E')+'">'+(hecho?'✓':'○')+'</div>';
+        html+='<div class="li-info" style="flex:1">';
+        html+='<div class="li-nom" style="color:'+(hecho?'#1E3A5F':'#424242')+'">'+esp.tarea+'</div>';
+        html+='<div class="li-sub" style="color:#5C6BC0;font-weight:600">👤 '+nombreRealEmp(esp.nom)+'</div>';
         if(reg){
-          html+='<div class="li-sub" style="color:#2E7D32">&#10003; Registrado por '+reg.empNom+' a las '+reg.hora+'</div>';
+          html+='<div class="li-sub" style="color:#2E7D32;margin-top:2px">✓ Registrado por <strong>'+reg.empNom+'</strong> a las '+reg.hora+'</div>';
           if(reg.foto){
-            html+='<img src="'+reg.foto+'" style="width:100%;max-width:240px;border-radius:8px;margin-top:6px;border:1px solid #EEE;cursor:pointer" onclick="verFoto(this.src)">';
+            html+='<img src="'+reg.foto+'" style="width:100%;max-width:240px;border-radius:10px;margin-top:8px;border:2px solid #E8EDF2;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.1)" onclick="verFoto(this.src)">';
           }
         } else {
-          html+='<span class="badge b-pend">Pendiente</span>';
+          html+='<span class="badge b-pend" style="margin-top:4px;display:inline-block">⏳ Pendiente</span>';
         }
         html+='</div></div>';
       });
       var cumpl=regs.length+'/'+esperadas.length;
-      html='<div style="font-size:11px;color:#9E9E9E;font-weight:700;margin-bottom:8px;display:flex;justify-content:space-between">'+
-        '<span>'+fecha+' — '+diaHoy+'</span>'+
-        '<span style="color:'+(regs.length>=esperadas.length?'#2E7D32':'#E65100')+'">Cumplimiento: '+cumpl+'</span>'+
-        '</div>'+html.replace('<div style="font-size:11px;color:#9E9E9E;font-weight:700;margin-bottom:8px">'+fecha+' — '+diaHoy+'</div>','');
+      var pct=esperadas.length?Math.round(regs.length/esperadas.length*100):0;
+      var colCumpl=regs.length>=esperadas.length?'#2E7D32':(regs.length>0?'#E65100':'#C62828');
+      html='<div style="background:linear-gradient(135deg,#1E3A5F,#1a4a7a);border-radius:12px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">'+
+        '<div><div style="font-size:10px;color:rgba(255,255,255,.6);font-weight:700;text-transform:uppercase;letter-spacing:.06em">'+diaHoy+'</div>'+
+        '<div style="font-size:13px;font-weight:700;color:#fff;margin-top:2px">'+fecha+'</div></div>'+
+        '<div style="text-align:right"><div style="font-size:22px;font-weight:800;color:'+(pct===100?'#A5D6A7':'#FFB74D')+'">'+pct+'%</div>'+
+        '<div style="font-size:10px;color:rgba(255,255,255,.6)">'+cumpl+' tareas</div></div>'+
+        '</div>'+html;
       el.innerHTML=html;
     }).catch(function(e){el.innerHTML='<div class="empty" style="color:#C62828">Error: '+e.message+'</div>';});
 }
@@ -1944,20 +1957,21 @@ function cargarAseoSemanal(){
 
 function renderTablaHorario(){
   var el=document.getElementById('tabla-horario-aseo');
-  var html='<table style="width:100%;border-collapse:collapse;font-size:11px;min-width:600px">';
-  html+='<tr><th style="padding:8px;background:#1E3A5F;color:#fff;text-align:left;white-space:nowrap">Colaborador</th>';
-  DIAS_ASEO.forEach(function(d){html+='<th style="padding:8px;background:#1E3A5F;color:#fff;text-align:center;min-width:100px">'+d+'</th>';});
+  var html='<table style="width:100%;border-collapse:collapse;font-size:11px;min-width:600px;background:#fff">';
+  html+='<tr>';
+  html+='<th style="padding:10px 12px;background:#1E3A5F;color:#fff;text-align:left;white-space:nowrap;font-size:11px;font-weight:700;letter-spacing:.04em;border-radius:0">Colaborador</th>';
+  DIAS_ASEO.forEach(function(d){html+='<th style="padding:10px 8px;background:#1E3A5F;color:rgba(255,255,255,.85);text-align:center;min-width:110px;font-size:10px;font-weight:600;letter-spacing:.04em">'+d+'</th>';});
   html+='</tr>';
   var i=0;
   for(var nom in HORARIO_ASEO){
-    var bg=i%2===0?'#F8F9FA':'#fff';
+    var bg=i%2===0?'#F7F9FC':'#fff';
     var nomReal=nombreRealEmp(nom);
     html+='<tr style="background:'+bg+'">';
-    html+='<td style="padding:8px;font-weight:700;border-bottom:1px solid #EEE;white-space:nowrap">'+nomReal+'</td>';
+    html+='<td style="padding:9px 12px;font-weight:700;font-size:11px;color:#1E3A5F;border-bottom:1px solid #EEF1F5;white-space:nowrap;border-left:3px solid #1E3A5F">'+nomReal+'</td>';
     DIAS_ASEO.forEach(function(d){
       var t=HORARIO_ASEO[nom][d]||'';
-      html+='<td style="padding:4px;border-bottom:1px solid #EEE">';
-      html+='<div contenteditable="true" data-nom="'+nom+'" data-dia="'+d+'" oninput="editarCeldaHorario(this)" style="min-height:24px;padding:4px 6px;border-radius:4px;border:1px solid transparent;font-size:10px;color:'+(t?'#1E3A5F':'#BDBDBD')+';cursor:text;outline:none" onfocus="this.style.borderColor=\'#00BCD4\';this.style.background=\'#E0F7FA\';this.style.color=\'#00838F\'" onblur="this.style.borderColor=\'transparent\';this.style.background=\'transparent\';this.style.color=this.textContent?\'#1E3A5F\':\'#BDBDBD\'">'+(t||'')+'</div>';
+      html+='<td style="padding:4px 6px;border-bottom:1px solid #EEF1F5">';
+      html+='<div contenteditable="true" data-nom="'+nom+'" data-dia="'+d+'" oninput="editarCeldaHorario(this)" style="min-height:26px;padding:5px 7px;border-radius:6px;border:1.5px solid transparent;font-size:10px;line-height:1.4;color:'+(t?'#263238':'#CFD8DC')+';cursor:text;outline:none;transition:all .15s" onfocus="this.style.borderColor=\'#5C6BC0\';this.style.background=\'#EDE7F6\';this.style.color=\'#311B92\'" onblur="this.style.borderColor=\'transparent\';this.style.background=\'\';this.style.color=this.textContent.trim()?\'#263238\':\'#CFD8DC\'">'+(t||'')+'</div>';
       html+='</td>';
     });
     html+='</tr>';i++;
