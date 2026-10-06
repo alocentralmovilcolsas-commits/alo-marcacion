@@ -36,12 +36,14 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
 .mod-aseo .mod-ico{background:#E0F7FA;color:#00838F}.mod-aseo .mod-nom{color:#212121}
 .mod-nov .mod-ico{background:#FFF8E1;color:#E65100}.mod-nov .mod-nom{color:#212121}
 /* ASEO BANNER DIA */
-.aseo-dia-banner{background:#E0F7FA;border-radius:12px;padding:12px 14px;margin-bottom:14px;border-left:4px solid #00BCD4}
-.aseo-dia-tit{font-size:10px;font-weight:700;color:#006064;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.aseo-dia-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid rgba(0,188,212,.15)}
+.aseo-dia-banner{background:linear-gradient(135deg,#1E3A5F 0%,#1a4a7a 100%);border-radius:14px;padding:14px 16px;margin-bottom:14px;box-shadow:0 3px 12px rgba(30,58,95,.25)}
+.aseo-dia-tit{font-size:10px;font-weight:700;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.aseo-dia-tit span{color:#64B5F6;font-weight:800}
+.aseo-dia-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08)}
 .aseo-dia-item:last-child{border-bottom:none}
-.aseo-dia-nom{font-size:12px;font-weight:700;color:#00838F;min-width:80px;flex-shrink:0}
-.aseo-dia-tar{font-size:12px;color:#424242;flex:1}
+.aseo-dia-item::before{content:'🧹';font-size:13px;flex-shrink:0}
+.aseo-dia-nom{font-size:12px;font-weight:700;color:#90CAF9;min-width:110px;flex-shrink:0}
+.aseo-dia-tar{font-size:12px;color:rgba(255,255,255,.88);flex:1}
 /* ASEO: seleccion tarea */
 .tarea-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border:1.5px solid #EEE;cursor:pointer;transition:all .15s}
 .tarea-card.sel{border-color:#00BCD4;background:#E0F7FA}
@@ -772,18 +774,18 @@ function nueva(){
 
 // Banner general del dia (sin requerir empleado seleccionado)
 var HORARIO_ASEO_LOCAL = {
-  'MARCELA':{'Lunes':'Organizar modulo caja','Miercoles':'Organizar modulo caja'},
-  'MARYORY':{'Martes':'Limpiar vidrios fachada y vitrinas','Miercoles':'Lavar canecas de basura y 5 trapos','Jueves':'Sacar basura del bano','Viernes':'Lavar bano','Sabado':'Aseo manana local y escaleras'},
-  'CAROLINA':{'Lunes':'Sacar basura del bano','Martes':'Lavar bano','Jueves':'Sacar la basura','Viernes':'Barrer afuera','Sabado':'Aseo manana local y escaleras'},
-  'FERNANDO':{'Lunes':'Aseo manana local y escaleras','Martes':'Barrer afuera','Miercoles':'Limpiar vidrios fachada y vitrinas','Sabado':'Aseo tarde local y escaleras'},
-  'LUISA':{'Lunes':'Barrer afuera','Martes':'Aseo manana local y escaleras','Miercoles':'Sacar basura del bano','Jueves':'Lavar bano','Viernes':'Aseo tarde local y escaleras','Sabado':'Lavar el tanque y 5 trapos'},
-  'BRAYNER':{'Lunes':'Sacar la basura','Martes':'Barrer afuera','Miercoles':'Aseo manana local y escaleras','Jueves':'Aseo tarde local y escaleras','Viernes':'Sacar la basura'},
-  'SANTIAGO':{'Martes':'Aseo tarde local y escaleras','Miercoles':'Sacar la basura','Jueves':'Aseo manana local y escaleras','Viernes':'Sacar basura del bano','Sabado':'Barrer afuera'},
-  'ESTEBAN':{'Lunes':'Aseo tarde local y escaleras','Martes':'Sacar la basura','Jueves':'Barrer afuera','Viernes':'Aseo manana local y escaleras','Sabado':'Sacar basura del bano'},
-  'JUAN C':{'Miercoles':'Aseo tarde local y escaleras','Sabado':'Sacar la basura'},
-  'SILVIA':{'Lunes':'Lavar bano','Martes':'Lavar canecas de basura y 5 trapos'},
-  'CAMILO':{'Lunes':'Lavar el tanque y 5 trapos','Miercoles':'Lavar bano','Viernes':'Lavar canecas de basura y 5 trapos'},
-  'FABIAN MENDOZA':{'Lunes':'Aseo servicio tecnico','Martes':'Aseo servicio tecnico','Miercoles':'Aseo servicio tecnico','Jueves':'Aseo servicio tecnico','Viernes':'Aseo servicio tecnico','Sabado':'Aseo servicio tecnico y lavar bano'}
+  'Juliana Marcela':{'Lunes':'Organizar módulo caja','Miércoles':'Organizar módulo caja'},
+  'Maryory Channel':{'Martes':'Limpiar vidrios fachada y vitrinas','Miércoles':'Lavar canecas de basura y 5 trapos','Jueves':'Sacar basura del baño','Viernes':'Lavar baño','Sábado':'Aseo mañana local y escaleras'},
+  'Brenda Carolina':{'Lunes':'Sacar basura del baño','Martes':'Lavar baño','Jueves':'Sacar la basura','Viernes':'Barrer afuera','Sábado':'Aseo mañana local y escaleras'},
+  'Juan Fernando':{'Lunes':'Aseo mañana local y escaleras','Martes':'Barrer afuera','Miércoles':'Limpiar vidrios fachada y vitrinas','Sábado':'Aseo tarde local y escaleras'},
+  'Luisa Fernanda':{'Lunes':'Barrer afuera','Martes':'Aseo mañana local y escaleras','Miércoles':'Sacar basura del baño','Jueves':'Lavar baño','Viernes':'Aseo tarde local y escaleras','Sábado':'Lavar el tanque y 5 trapos'},
+  'Brayner Ernesto':{'Lunes':'Sacar la basura','Martes':'Barrer afuera','Miércoles':'Aseo mañana local y escaleras','Jueves':'Aseo tarde local y escaleras','Viernes':'Sacar la basura'},
+  'Santiago Moscoso':{'Martes':'Aseo tarde local y escaleras','Miércoles':'Sacar la basura','Jueves':'Aseo mañana local y escaleras','Viernes':'Sacar basura del baño','Sábado':'Barrer afuera'},
+  'Juan Esteban':{'Lunes':'Aseo tarde local y escaleras','Martes':'Sacar la basura','Jueves':'Barrer afuera','Viernes':'Aseo mañana local y escaleras','Sábado':'Sacar basura del baño'},
+  'Juan Carlos':{'Miércoles':'Aseo tarde local y escaleras','Sábado':'Sacar la basura'},
+  'Silvia Alejandra':{'Lunes':'Lavar baño','Martes':'Lavar canecas de basura y 5 trapos'},
+  'Camilo Alexander':{'Lunes':'Lavar el tanque y 5 trapos','Miércoles':'Lavar baño','Viernes':'Lavar canecas de basura y 5 trapos'},
+  'Fabián Stiven':{'Lunes':'Aseo servicio técnico','Martes':'Aseo servicio técnico','Miércoles':'Aseo servicio técnico','Jueves':'Aseo servicio técnico','Viernes':'Aseo servicio técnico','Sábado':'Aseo servicio técnico y lavar baño'}
 };
 
 function resolverNombreEmpAseo(clave){
@@ -808,7 +810,7 @@ function cargarBannerAseoDia(){
   var lista=document.getElementById('aseo-dia-lista');
   var label=document.getElementById('aseo-dia-label');
   var n=new Date();
-  var diasNom=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+  var diasNom=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   var dia=diasNom[n.getDay()];
   label.textContent=dia;
   var tareas=[];
@@ -838,7 +840,7 @@ var ASEO_EMP = {id:'',nom:'',ini:''};
 // Paso 1: muestra las tareas del dia para seleccionar
 function irAseo(){
   var n=new Date();
-  var dias=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+  var dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   var dia=dias[n.getDay()];
   var lista=document.getElementById('aseo-lista-tareas');
   var errT=document.getElementById('aseo-err-t');
