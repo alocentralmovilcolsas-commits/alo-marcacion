@@ -2012,15 +2012,28 @@ function _cargarAseoSemanalInner(raw,el){
 }
 
 function cargarHorarioAseoAdmin(){
-  document.getElementById('tabla-horario-aseo').innerHTML='<div class="empty">Cargando horario...</div>';
-  document.getElementById('horario-aseo-msg').style.display='none';
-  fetch(PROXY+'?action=getAllHorarioAseo')
-    .then(function(r){return r.json();})
+  var tabEl=document.getElementById('tabla-horario-aseo');
+  var msgEl=document.getElementById('horario-aseo-msg');
+  if(tabEl) tabEl.innerHTML='<div class="empty">Cargando horario del Sheet...</div>';
+  if(msgEl) msgEl.style.display='none';
+  var url=PROXY+'?action=getAllHorarioAseo';
+  fetch(url)
+    .then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.json();
+    })
     .then(function(data){
-      // Siempre reconstruir desde el Sheet (nunca fallback hardcodeado)
+      console.log('getAllHorarioAseo:', JSON.stringify(data).substring(0,200));
+      var filas = data.horario || [];
+      if(!filas.length){
+        if(tabEl) tabEl.innerHTML='<div class="empty" style="color:#E65100">⚠️ El Sheet HorarioAseo está vacío.<br>Respuesta del servidor: '+JSON.stringify(data).substring(0,150)+'</div>';
+        return;
+      }
       var nuevoHor={};
-      (data.horario||[]).forEach(function(r){
-        var nom=r.nombre||''; var dia=r.dia||''; var tarea=r.tarea||'';
+      filas.forEach(function(r){
+        var nom=(r.nombre||r.Nombre||'').trim();
+        var dia=(r.dia||r.Dia||'').trim();
+        var tarea=(r.tarea||r.Tarea||'').trim();
         if(!nom||!dia) return;
         if(!nuevoHor[nom]) nuevoHor[nom]={};
         if(nuevoHor[nom][dia]){
@@ -2029,10 +2042,14 @@ function cargarHorarioAseoAdmin(){
         } else { nuevoHor[nom][dia]=tarea; }
       });
       HORARIO_ASEO=nuevoHor;
+      if(!Object.keys(HORARIO_ASEO).length){
+        if(tabEl) tabEl.innerHTML='<div class="empty" style="color:#E65100">⚠️ Se recibieron '+filas.length+' filas pero ninguna válida</div>';
+        return;
+      }
       renderTablaHorario();
     })
     .catch(function(e){
-      document.getElementById('tabla-horario-aseo').innerHTML='<div class="empty" style="color:#C62828">Error al cargar horario: '+e.message+'</div>';
+      if(tabEl) tabEl.innerHTML='<div class="empty" style="color:#C62828">❌ Error: '+e.message+'</div>';
     });
 }
 
