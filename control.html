@@ -347,11 +347,13 @@ function irTab(n, btn) {
   document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('act');});
   if(btn) btn.classList.add('act');
   if(n===0){ document.getElementById('tab-control').classList.add('act'); }
-  if(n===1){ document.getElementById('tab-breaks').classList.add('act'); cargarBreaks(); }
+  if(n===1){ document.getElementById('tab-breaks').classList.add('act'); cargarBreaks(); iniciarPollBreaks(); }
 }
 
 // ── BREAKS ───────────────────────────────────────────────────────────
-var breaksActivos = {}; // empId → {id, horaInicio, timer}
+// ── BREAKS v2: un solo poll global, sin timers por empleado ──
+var _brkCargando = {}; // empId → true mientras hay petición en vuelo
+var _brkPollTimer = null;
 
 function cargarBreaks() {
   var n=new Date();
@@ -361,101 +363,98 @@ function cargarBreaks() {
   }).catch(function(){renderBreaks([]);});
 }
 
+function iniciarPollBreaks(){
+  if(_brkPollTimer) clearInterval(_brkPollTimer);
+  _brkPollTimer = setInterval(function(){ cargarBreaks(); }, 15000);
+}
+
+function _minsDesde(horaStr){
+  if(!horaStr) return 0;
+  var p=(horaStr||'').split(':');
+  var h=parseInt(p[0]||0), m=parseInt(p[1]||0);
+  var n=new Date();
+  return Math.max(0, (n.getHours()-h)*60+(n.getMinutes()-m));
+}
+
 function renderBreaks(brkData) {
-  // Build map of existing breaks
-  var brkMap = {};
-  (brkData||[]).forEach(function(b){ brkMap[b.empId] = b; });
-
-  // Sincronizar breaksActivos con datos del servidor
-  // (si el servidor confirma que ya no está en break, limpiar)
+  // Construir mapa: empId → lista de todos los breaks de hoy
+  var brksPorEmp = {};
   (brkData||[]).forEach(function(b){
-    if(b.estado==='Completado' && breaksActivos[b.empId]) {
-      // Break ya terminado en servidor pero timer local sigue
-      if(breaksActivos[b.empId].interval) clearInterval(breaksActivos[b.empId].interval);
-      delete breaksActivos[b.empId];
-    }
-    if(b.estado==='En break' && !breaksActivos[b.empId]) {
-      // El servidor dice en break pero no teníamos registro local (ej: recarga de página)
-      breaksActivos[b.empId] = {horaInicio: limpiarHora(b.horaInicio), id: b.id, interval: null, lastDisplay: null};
-    }
+    var id = String(b.empId||'');
+    if(!brksPorEmp[id]) brksPorEmp[id] = [];
+    brksPorEmp[id].push(b);
   });
 
-  var html = '';
+  var totalHoy = (brkData||[]).length;
+  var enBreakCount = 0;
+  Object.keys(brksPorEmp).forEach(function(id){
+    var bs = brksPorEmp[id];
+    if(bs.some(function(b){ return (b.estado||'').trim().toLowerCase().indexOf('en break')!==-1 && !b.horaFin; }))
+      enBreakCount++;
+  });
+
+  var html = '<div style="display:flex;gap:8px;margin-bottom:12px">';
+  html += '<div style="flex:1;background:#E3F2FD;border-radius:10px;padding:10px;text-align:center">';
+  html += '<div style="font-size:20px;font-weight:800;color:#1565C0">'+totalHoy+'</div>';
+  html += '<div style="font-size:10px;color:#9E9E9E;text-transform:uppercase">Breaks hoy</div></div>';
+  html += '<div style="flex:1;background:#FFF3E0;border-radius:10px;padding:10px;text-align:center">';
+  html += '<div style="font-size:20px;font-weight:800;color:#E65100">'+enBreakCount+'</div>';
+  html += '<div style="font-size:10px;color:#9E9E9E;text-transform:uppercase">En break</div></div>';
+  html += '</div>';
+
   empleados.forEach(function(e,idx){
-    var brk = brkMap[e.id];
-    var activo = breaksActivos[e.id];
-    var enBreak = (brk && brk.estado==='En break') || !!activo;
-    var completo = brk && brk.estado==='Completado' && !activo;
     var bg = bgEmp(idx);
+    var bs = brksPorEmp[e.id] || [];
+    var activo = bs.find(function(b){
+      var st = (b.estado||'').trim().toLowerCase();
+      return st.indexOf('en break')!==-1 && !b.horaFin;
+    });
+    var completados = bs.filter(function(b){ return !!b.horaFin; });
+    var mins = activo ? _minsDesde(limpiarHora(activo.horaInicio||'')) : 0;
+    var excede = mins > 12;
+    var cargando = !!_brkCargando[e.id];
+    var borderColor = activo ? (excede ? '#C62828' : '#E65100') : (completados.length ? '#4CAF50' : '#E8EDF2');
 
-    html += '<div class="brk-card" id="brk-'+e.id+'">';
-    html += '<div class="brk-head">';
+    html += '<div class="brk-card" style="border-left:4px solid '+borderColor+';padding:12px 14px">';
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">';
+    html += '<div style="display:flex;align-items:center;gap:10px">';
     html += '<div class="brk-av" style="background:'+bg+'">'+ini(e.nombre)+'</div>';
-    html += '<div class="brk-info"><div class="brk-nom">'+e.nombre+'</div>';
-    html += '<div class="brk-cargo">'+(e.cargo||'Colaborador')+'</div></div>';
-    var durRaw = brk ? brk.duracion : 0;
-    var durMin = (isNaN(parseInt(durRaw)) || String(durRaw).indexOf('#')!==-1) ? 0 : (parseInt(durRaw)||0);
-    var durColor = durMin > 12 ? '#C62828' : '#2E7D32';
-    // Calcular duración real en HH:MM:SS desde horaInicio si está en break o completado
-    var durDisplay = '';
-    if(completo && brk) {
-      var hIniC = limpiarHora(brk.horaInicio);
-      var hFinC = limpiarHora(brk.horaFin);
-      if(hIniC && hFinC) {
-        var pI=hIniC.split(':'), pF=hFinC.split(':');
-        var secsI=parseInt(pI[0])*3600+parseInt(pI[1])*60+(pI[2]?parseInt(pI[2]):0);
-        var secsF=parseInt(pF[0])*3600+parseInt(pF[1])*60+(pF[2]?parseInt(pF[2]):0);
-        var diffS=Math.max(0,secsF-secsI);
-        var dMM=Math.floor(diffS/60), dSS=diffS%60, dHH=Math.floor(dMM/60); dMM=dMM%60;
-        durDisplay = (dHH>0?p2(dHH)+':':'')+p2(dMM)+':'+p2(dSS);
-        durMin = Math.floor(diffS/60); // recalcular por si el backend devolvió mal
-        durColor = durMin > 12 ? '#C62828' : '#2E7D32';
-      } else {
-        durDisplay = durMin > 0 ? durMin+' min' : '—';
-      }
-    }
-    if(enBreak) {
-      // Mostrar timer actual si ya corre, sino 00:00
-      var timerActual = (activo && breaksActivos[e.id] && breaksActivos[e.id].lastDisplay) ? breaksActivos[e.id].lastDisplay : '00:00';
-      html += '<div class="brk-timer" id="tmr-'+e.id+'">'+timerActual+'</div>';
-    } else if(completo) {
-      html += '<div style="font-size:18px;color:'+durColor+';font-weight:700">&#10003; '+durDisplay+(durMin>12?' ⚠️':'')+'</div>';
+    html += '<div>';
+    html += '<div class="brk-nom">'+e.nombre+'</div>';
+    if(activo){
+      html += '<div style="font-size:11px;color:'+(excede?'#C62828':'#E65100')+';font-weight:700">⏸ '+mins+'min'+(excede?' ⚠️ EXCEDIDO':'')+'</div>';
+    } else if(completados.length){
+      var ult = completados[completados.length-1];
+      var durUlt = parseInt(ult.duracion)||0;
+      html += '<div style="font-size:10px;color:#9E9E9E">Último: '+limpiarHora(ult.horaInicio)+(ult.horaFin?' → '+limpiarHora(ult.horaFin)+' ('+durUlt+'min)':'')+'</div>';
     } else {
-      html += '<div style="font-size:13px;color:#BDBDBD">Sin break</div>';
+      html += '<div style="font-size:10px;color:#BDBDBD">Sin breaks hoy</div>';
+    }
+    html += '</div></div>';
+    if(cargando){
+      html += '<div style="font-size:12px;color:#9E9E9E;min-width:80px;text-align:center">...</div>';
+    } else if(activo){
+      html += '<button onclick="finalizarBreak(''+e.id+'')" style="background:'+(excede?'#C62828':'#D84315')+';color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;min-width:90px">⏹ Finalizar</button>';
+    } else {
+      html += '<button onclick="iniciarBreak(''+e.id+'',''+e.nombre+'',this)" style="background:#1565C0;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;min-width:90px">▶ Break</button>';
     }
     html += '</div>';
-
-    html += '<div class="brk-btns">';
-    html += '<button class="brk-btn start" '+(enBreak||completo?'disabled':'')+' onclick="iniciarBreak(\''+e.id+'\',\''+e.nombre+'\')">';
-    html += enBreak ? '&#9201; En break...' : completo ? '&#10003; Completado' : '&#9654; Iniciar break';
-    html += '</button>';
-    html += '<button class="brk-btn end" '+(enBreak?'':'disabled')+' onclick="finalizarBreak(\''+e.id+'\')">';
-    html += '&#9646;&#9646; Finalizar (12min)';
-    html += '</button>';
-    html += '</div>';
-
-    if(enBreak) {
-      var horaIni = limpiarHora(activo ? activo.horaInicio : (brk ? brk.horaInicio : ''));
-      html += '<div class="brk-status active" id="bst-'+e.id+'">&#9200; Break desde '+horaIni+' — máx 12 minutos</div>';
-    } else if(completo) {
-      var hIni = limpiarHora(brk.horaInicio);
-      var hFin = limpiarHora(brk.horaFin);
-      var durCss = durMin > 12 ? 'color:#C62828' : 'color:#2E7D32';
-      html += '<div class="brk-status done" style="'+durCss+'">&#10003; Break: '+hIni+' → '+hFin+' — <strong>'+durDisplay+'</strong>'+(durMin>12?' ⚠️ EXCEDIDO':'')+'</div>';
-    } else {
-      html += '<div class="brk-status">Break de 12 min para consumir alimentos</div>';
+    if(completados.length){
+      html += '<div style="border-top:1px solid #EEF1F5;margin-top:9px;padding-top:8px">';
+      html += '<div style="font-size:10px;color:#9E9E9E;margin-bottom:5px;text-transform:uppercase">Historial hoy</div>';
+      html += '<div style="display:flex;flex-wrap:wrap;gap:5px">';
+      completados.forEach(function(b,i){
+        var dur = parseInt(b.duracion)||0;
+        var bgH = dur>12?'#FFEBEE':'#E8F5E9'; var tcH = dur>12?'#C62828':'#2E7D32';
+        html += '<div style="background:'+bgH+';border-radius:6px;padding:4px 8px;font-size:10px;color:'+tcH+';font-weight:600">';
+        html += '#'+(i+1)+' '+limpiarHora(b.horaInicio)+'→'+limpiarHora(b.horaFin)+' '+dur+'min'+(dur>12?' ⚠':'')+'</div>';
+      });
+      html += '</div></div>';
     }
     html += '</div>';
   });
 
-  document.getElementById('breaks-content').innerHTML = html || '<div class="empty">No hay colaboradores activos</div>';
-
-  // Reiniciar timers para los que están en break
-  Object.keys(breaksActivos).forEach(function(eid){
-    var a = breaksActivos[eid];
-    if(a.interval) clearInterval(a.interval);
-    iniciarTimer(eid, a.horaInicio);
-  });
+  document.getElementById('breaks-content').innerHTML = html || '<div class="empty">No hay colaboradores</div>';
 }
 
 var alertasEnviadas = {}; // empId → minuto en que se alertó, para no repetir
@@ -478,119 +477,52 @@ function beep(tipo) {
   } catch(e){}
 }
 
-function iniciarTimer(empId, horaInicio) {
-  if(!alertasEnviadas[empId]) alertasEnviadas[empId] = {};
-  var interval = setInterval(function(){
-    var now = new Date();
-    var p = horaInicio.split(':');
-    var iniSecs = parseInt(p[0])*3600 + parseInt(p[1])*60;
-    var nowSecs = now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds();
-    var diff = Math.max(0, nowSecs - iniSecs);
-    var mm = Math.floor(diff/60);
-    var ss = diff%60;
-    var el = document.getElementById('tmr-'+empId);
-    var bst = document.getElementById('bst-'+empId);
-    if(el) {
-      var display = p2(mm)+':'+p2(ss);
-      el.textContent = display;
-      if(breaksActivos[empId]) breaksActivos[empId].lastDisplay = display; // preservar para re-render
-      if(mm >= 12) {
-        el.style.color='#C62828';
-        el.style.fontWeight='800';
-        // Alerta al llegar a 12 min (una sola vez)
-        if(!alertasEnviadas[empId][12]) {
-          alertasEnviadas[empId][12] = true;
-          var emp = empleados.find(function(e){return e.id===empId;});
-          var nom = emp ? emp.nombre.split(' ')[0] : empId;
-          beep('warn');
-          toast('⚠️ '+nom+' — Break excedió los 12 minutos!','err');
-          if(bst) { bst.style.background='#FFEBEE'; bst.style.color='#C62828'; bst.style.fontWeight='700';
-                    bst.innerHTML='⚠️ EXCEDIÓ 12 MINUTOS — Debe regresar ya'; }
-        }
-        // Alerta adicional cada 5 min después de los 12
-        var extraMin = mm - 12;
-        if(extraMin>0 && extraMin%5===0 && !alertasEnviadas[empId]['e'+extraMin]) {
-          alertasEnviadas[empId]['e'+extraMin] = true;
-          var emp2 = empleados.find(function(e){return e.id===empId;});
-          var nom2 = emp2 ? emp2.nombre.split(' ')[0] : empId;
-          beep('warn');
-          toast('🚨 '+nom2+' — '+mm+' min en break (+'+(extraMin)+' min extra)','err');
-        }
-      }
-    }
-    if(!document.getElementById('brk-'+empId)) { clearInterval(interval); delete alertasEnviadas[empId]; }
-  }, 1000);
-  if(breaksActivos[empId]) breaksActivos[empId].interval = interval;
-}
+// iniciarTimer ya no se usa (timers eliminados — sistema de poll v2)
+// Las alertas se generan en iniciarBreak/finalizarBreak y al refrescar
+function iniciarTimer(empId, horaInicio) { /* deprecated */ }
 
-function iniciarBreak(empId, empNom) {
+function iniciarBreak(empId, empNom, btnEl) {
+  if(_brkCargando[empId]) return;
+  _brkCargando[empId] = true;
+  if(btnEl){ btnEl.disabled=true; btnEl.textContent='...'; }
   fetch(PROXY, {method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({action:'guardarBreak', empId:empId, empNom:empNom, accion:'inicio'})
   }).then(function(r){return r.json();}).then(function(r){
+    delete _brkCargando[empId];
     if(r.ok) {
-      breaksActivos[empId] = {horaInicio: r.horaInicio, id: r.id, interval: null};
-      toast(empNom.split(' ')[0]+' — Break iniciado a las '+r.horaInicio,'ok');
-      cargarBreaks();
-      iniciarTimer(empId, r.horaInicio);
+      toast(empNom.split(' ')[0]+' — Break iniciado ▶','ok');
+      beep('ok');
     } else {
       toast(r.error||'Error al iniciar break','err');
     }
-  }).catch(function(e){ toast('Error: '+e.message,'err'); });
+    cargarBreaks();
+  }).catch(function(e){ delete _brkCargando[empId]; toast('Error: '+e.message,'err'); cargarBreaks(); });
 }
 
 function finalizarBreak(empId) {
+  if(_brkCargando[empId]) return;
+  _brkCargando[empId] = true;
   var emp = empleados.find(function(e){return e.id===empId;});
   var empNom = emp ? emp.nombre : empId;
   fetch(PROXY, {method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({action:'guardarBreak', empId:empId, empNom:empNom, accion:'fin'})
   }).then(function(r){return r.json();}).then(function(r){
+    delete _brkCargando[empId];
     if(r.ok) {
-      var savedDisplay = (breaksActivos[empId] && breaksActivos[empId].lastDisplay) ? breaksActivos[empId].lastDisplay : null;
-      if(breaksActivos[empId] && breaksActivos[empId].interval) clearInterval(breaksActivos[empId].interval);
-      delete breaksActivos[empId];
-      delete alertasEnviadas[empId];
       var dur = parseInt(r.duracion)||0;
-      // Usar el último valor del timer (con segundos reales) si lo tenemos
-      var durDisplay2 = '';
-      if(savedDisplay) {
-        durDisplay2 = savedDisplay; // ej: "12:15" o "01:02:15"
-        // Calcular minutos reales del display para la lógica de color
-        var partsD = savedDisplay.split(':');
-        if(partsD.length===3) dur = parseInt(partsD[0])*60+parseInt(partsD[1]);
-        else dur = parseInt(partsD[0]);
-      } else {
-        // Fallback: calcular desde horas del response (sin segundos)
-        var hIniR = limpiarHora(r.horaInicio||'');
-        var hFinR = limpiarHora(r.horaFin||'');
-        if(hIniR && hFinR) {
-          var pI2=hIniR.split(':'), pF2=hFinR.split(':');
-          var sI2=parseInt(pI2[0])*3600+parseInt(pI2[1])*60;
-          var sF2=parseInt(pF2[0])*3600+parseInt(pF2[1])*60;
-          var dS2=Math.max(0,sF2-sI2);
-          var dMM2=Math.floor(dS2/60), dSS2=dS2%60, dHH2=Math.floor(dMM2/60); dMM2=dMM2%60;
-          durDisplay2 = (dHH2>0?p2(dHH2)+':':'')+p2(dMM2)+':'+p2(dSS2);
-          dur = Math.floor(dS2/60);
-        } else {
-          durDisplay2 = dur + ' min';
-        }
-      }
       var nom = empNom.split(' ')[0];
       if(dur > 12) {
         beep('warn');
-        alert('⚠️ ' + nom + '\nBreak finalizado — EXCEDIÓ el tiempo\n\n⏱ Duración: ' + durDisplay2 + '\n(Límite: 12:00 — Exceso: '+(dur-12)+' min)');
-        toast(nom+' — Break: '+durDisplay2+' ⚠️ EXCEDIDO','err');
-      } else if(dur < 12 && dur > 0) {
-        beep('ok');
-        alert('✅ ' + nom + '\nBreak finalizado\n\n⏱ Duración: ' + durDisplay2 + '\n(Restaban '+(12-dur)+' min del límite)');
-        toast(nom+' — Break: '+durDisplay2+' ✅','ok');
+        toast('⚠️ '+nom+' — Break: '+dur+'min — EXCEDIDO','err');
       } else {
-        toast(nom+' — Break finalizado: '+durDisplay2,'ok');
+        beep('ok');
+        toast('✅ '+nom+' — Break: '+dur+'min','ok');
       }
-      cargarBreaks();
     } else {
       toast(r.error||'Error al finalizar break','err');
     }
-  }).catch(function(e){ toast('Error: '+e.message,'err'); });
+    cargarBreaks();
+  }).catch(function(e){ delete _brkCargando[empId]; toast('Error: '+e.message,'err'); cargarBreaks(); });
 }
 
 function load(txt){document.getElementById('ltxt').textContent=txt||'Cargando...';document.getElementById('load').classList.add('on');}
