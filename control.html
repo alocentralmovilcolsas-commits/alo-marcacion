@@ -366,12 +366,26 @@ function renderBreaks(brkData) {
   var brkMap = {};
   (brkData||[]).forEach(function(b){ brkMap[b.empId] = b; });
 
+  // Sincronizar breaksActivos con datos del servidor
+  // (si el servidor confirma que ya no está en break, limpiar)
+  (brkData||[]).forEach(function(b){
+    if(b.estado==='Completado' && breaksActivos[b.empId]) {
+      // Break ya terminado en servidor pero timer local sigue
+      if(breaksActivos[b.empId].interval) clearInterval(breaksActivos[b.empId].interval);
+      delete breaksActivos[b.empId];
+    }
+    if(b.estado==='En break' && !breaksActivos[b.empId]) {
+      // El servidor dice en break pero no teníamos registro local (ej: recarga de página)
+      breaksActivos[b.empId] = {horaInicio: limpiarHora(b.horaInicio), id: b.id, interval: null, lastDisplay: null};
+    }
+  });
+
   var html = '';
   empleados.forEach(function(e,idx){
     var brk = brkMap[e.id];
     var activo = breaksActivos[e.id];
     var enBreak = (brk && brk.estado==='En break') || !!activo;
-    var completo = brk && brk.estado==='Completado';
+    var completo = brk && brk.estado==='Completado' && !activo;
     var bg = bgEmp(idx);
 
     html += '<div class="brk-card" id="brk-'+e.id+'">';
@@ -382,10 +396,30 @@ function renderBreaks(brkData) {
     var durRaw = brk ? brk.duracion : 0;
     var durMin = (isNaN(parseInt(durRaw)) || String(durRaw).indexOf('#')!==-1) ? 0 : (parseInt(durRaw)||0);
     var durColor = durMin > 12 ? '#C62828' : '#2E7D32';
+    // Calcular duración real en HH:MM:SS desde horaInicio si está en break o completado
+    var durDisplay = '';
+    if(completo && brk) {
+      var hIniC = limpiarHora(brk.horaInicio);
+      var hFinC = limpiarHora(brk.horaFin);
+      if(hIniC && hFinC) {
+        var pI=hIniC.split(':'), pF=hFinC.split(':');
+        var secsI=parseInt(pI[0])*3600+parseInt(pI[1])*60+(pI[2]?parseInt(pI[2]):0);
+        var secsF=parseInt(pF[0])*3600+parseInt(pF[1])*60+(pF[2]?parseInt(pF[2]):0);
+        var diffS=Math.max(0,secsF-secsI);
+        var dMM=Math.floor(diffS/60), dSS=diffS%60, dHH=Math.floor(dMM/60); dMM=dMM%60;
+        durDisplay = (dHH>0?p2(dHH)+':':'')+p2(dMM)+':'+p2(dSS);
+        durMin = Math.floor(diffS/60); // recalcular por si el backend devolvió mal
+        durColor = durMin > 12 ? '#C62828' : '#2E7D32';
+      } else {
+        durDisplay = durMin > 0 ? durMin+' min' : '—';
+      }
+    }
     if(enBreak) {
-      html += '<div class="brk-timer" id="tmr-'+e.id+'">00:00</div>';
+      // Mostrar timer actual si ya corre, sino 00:00
+      var timerActual = (activo && breaksActivos[e.id] && breaksActivos[e.id].lastDisplay) ? breaksActivos[e.id].lastDisplay : '00:00';
+      html += '<div class="brk-timer" id="tmr-'+e.id+'">'+timerActual+'</div>';
     } else if(completo) {
-      html += '<div style="font-size:18px;color:'+durColor+';font-weight:700">&#10003; '+durMin+'min'+(durMin>12?' ⚠️':'')+'</div>';
+      html += '<div style="font-size:18px;color:'+durColor+';font-weight:700">&#10003; '+durDisplay+(durMin>12?' ⚠️':'')+'</div>';
     } else {
       html += '<div style="font-size:13px;color:#BDBDBD">Sin break</div>';
     }
@@ -406,9 +440,8 @@ function renderBreaks(brkData) {
     } else if(completo) {
       var hIni = limpiarHora(brk.horaInicio);
       var hFin = limpiarHora(brk.horaFin);
-      var durStr = durMin + ' min';
       var durCss = durMin > 12 ? 'color:#C62828' : 'color:#2E7D32';
-      html += '<div class="brk-status done" style="'+durCss+'">&#10003; Break: '+hIni+' → '+hFin+' — <strong>'+durStr+'</strong>'+(durMin>12?' ⚠️ EXCEDIDO':'')+'</div>';
+      html += '<div class="brk-status done" style="'+durCss+'">&#10003; Break: '+hIni+' → '+hFin+' — <strong>'+durDisplay+'</strong>'+(durMin>12?' ⚠️ EXCEDIDO':'')+'</div>';
     } else {
       html += '<div class="brk-status">Break de 12 min para consumir alimentos</div>';
     }
@@ -458,7 +491,9 @@ function iniciarTimer(empId, horaInicio) {
     var el = document.getElementById('tmr-'+empId);
     var bst = document.getElementById('bst-'+empId);
     if(el) {
-      el.textContent = p2(mm)+':'+p2(ss);
+      var display = p2(mm)+':'+p2(ss);
+      el.textContent = display;
+      if(breaksActivos[empId]) breaksActivos[empId].lastDisplay = display; // preservar para re-render
       if(mm >= 12) {
         el.style.color='#C62828';
         el.style.fontWeight='800';
@@ -510,21 +545,46 @@ function finalizarBreak(empId) {
     body: JSON.stringify({action:'guardarBreak', empId:empId, empNom:empNom, accion:'fin'})
   }).then(function(r){return r.json();}).then(function(r){
     if(r.ok) {
+      var savedDisplay = (breaksActivos[empId] && breaksActivos[empId].lastDisplay) ? breaksActivos[empId].lastDisplay : null;
       if(breaksActivos[empId] && breaksActivos[empId].interval) clearInterval(breaksActivos[empId].interval);
       delete breaksActivos[empId];
       delete alertasEnviadas[empId];
       var dur = parseInt(r.duracion)||0;
+      // Usar el último valor del timer (con segundos reales) si lo tenemos
+      var durDisplay2 = '';
+      if(savedDisplay) {
+        durDisplay2 = savedDisplay; // ej: "12:15" o "01:02:15"
+        // Calcular minutos reales del display para la lógica de color
+        var partsD = savedDisplay.split(':');
+        if(partsD.length===3) dur = parseInt(partsD[0])*60+parseInt(partsD[1]);
+        else dur = parseInt(partsD[0]);
+      } else {
+        // Fallback: calcular desde horas del response (sin segundos)
+        var hIniR = limpiarHora(r.horaInicio||'');
+        var hFinR = limpiarHora(r.horaFin||'');
+        if(hIniR && hFinR) {
+          var pI2=hIniR.split(':'), pF2=hFinR.split(':');
+          var sI2=parseInt(pI2[0])*3600+parseInt(pI2[1])*60;
+          var sF2=parseInt(pF2[0])*3600+parseInt(pF2[1])*60;
+          var dS2=Math.max(0,sF2-sI2);
+          var dMM2=Math.floor(dS2/60), dSS2=dS2%60, dHH2=Math.floor(dMM2/60); dMM2=dMM2%60;
+          durDisplay2 = (dHH2>0?p2(dHH2)+':':'')+p2(dMM2)+':'+p2(dSS2);
+          dur = Math.floor(dS2/60);
+        } else {
+          durDisplay2 = dur + ' min';
+        }
+      }
       var nom = empNom.split(' ')[0];
       if(dur > 12) {
         beep('warn');
-        alert('⚠️ ' + nom + '\nBreak finalizado — EXCEDIÓ el tiempo\n\n⏱ Duración: ' + dur + ' minutos\n(Límite: 12 min — Exceso: '+(dur-12)+' min)');
-        toast(nom+' — Break: '+dur+' min ⚠️ EXCEDIDO','err');
+        alert('⚠️ ' + nom + '\nBreak finalizado — EXCEDIÓ el tiempo\n\n⏱ Duración: ' + durDisplay2 + '\n(Límite: 12:00 — Exceso: '+(dur-12)+' min)');
+        toast(nom+' — Break: '+durDisplay2+' ⚠️ EXCEDIDO','err');
       } else if(dur < 12 && dur > 0) {
         beep('ok');
-        alert('✅ ' + nom + '\nBreak finalizado antes del límite\n\n⏱ Duración: ' + dur + ' minutos\n(Restaban '+(12-dur)+' min del límite)');
-        toast(nom+' — Break: '+dur+' min ✅','ok');
+        alert('✅ ' + nom + '\nBreak finalizado\n\n⏱ Duración: ' + durDisplay2 + '\n(Restaban '+(12-dur)+' min del límite)');
+        toast(nom+' — Break: '+durDisplay2+' ✅','ok');
       } else {
-        toast(nom+' — Break finalizado: '+dur+' min','ok');
+        toast(nom+' — Break finalizado: '+durDisplay2,'ok');
       }
       cargarBreaks();
     } else {
