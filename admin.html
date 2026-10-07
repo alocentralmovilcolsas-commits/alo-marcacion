@@ -344,11 +344,15 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,sans-serif;ba
 
       <!-- Vista Horario (editable) -->
       <div id="aseo-sec-horario" style="display:none">
-        <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;background:#F0F4F9;border-radius:10px;padding:10px 14px">
-          <div style="font-size:12px;color:#5C6BC0;font-weight:600">✏️ Toca cualquier celda para editar</div>
-          <button class="btn-sm btn-sm-g" onclick="guardarHorarioAseo()" style="border-radius:8px">💾 Guardar</button>
+        <div style="margin-bottom:10px;background:#EDE7F6;border-radius:10px;padding:10px 14px">
+          <div style="font-size:12px;color:#4A148C;font-weight:700;margin-bottom:6px">📋 Horario de Aseo</div>
+          <div style="font-size:11px;color:#7B1FA2;margin-bottom:8px">Toca cualquier celda para editar directamente en la tabla. Los cambios se guardan en Google Sheets.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn-sm btn-sm-g" onclick="guardarHorarioAseo()" style="border-radius:8px;font-size:11px">💾 Guardar cambios</button>
+            <button class="btn-sm" onclick="cargarHorarioAseoAdmin()" style="border-radius:8px;font-size:11px;background:#7B1FA2;color:#fff;border:none;padding:6px 12px;cursor:pointer;font-weight:700">🔄 Recargar</button>
+          </div>
         </div>
-        <div id="tabla-horario-aseo" style="overflow-x:auto;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)"></div>
+        <div id="tabla-horario-aseo" style="overflow-x:auto;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)"><div class="empty">Cargando horario...</div></div>
         <div id="horario-aseo-msg" style="display:none;margin-top:10px;padding:10px;border-radius:8px;font-size:12px;text-align:center"></div>
       </div>
     </div>
@@ -1882,7 +1886,7 @@ function aseoVista(v, idx){
   document.getElementById('aseo-sec-diario').style.display=v==='diario'?'':'none';
   document.getElementById('aseo-sec-semanal').style.display=v==='semanal'?'':'none';
   document.getElementById('aseo-sec-horario').style.display=v==='horario'?'':'none';
-  if(v==='horario') renderTablaHorario();
+  if(v==='horario') cargarHorarioAseoAdmin();
 }
 
 function iniciarAseoAdmin(){
@@ -1992,6 +1996,32 @@ function cargarAseoSemanal(){
     });
     el.innerHTML=html||'<div class="empty">Sin datos</div>';
   }).catch(function(){el.innerHTML='<div class="empty" style="color:#C62828">Error al cargar semana</div>';});
+}
+
+function cargarHorarioAseoAdmin(){
+  document.getElementById('tabla-horario-aseo').innerHTML='<div class="empty">Cargando horario...</div>';
+  fetch(PROXY+'?action=getAllHorarioAseo')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data && data.horario && data.horario.length){
+        // Construir HORARIO_ASEO desde los datos de Sheets
+        var nuevoHor={};
+        data.horario.forEach(function(r){
+          var nom=r.nombre||'';var dia=r.dia||'';var tarea=r.tarea||'';
+          if(!nom||!dia) return;
+          if(!nuevoHor[nom]) nuevoHor[nom]={};
+          // Soporte múltiples tareas por día
+          if(nuevoHor[nom][dia]){
+            if(!Array.isArray(nuevoHor[nom][dia])) nuevoHor[nom][dia]=[nuevoHor[nom][dia]];
+            nuevoHor[nom][dia].push(tarea);
+          } else { nuevoHor[nom][dia]=tarea; }
+        });
+        HORARIO_ASEO=nuevoHor;
+      }
+      // Si no hay datos en Sheets, usa el hardcoded de respaldo que ya está en HORARIO_ASEO
+      renderTablaHorario();
+    })
+    .catch(function(){ renderTablaHorario(); }); // fallback: render con datos locales
 }
 
 function renderTablaHorario(){
