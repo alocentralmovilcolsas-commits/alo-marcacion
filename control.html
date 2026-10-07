@@ -377,7 +377,6 @@ function _minsDesde(horaStr){
 }
 
 function renderBreaks(brkData) {
-  // Construir mapa: empId → lista de todos los breaks de hoy
   var brksPorEmp = {};
   (brkData||[]).forEach(function(b){
     var id = String(b.empId||'');
@@ -393,62 +392,70 @@ function renderBreaks(brkData) {
       enBreakCount++;
   });
 
-  var html = '<div style="display:flex;gap:8px;margin-bottom:12px">';
+  var html = '';
+  html += '<div style="display:flex;gap:8px;margin-bottom:12px">';
   html += '<div style="flex:1;background:#E3F2FD;border-radius:10px;padding:10px;text-align:center">';
-  html += '<div style="font-size:20px;font-weight:800;color:#1565C0">'+totalHoy+'</div>';
+  html += '<div style="font-size:20px;font-weight:800;color:#1565C0">' + totalHoy + '</div>';
   html += '<div style="font-size:10px;color:#9E9E9E;text-transform:uppercase">Breaks hoy</div></div>';
   html += '<div style="flex:1;background:#FFF3E0;border-radius:10px;padding:10px;text-align:center">';
-  html += '<div style="font-size:20px;font-weight:800;color:#E65100">'+enBreakCount+'</div>';
+  html += '<div style="font-size:20px;font-weight:800;color:#E65100">' + enBreakCount + '</div>';
   html += '<div style="font-size:10px;color:#9E9E9E;text-transform:uppercase">En break</div></div>';
   html += '</div>';
 
-  empleados.forEach(function(e,idx){
-    var bg = bgEmp(idx);
+  empleados.forEach(function(e, i){
+    var bg = bgEmp(i);
     var bs = brksPorEmp[e.id] || [];
-    var activo = bs.find(function(b){
-      var st = (b.estado||'').trim().toLowerCase();
-      return st.indexOf('en break')!==-1 && !b.horaFin;
-    });
+    var activo = null;
+    for(var k=0;k<bs.length;k++){
+      var st=(bs[k].estado||'').trim().toLowerCase();
+      if(st.indexOf('en break')!==-1 && !bs[k].horaFin){ activo=bs[k]; break; }
+    }
     var completados = bs.filter(function(b){ return !!b.horaFin; });
     var mins = activo ? _minsDesde(limpiarHora(activo.horaInicio||'')) : 0;
     var excede = mins > 12;
     var cargando = !!_brkCargando[e.id];
-    var borderColor = activo ? (excede ? '#C62828' : '#E65100') : (completados.length ? '#4CAF50' : '#E8EDF2');
+    var borderCol = activo ? (excede ? '#C62828' : '#E65100') : (completados.length ? '#4CAF50' : '#E8EDF2');
 
-    html += '<div class="brk-card" style="border-left:4px solid '+borderColor+';padding:12px 14px">';
+    html += '<div class="brk-card" style="border-left:4px solid ' + borderCol + ';padding:12px 14px">';
     html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">';
     html += '<div style="display:flex;align-items:center;gap:10px">';
-    html += '<div class="brk-av" style="background:'+bg+'">'+ini(e.nombre)+'</div>';
+    html += '<div class="brk-av" style="background:' + bg + '">' + ini(e.nombre) + '</div>';
     html += '<div>';
-    html += '<div class="brk-nom">'+e.nombre+'</div>';
+    html += '<div class="brk-nom">' + e.nombre + '</div>';
     if(activo){
-      html += '<div style="font-size:11px;color:'+(excede?'#C62828':'#E65100')+';font-weight:700">⏸ '+mins+'min'+(excede?' ⚠️ EXCEDIDO':'')+'</div>';
+      var clr = excede ? '#C62828' : '#E65100';
+      html += '<div style="font-size:11px;color:' + clr + ';font-weight:700">' + (excede?'\u26a0\ufe0f ':'\u23f8 ') + mins + 'min' + (excede?' EXCEDIDO':'') + '</div>';
     } else if(completados.length){
       var ult = completados[completados.length-1];
       var durUlt = parseInt(ult.duracion)||0;
-      html += '<div style="font-size:10px;color:#9E9E9E">Último: '+limpiarHora(ult.horaInicio)+(ult.horaFin?' → '+limpiarHora(ult.horaFin)+' ('+durUlt+'min)':'')+'</div>';
+      html += '<div style="font-size:10px;color:#9E9E9E">\u00DAltimo: ' + limpiarHora(ult.horaInicio) + (ult.horaFin?' \u2192 '+limpiarHora(ult.horaFin)+' ('+durUlt+'min)':'') + '</div>';
     } else {
       html += '<div style="font-size:10px;color:#BDBDBD">Sin breaks hoy</div>';
     }
     html += '</div></div>';
+
     if(cargando){
       html += '<div style="font-size:12px;color:#9E9E9E;min-width:80px;text-align:center">...</div>';
     } else if(activo){
-      html += '<button onclick="finalizarBreak(''+e.id+'')" style="background:'+(excede?'#C62828':'#D84315')+';color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;min-width:90px">⏹ Finalizar</button>';
+      var bgBtn = excede ? '#C62828' : '#D84315';
+      html += '<button data-eid="'+e.id+'" onclick="finalizarBreak(this.dataset.eid)" style="background:'+bgBtn+';color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;min-width:90px">\u23f9 Finalizar</button>';
     } else {
-      html += '<button onclick="iniciarBreak(''+e.id+'',''+e.nombre+'',this)" style="background:#1565C0;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;min-width:90px">▶ Break</button>';
+      html += '<button data-eid="'+e.id+'" data-enom="'+e.nombre.replace(/"/g,'')+'" onclick="iniciarBreak(this.dataset.eid,this.dataset.enom,this)" style="background:#1565C0;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;min-width:90px">\u25b6 Break</button>';
     }
     html += '</div>';
+
     if(completados.length){
       html += '<div style="border-top:1px solid #EEF1F5;margin-top:9px;padding-top:8px">';
       html += '<div style="font-size:10px;color:#9E9E9E;margin-bottom:5px;text-transform:uppercase">Historial hoy</div>';
       html += '<div style="display:flex;flex-wrap:wrap;gap:5px">';
-      completados.forEach(function(b,i){
-        var dur = parseInt(b.duracion)||0;
-        var bgH = dur>12?'#FFEBEE':'#E8F5E9'; var tcH = dur>12?'#C62828':'#2E7D32';
+      for(var j=0;j<completados.length;j++){
+        var b2 = completados[j];
+        var dur2 = parseInt(b2.duracion)||0;
+        var bgH = dur2>12 ? '#FFEBEE' : '#E8F5E9';
+        var tcH = dur2>12 ? '#C62828' : '#2E7D32';
         html += '<div style="background:'+bgH+';border-radius:6px;padding:4px 8px;font-size:10px;color:'+tcH+';font-weight:600">';
-        html += '#'+(i+1)+' '+limpiarHora(b.horaInicio)+'→'+limpiarHora(b.horaFin)+' '+dur+'min'+(dur>12?' ⚠':'')+'</div>';
-      });
+        html += '#'+(j+1)+' '+limpiarHora(b2.horaInicio)+'\u2192'+limpiarHora(b2.horaFin)+' '+dur2+'min'+(dur2>12?' \u26a0':'')+'</div>';
+      }
       html += '</div></div>';
     }
     html += '</div>';
