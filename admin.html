@@ -1880,23 +1880,42 @@ function iniciarAseoAdmin(){
   obtenerHorarioAdmin(function(){ cargarAseoAdmin(); });
 }
 
-// Carga HORARIO_ASEO desde el backend (Sheet); llama cb() al terminar
+// Carga HORARIO_ASEO leyendo el Sheet HorarioAseo directamente via CSV export
+var _SHEET_ID_HORARIO = '1Hl7pP4HreFj91_dCDRMQaGvP2octaZIzVQTC5qWEmNM';
+function _parsearCSVHorario(csv){
+  var nuevoHor={};
+  var lineas=csv.split('\n');
+  for(var i=1;i<lineas.length;i++){
+    var l=lineas[i].trim(); if(!l) continue;
+    // split por coma pero respeta comillas
+    var cols=[];var cur='';var inQ=false;
+    for(var c=0;c<l.length;c++){
+      var ch=l[c];
+      if(ch==='"'){inQ=!inQ;}
+      else if(ch===','&&!inQ){cols.push(cur.replace(/^"|"$/g,'').trim());cur='';}
+      else{cur+=ch;}
+    }
+    cols.push(cur.replace(/^"|"$/g,'').trim());
+    var nom=(cols[0]||'').trim();
+    var dia=(cols[1]||'').trim();
+    var tarea=(cols[2]||'').trim();
+    if(!nom||!dia) continue;
+    if(!nuevoHor[nom]) nuevoHor[nom]={};
+    if(nuevoHor[nom][dia]){
+      if(!Array.isArray(nuevoHor[nom][dia])) nuevoHor[nom][dia]=[nuevoHor[nom][dia]];
+      nuevoHor[nom][dia].push(tarea);
+    } else { nuevoHor[nom][dia]=tarea; }
+  }
+  return nuevoHor;
+}
 function obtenerHorarioAdmin(cb){
-  if(Object.keys(HORARIO_ASEO).length>0){if(cb)cb();return;} // ya cargado
-  fetch(PROXY+'?action=getAllHorarioAseo')
-    .then(function(r){return r.json();})
-    .then(function(d){
-      var nuevoHor={};
-      (d.horario||[]).forEach(function(r){
-        var nom=r.nombre||''; var dia=r.dia||''; var tarea=r.tarea||'';
-        if(!nom||!dia) return;
-        if(!nuevoHor[nom]) nuevoHor[nom]={};
-        if(nuevoHor[nom][dia]){
-          if(!Array.isArray(nuevoHor[nom][dia])) nuevoHor[nom][dia]=[nuevoHor[nom][dia]];
-          nuevoHor[nom][dia].push(tarea);
-        } else { nuevoHor[nom][dia]=tarea; }
-      });
-      HORARIO_ASEO=nuevoHor;
+  if(Object.keys(HORARIO_ASEO).length>0){if(cb)cb();return;}
+  // Leer Sheet directamente como CSV (no requiere autenticación si el Sheet es compartido)
+  var url='https://docs.google.com/spreadsheets/d/'+_SHEET_ID_HORARIO+'/gviz/tq?tqx=out:csv&sheet=HorarioAseo';
+  fetch(url)
+    .then(function(r){return r.text();})
+    .then(function(csv){
+      HORARIO_ASEO=_parsearCSVHorario(csv);
       if(cb)cb();
     })
     .catch(function(){if(cb)cb();});
@@ -2016,40 +2035,23 @@ function cargarHorarioAseoAdmin(){
   var msgEl=document.getElementById('horario-aseo-msg');
   if(tabEl) tabEl.innerHTML='<div class="empty">Cargando horario del Sheet...</div>';
   if(msgEl) msgEl.style.display='none';
-  var url=PROXY+'?action=getAllHorarioAseo';
+  HORARIO_ASEO={}; // forzar recarga fresca
+  var url='https://docs.google.com/spreadsheets/d/'+_SHEET_ID_HORARIO+'/gviz/tq?tqx=out:csv&sheet=HorarioAseo&t='+Date.now();
   fetch(url)
     .then(function(r){
       if(!r.ok) throw new Error('HTTP '+r.status);
-      return r.json();
+      return r.text();
     })
-    .then(function(data){
-      console.log('getAllHorarioAseo:', JSON.stringify(data).substring(0,200));
-      var filas = data.horario || [];
-      if(!filas.length){
-        if(tabEl) tabEl.innerHTML='<div class="empty" style="color:#E65100">⚠️ El Sheet HorarioAseo está vacío.<br>Respuesta del servidor: '+JSON.stringify(data).substring(0,150)+'</div>';
-        return;
-      }
-      var nuevoHor={};
-      filas.forEach(function(r){
-        var nom=(r.nombre||r.Nombre||'').trim();
-        var dia=(r.dia||r.Dia||'').trim();
-        var tarea=(r.tarea||r.Tarea||'').trim();
-        if(!nom||!dia) return;
-        if(!nuevoHor[nom]) nuevoHor[nom]={};
-        if(nuevoHor[nom][dia]){
-          if(!Array.isArray(nuevoHor[nom][dia])) nuevoHor[nom][dia]=[nuevoHor[nom][dia]];
-          nuevoHor[nom][dia].push(tarea);
-        } else { nuevoHor[nom][dia]=tarea; }
-      });
-      HORARIO_ASEO=nuevoHor;
+    .then(function(csv){
+      HORARIO_ASEO=_parsearCSVHorario(csv);
       if(!Object.keys(HORARIO_ASEO).length){
-        if(tabEl) tabEl.innerHTML='<div class="empty" style="color:#E65100">⚠️ Se recibieron '+filas.length+' filas pero ninguna válida</div>';
+        if(tabEl) tabEl.innerHTML='<div class="empty" style="color:#E65100">⚠️ El Sheet HorarioAseo está vacío o no tiene datos válidos.<br><small>Verifica que la hoja se llame exactamente "HorarioAseo" y tenga columnas Nombre, Dia, Tarea</small></div>';
         return;
       }
       renderTablaHorario();
     })
     .catch(function(e){
-      if(tabEl) tabEl.innerHTML='<div class="empty" style="color:#C62828">❌ Error: '+e.message+'</div>';
+      if(tabEl) tabEl.innerHTML='<div class="empty" style="color:#C62828">❌ Error al leer Sheet: '+e.message+'<br><small>Asegúrate de que el Sheet esté compartido como "Cualquier persona con el enlace puede ver"</small></div>';
     });
 }
 
