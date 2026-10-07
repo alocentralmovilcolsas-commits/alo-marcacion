@@ -1825,27 +1825,8 @@ function load(txt){document.getElementById('ltxt').textContent=txt||'Cargando...
 function unload(){document.getElementById('load').classList.remove('on');}
 
 // ── ADMIN: MODULO ASEO ───────────────────────────────────────────────
-var HORARIO_ASEO = {
-  'Juliana Marcela Sanchez':{'Lunes':'Organizar módulo caja','Miércoles':'Organizar módulo caja'},
-  'Maryory Channel Salazar':{'Martes':'Limpiar vidrios fachada y vitrinas','Miércoles':'Lavar canecas de basura y 5 trapos','Jueves':'Sacar basura del baño','Viernes':'Lavar baño','Sábado':'Aseo mañana local y escaleras'},
-  'Brenda Carolina Lopez':{'Lunes':'Sacar basura del baño','Martes':'Lavar baño','Jueves':'Sacar la basura','Viernes':'Barrer afuera','Sábado':'Aseo mañana local y escaleras'},
-  'Juan Fernando Parra':{'Lunes':'Aseo mañana local y escaleras','Martes':'Barrer afuera','Miércoles':'Limpiar vidrios fachada y vitrinas','Sábado':'Aseo tarde local y escaleras'},
-  'Luisa Fernanda Diaz':{'Lunes':'Barrer afuera','Martes':'Aseo mañana local y escaleras','Miércoles':'Sacar basura del baño','Jueves':'Lavar baño','Viernes':'Aseo tarde local y escaleras','Sábado':'Lavar el tanque y 5 trapos'},
-  'Brayner Ernesto Botia':{'Lunes':'Sacar la basura','Martes':'Barrer afuera','Miércoles':'Aseo mañana local y escaleras','Jueves':'Aseo tarde local y escaleras','Viernes':'Sacar la basura'},
-  'Santiago Moscoso Muñoz':{'Martes':'Aseo tarde local y escaleras','Miércoles':'Sacar la basura','Jueves':'Aseo mañana local y escaleras','Viernes':'Sacar basura del baño','Sábado':'Barrer afuera'},
-  'Juan Esteban Cepeda':{'Lunes':'Aseo tarde local y escaleras','Martes':'Sacar la basura','Jueves':'Barrer afuera','Viernes':'Aseo mañana local y escaleras','Sábado':'Sacar basura del baño'},
-  'Juan Carlos Cepeda':{'Miércoles':'Aseo tarde local y escaleras','Sábado':'Sacar la basura'},
-  'Silvia Alejandra Blanco':{'Lunes':'Lavar baño','Martes':'Lavar canecas de basura y 5 trapos'},
-  'Camilo Alexander Alfonso':{'Lunes':'Lavar el tanque y 5 trapos','Miércoles':'Lavar baño','Viernes':'Lavar canecas de basura y 5 trapos'},
-  'Fabián Stiven Mendoza':{
-    'Lunes':    ['Aseo servicio técnico mañana','Aseo servicio técnico tarde'],
-    'Martes':   ['Aseo servicio técnico mañana','Aseo servicio técnico tarde'],
-    'Miércoles':['Aseo servicio técnico mañana','Aseo servicio técnico tarde'],
-    'Jueves':   ['Aseo servicio técnico mañana','Aseo servicio técnico tarde'],
-    'Viernes':  ['Aseo servicio técnico mañana','Aseo servicio técnico tarde'],
-    'Sábado':   ['Aseo servicio técnico mañana','Aseo servicio técnico tarde','Lavar baño']
-  }
-};
+// HORARIO_ASEO se carga desde el Sheet (no hardcodeado)
+var HORARIO_ASEO = {};
 var DIAS_ASEO=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 var aseoVistaActual='diario';
 
@@ -1895,17 +1876,44 @@ function iniciarAseoAdmin(){
   document.getElementById('aseo-fecha').value=hoy;
   document.getElementById('aseo-fecha-sem').value=hoy;
   aseoVista('diario',0);
-  cargarAseoAdmin();
+  // Cargar horario del Sheet primero, luego mostrar aseo diario
+  obtenerHorarioAdmin(function(){ cargarAseoAdmin(); });
+}
+
+// Carga HORARIO_ASEO desde el backend (Sheet); llama cb() al terminar
+function obtenerHorarioAdmin(cb){
+  if(Object.keys(HORARIO_ASEO).length>0){if(cb)cb();return;} // ya cargado
+  fetch(PROXY+'?action=getAllHorarioAseo')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var nuevoHor={};
+      (d.horario||[]).forEach(function(r){
+        var nom=r.nombre||''; var dia=r.dia||''; var tarea=r.tarea||'';
+        if(!nom||!dia) return;
+        if(!nuevoHor[nom]) nuevoHor[nom]={};
+        if(nuevoHor[nom][dia]){
+          if(!Array.isArray(nuevoHor[nom][dia])) nuevoHor[nom][dia]=[nuevoHor[nom][dia]];
+          nuevoHor[nom][dia].push(tarea);
+        } else { nuevoHor[nom][dia]=tarea; }
+      });
+      HORARIO_ASEO=nuevoHor;
+      if(cb)cb();
+    })
+    .catch(function(){if(cb)cb();});
 }
 
 function cargarAseoAdmin(){
   var raw=document.getElementById('aseo-fecha').value;
   if(!raw){document.getElementById('lista-aseo').innerHTML='<div class="empty">Selecciona una fecha</div>';return;}
+  if(!Object.keys(HORARIO_ASEO).length){
+    obtenerHorarioAdmin(function(){cargarAseoAdmin();});
+    return;
+  }
   var parts=raw.split('-');
   var fecha=parts[2]+'/'+parts[1]+'/'+parts[0];
-  // Detectar dia de la semana
+  // Detectar dia de la semana (los días accentuados deben coincidir con el horario)
   var dateObj=new Date(raw+'T12:00:00');
-  var diasNom=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+  var diasNom=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   var diaHoy=diasNom[dateObj.getDay()];
   var el=document.getElementById('lista-aseo');
   el.innerHTML='<div class="empty">Cargando...</div>';
@@ -1962,6 +1970,11 @@ function cargarAseoSemanal(){
   if(!raw){document.getElementById('lista-aseo-sem').innerHTML='<div class="empty">Selecciona una fecha</div>';return;}
   var el=document.getElementById('lista-aseo-sem');
   el.innerHTML='<div class="empty">Cargando semana...</div>';
+  // Asegurar que el horario esté cargado antes de renderizar
+  if(!Object.keys(HORARIO_ASEO).length){obtenerHorarioAdmin(function(){_cargarAseoSemanalInner(raw,el);});return;}
+  _cargarAseoSemanalInner(raw,el);
+}
+function _cargarAseoSemanalInner(raw,el){
   // Calcular lunes de la semana
   var d=new Date(raw+'T12:00:00');
   var dow=d.getDay(); // 0=dom
@@ -2000,28 +2013,27 @@ function cargarAseoSemanal(){
 
 function cargarHorarioAseoAdmin(){
   document.getElementById('tabla-horario-aseo').innerHTML='<div class="empty">Cargando horario...</div>';
+  document.getElementById('horario-aseo-msg').style.display='none';
   fetch(PROXY+'?action=getAllHorarioAseo')
     .then(function(r){return r.json();})
     .then(function(data){
-      if(data && data.horario && data.horario.length){
-        // Construir HORARIO_ASEO desde los datos de Sheets
-        var nuevoHor={};
-        data.horario.forEach(function(r){
-          var nom=r.nombre||'';var dia=r.dia||'';var tarea=r.tarea||'';
-          if(!nom||!dia) return;
-          if(!nuevoHor[nom]) nuevoHor[nom]={};
-          // Soporte múltiples tareas por día
-          if(nuevoHor[nom][dia]){
-            if(!Array.isArray(nuevoHor[nom][dia])) nuevoHor[nom][dia]=[nuevoHor[nom][dia]];
-            nuevoHor[nom][dia].push(tarea);
-          } else { nuevoHor[nom][dia]=tarea; }
-        });
-        HORARIO_ASEO=nuevoHor;
-      }
-      // Si no hay datos en Sheets, usa el hardcoded de respaldo que ya está en HORARIO_ASEO
+      // Siempre reconstruir desde el Sheet (nunca fallback hardcodeado)
+      var nuevoHor={};
+      (data.horario||[]).forEach(function(r){
+        var nom=r.nombre||''; var dia=r.dia||''; var tarea=r.tarea||'';
+        if(!nom||!dia) return;
+        if(!nuevoHor[nom]) nuevoHor[nom]={};
+        if(nuevoHor[nom][dia]){
+          if(!Array.isArray(nuevoHor[nom][dia])) nuevoHor[nom][dia]=[nuevoHor[nom][dia]];
+          nuevoHor[nom][dia].push(tarea);
+        } else { nuevoHor[nom][dia]=tarea; }
+      });
+      HORARIO_ASEO=nuevoHor;
       renderTablaHorario();
     })
-    .catch(function(){ renderTablaHorario(); }); // fallback: render con datos locales
+    .catch(function(e){
+      document.getElementById('tabla-horario-aseo').innerHTML='<div class="empty" style="color:#C62828">Error al cargar horario: '+e.message+'</div>';
+    });
 }
 
 function renderTablaHorario(){
