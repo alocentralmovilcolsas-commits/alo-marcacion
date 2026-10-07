@@ -6,7 +6,7 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const BACKEND = 'https://script.google.com/macros/s/AKfycbzA0EFu3QWwx972lS-mtfyqCfpePXENpQJ4OTU3zOmyoMH5V-NHs8xsMgu_IF3wuPVNtQ/exec';
+const BACKEND = 'https://script.google.com/macros/s/AKfycbwMUuAQJY-hMh72KkZTz0LF0DrbVGhI-WllDFPthZ5VV_WbAblpTa3-35QEDsGwU4mnuA/exec';
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
