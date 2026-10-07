@@ -413,6 +413,26 @@ var CAM = null;
 var CL = ['#E53935','#D81B60','#8E24AA','#3949AB','#1E88E5','#00897B','#43A047','#FB8C00','#F4511E','#6D4C41','#546E7A','#00ACC1'];
 var marcHoy = {}; // estado marcacion hoy por empleado
 
+// ── Compresión de fotos ──────────────────────────────────────────────
+var MAX_FOTO_PX = 480;
+var FOTO_CALIDAD = 0.6;
+
+function comprimirCanvas(canvasSrc) {
+  var w = canvasSrc.width  || 640;
+  var h = canvasSrc.height || 480;
+  var escala = 1;
+  if (w > MAX_FOTO_PX || h > MAX_FOTO_PX) {
+    escala = Math.min(MAX_FOTO_PX / w, MAX_FOTO_PX / h);
+  }
+  var nw = Math.round(w * escala);
+  var nh = Math.round(h * escala);
+  var c2 = document.createElement('canvas');
+  c2.width  = nw;
+  c2.height = nh;
+  c2.getContext('2d').drawImage(canvasSrc, 0, 0, nw, nh);
+  return c2.toDataURL('image/jpeg', FOTO_CALIDAD);
+}
+
 function p2(v){return String(v).padStart(2,'0');}
 
 // Limpia hora: si el backend devuelve "Sat Dec 30 1899 17:35:00 GMT..." extrae HH:mm
@@ -666,15 +686,18 @@ function tomarFoto(){
   var c=document.createElement('canvas');
   c.width=v.videoWidth||640; c.height=v.videoHeight||480;
   c.getContext('2d').drawImage(v,0,0);
-  E.foto=c.toDataURL('image/jpeg',0.8);
-  // Guardar foto individual por tipo
+
+  // Comprimir antes de guardar
+  E.foto=comprimirCanvas(c);
+
   if(E.tipo==='Entrada') E.fotoEntrada=E.foto;
   else if(E.tipo==='Salida almuerzo') E.fotoSalidaAlm=E.foto;
   else if(E.tipo==='Regreso almuerzo') E.fotoRegresoAlm=E.foto;
   else if(E.tipo==='Salida') E.fotoSalida=E.foto;
+
   document.getElementById('prv').src=E.foto;
   document.getElementById('prv').style.display='block';
-  v.style.display='none';
+  document.getElementById('vid').style.display='none';
   document.getElementById('cov').style.display='none';
   document.getElementById('cok').style.display='block';
   document.getElementById('cret').style.display='block';
@@ -683,20 +706,21 @@ function tomarFoto(){
 }
 
 function retomar(){
+  E.foto='';
   document.getElementById('prv').style.display='none';
   document.getElementById('vid').style.display='block';
   document.getElementById('cov').style.display='flex';
   document.getElementById('cok').style.display='none';
   document.getElementById('cret').style.display='none';
   document.getElementById('bcont').disabled=true;
-  E.foto=''; iniciarCam();
+  iniciarCam();
 }
 
 function verResumen(){
   var n=new Date();
-  var dias='Domingo,Lunes,Martes,Miercoles,Jueves,Viernes,Sabado'.split(',');
-  var meses='enero,febrero,marzo,abril,mayo,junio,julio,agosto,septiembre,octubre,noviembre,diciembre'.split(',');
-  document.getElementById('rn').textContent=E.nom+' ('+E.id+')';
+  var dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  var meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  document.getElementById('rn').textContent=E.nom;
   document.getElementById('rt').textContent=E.tipo;
   document.getElementById('rh').textContent=p2(n.getHours())+':'+p2(n.getMinutes());
   document.getElementById('rf').textContent=dias[n.getDay()]+' '+n.getDate()+' de '+meses[n.getMonth()];
@@ -993,7 +1017,10 @@ function tomarFotoAseo(){
   var c=document.createElement('canvas');
   c.width=v.videoWidth||640;c.height=v.videoHeight||480;
   c.getContext('2d').drawImage(v,0,0);
-  ASEO_FOTO=c.toDataURL('image/jpeg',0.8);
+
+  // Comprimir antes de guardar
+  ASEO_FOTO=comprimirCanvas(c);
+
   document.getElementById('prv-aseo').src=ASEO_FOTO;
   document.getElementById('prv-aseo').style.display='block';
   v.style.display='none';
